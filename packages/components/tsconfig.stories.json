@@ -2,14 +2,14 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": ["vite/client", "node"],
+    "types": ["vite/client"],
     "rootDir": ".",
-    "outDir": "./node_modules/.cache/tsc-tests",
+    "outDir": "./node_modules/.cache/tsc-stories",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
-    "tsBuildInfoFile": "./node_modules/.cache/tsc-tests/tsconfig.tests.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.cache/tsc-stories/tsconfig.stories.tsbuildinfo",
     "jsx": "react-jsx",
     "emitDeclarationOnly": true
   },
-  "include": ["**/__tests__/"],
+  "include": ["./src/*.stories.tsx", "./src/*.stories.ts", "./.storybook/preview.ts"],
   "exclude": ["**/node_modules/"]
 }

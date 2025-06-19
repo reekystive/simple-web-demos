@@ -19,8 +19,8 @@
     "./.*.mjs",
     "./*.cjs",
     "./.*.cjs",
-    ".storybook/main.ts",
-    ".storybook/manager.ts"
+    "./.storybook/main.ts",
+    "./.storybook/manager.ts"
   ],
   "exclude": []
 }

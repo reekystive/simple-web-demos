@@ -8,6 +8,9 @@
       "path": "./tsconfig.node.json"
     },
     {
+      "path": "./tsconfig.stories.json"
+    },
+    {
       "path": "./tsconfig.tests.json"
     },
     {

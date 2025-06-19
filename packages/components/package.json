@@ -16,11 +16,11 @@
     }
   },
   "scripts": {
-    "build": "pnpm run lint:tsc && vite build",
+    "build": "tsc --build tsconfig.web.json",
     "build:storybook": "pnpm run lint:tsc && storybook build",
     "dev": "storybook dev --no-open --port 6009",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
-    "lint:tsc": "tsc --build tsconfig.json",
+    "lint:tsc": "tsc --build tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:update": "vitest run --update",
