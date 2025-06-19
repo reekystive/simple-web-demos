@@ -2,6 +2,8 @@ packages:
   - packages/*
   - apps/*
 
+catalogMode: strict
+
 catalog:
   typescript: ^5.8.3
   vite: ^6.3.5
@@ -31,8 +33,6 @@ catalog:
   prettier-plugin-organize-imports: ^4.1.0
   prettier-plugin-tailwindcss: ^0.6.12
   typescript-eslint: ^8.33.1
-
-catalogMode: strict
 
 catalogs:
   react19:
