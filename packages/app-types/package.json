@@ -1,0 +1,20 @@
+{
+  "name": "@monorepo/app-types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./app-types.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
+    "lint:tsc": "tsc --build tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:^",
+    "vite": "catalog:"
+  }
+}

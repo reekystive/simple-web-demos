@@ -25,6 +25,7 @@
     "react-dom": "catalog:react19"
   },
   "devDependencies": {
+    "@monorepo/app-types": "workspace:^",
     "@monorepo/tsconfig": "workspace:^",
     "@tailwindcss/vite": "catalog:tailwindcss4",
     "@types/node": "catalog:",

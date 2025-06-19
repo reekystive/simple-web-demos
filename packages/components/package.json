@@ -16,7 +16,7 @@
     }
   },
   "scripts": {
-    "build": "tsc --build tsconfig.web.json",
+    "build": "tsc --build tsconfig.json",
     "build:storybook": "pnpm run lint:tsc && storybook build",
     "dev": "storybook dev --no-open --port 6009",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "catalog:",
+    "@monorepo/app-types": "workspace:^",
     "@monorepo/tsconfig": "workspace:^",
     "@storybook/builder-vite": "catalog:storybook9",
     "@storybook/react-vite": "catalog:storybook9",
@@ -47,7 +48,6 @@
     "react-dom": "catalog:react19",
     "storybook": "catalog:storybook9",
     "typescript": "catalog:",
-    "unplugin-dts": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
