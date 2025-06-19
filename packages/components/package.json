@@ -1,0 +1,59 @@
+{
+  "name": "@monorepo/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": null
+    }
+  },
+  "scripts": {
+    "build": "pnpm run lint:tsc && vite build",
+    "build:storybook": "pnpm run lint:tsc && storybook build",
+    "dev": "storybook dev --no-open --port 6009",
+    "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
+    "lint:tsc": "tsc --build tsconfig.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:update": "vitest run --update",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "@monorepo/utils": "workspace:*",
+    "motion": "catalog:",
+    "react-scan": "catalog:",
+    "usehooks-ts": "catalog:"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "catalog:",
+    "@monorepo/tsconfig": "workspace:^",
+    "@storybook/builder-vite": "catalog:storybook9",
+    "@storybook/react-vite": "catalog:storybook9",
+    "@tailwindcss/vite": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react-swc": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:storybook9",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-dts": "catalog:",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  }
+}

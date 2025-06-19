@@ -9,6 +9,7 @@ node_modules/
 # Build artifacts
 dist/
 dist-ssr/
+storybook-static/
 *.local
 
 # Editor directories and files
@@ -19,3 +20,5 @@ dist-ssr/
 
 # macOS
 .DS_Store
+
+workspace-tmp/

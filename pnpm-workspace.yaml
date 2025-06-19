@@ -1,6 +1,6 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
+  - packages/*
+  - apps/*
 
 catalog:
   typescript: ^5.8.3
@@ -15,3 +15,25 @@ catalog:
   '@types/react-dom': ^19.1.5
   '@types/node': ^22.15.29
   '@tailwindcss/vite': ^4.1.8
+  motion: ^12.18.1
+  react-scan: ^0.3.4
+  usehooks-ts: ^3.1.1
+  unplugin-dts: 1.0.0-beta.0
+  '@microsoft/api-extractor': ^7.52.8
+
+catalogs:
+  storybook9:
+    storybook: ^9.0.9
+    '@storybook/builder-vite': ^9.0.9
+    '@storybook/react-vite': ^9.0.9
+    eslint-plugin-storybook: ^9.0.9
+
+patchedDependencies:
+  unplugin-dts: patches/unplugin-dts.patch
+  eslint-plugin-storybook: patches/eslint-plugin-storybook.patch
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
+  - esbuild

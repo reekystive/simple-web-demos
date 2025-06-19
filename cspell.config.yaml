@@ -1,13 +1,17 @@
 words:
   - avenir
   - clsx
+  - esbuild
   - grayscale
   - nodenext
   - reekystive
+  - unplugin
+  - usehooks
   - Vite
   - vitejs
   - Vitest
   - WCAG
+  - webp
 flagWords:
   - blacklist -> blocklist
   - whitelist -> allowlist

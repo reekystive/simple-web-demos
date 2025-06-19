@@ -5,12 +5,19 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
+import storybook from 'eslint-plugin-storybook';
 import globals from 'globals';
 import { fileURLToPath } from 'node:url';
 import tsEslint from 'typescript-eslint';
 
 /** @type {string[]} */
 const TS_FILES = ['**/{,.}*.{,c,m}{j,t}s{,x}'];
+
+/** @type {string[]} */
+const STORYBOOK_FILES = ['**/{,.}*.stories.{,c,m}{j,t}s{,x}'];
+
+/** @type {string[]} */
+const STORYBOOK_MAIN_FILES = ['**/.storybook/main.{,c,m}{j,t}s'];
 
 const typescriptConfigs = /** @type {import('eslint').Linter.Config[]} */ (
   tsEslint.config({
@@ -34,7 +41,7 @@ const typescriptConfigs = /** @type {import('eslint').Linter.Config[]} */ (
  */
 const eslintConfig = [
   // config for all
-  { ignores: ['**/node_modules/', '**/dist/'] },
+  { ignores: ['**/node_modules/', '**/dist/', '**/storybook-static/'] },
   { linterOptions: { reportUnusedDisableDirectives: true } },
 
   // config for javascript/typescript code
@@ -62,6 +69,20 @@ const eslintConfig = [
     settings: {
       react: { version: '19.1.0' },
     },
+  },
+  {
+    files: STORYBOOK_MAIN_FILES,
+    plugins: {
+      storybook: /** @type {any} */ (storybook),
+    },
+    ...storybook.configs['flat/recommended'][2],
+  },
+  {
+    files: STORYBOOK_FILES,
+    plugins: {
+      storybook: /** @type {any} */ (storybook),
+    },
+    ...storybook.configs['flat/recommended'][1],
   },
   {
     files: TS_FILES,
