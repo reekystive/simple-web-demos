@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm -r --workspace-concurrency -1 run build",
+    "build": "tsc --build tsconfig.json",
     "lint:eslint": "pnpm -r --workspace-concurrency -1 run lint:eslint",
     "lint:tsc": "pnpm -r --workspace-concurrency -1 run lint:tsc",
     "test": "pnpm -r --workspace-concurrency -1 run test",
