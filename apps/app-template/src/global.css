@@ -1,5 +1,4 @@
-/* eslint-disable-next-line css/use-layers */
-@import 'tailwindcss';
+@import '@monorepo/tailwindcss/tailwindcss.css';
 
 @layer base {
   :root {

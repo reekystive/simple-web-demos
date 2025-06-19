@@ -18,18 +18,18 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:^",
-    "@tailwindcss/vite": "catalog:",
+    "@tailwindcss/vite": "catalog:tailwindcss4",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
     "@vitejs/plugin-react-swc": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:",

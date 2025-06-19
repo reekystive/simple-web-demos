@@ -1,0 +1,14 @@
+{
+  "name": "@monorepo/tailwindcss",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tailwindcss.css": {
+      "default": "./tailwindcss.css"
+    }
+  },
+  "dependencies": {
+    "tailwindcss": "catalog:tailwindcss4"
+  }
+}
