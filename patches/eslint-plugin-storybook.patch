@@ -3,17 +3,10 @@ similarity index 100%
 rename from dist/index.d.ts
 rename to dist/index.d.mts
 diff --git a/package.json b/package.json
-index 8433f2fb72917f3c2d488357901b981b4e38c108..8dec3dd74abe36b1b4ffdd6772e3df27cd5391d2 100644
+index 8433f2fb72917f3c2d488357901b981b4e38c108..5c1c81461fd8473c7b9360318bf82e5b58df7019 100644
 --- a/package.json
 +++ b/package.json
-@@ -1,5 +1,6 @@
- {
-   "name": "eslint-plugin-storybook",
-+  "type": "module",
-   "version": "9.0.12",
-   "description": "Best practice rules for Storybook",
-   "keywords": [
-@@ -25,7 +26,7 @@
+@@ -25,7 +25,7 @@
        "email": "rafaelrozon.developer@gmail.com"
      }
    ],

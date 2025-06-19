@@ -72,7 +72,7 @@ catalogs:
 
 patchedDependencies:
   eslint-plugin-storybook:
-    hash: cd54da34c8d2e55d2b000f8fd7c691967cdde77689aff7095071225736fa8835
+    hash: 1bac842ade927bb41d40507048f725a59e4cbbb6964bf5b4c7c2e8504008add9
     path: patches/eslint-plugin-storybook.patch
 
 importers:
@@ -120,7 +120,7 @@ importers:
         version: 0.4.20(eslint@9.28.0(jiti@2.4.2))
       eslint-plugin-storybook:
         specifier: catalog:storybook9
-        version: 9.0.12(patch_hash=cd54da34c8d2e55d2b000f8fd7c691967cdde77689aff7095071225736fa8835)(eslint@9.28.0(jiti@2.4.2))(storybook@9.0.12(@testing-library/dom@10.4.0)(prettier@3.5.3))(typescript@5.8.3)
+        version: 9.0.12(patch_hash=1bac842ade927bb41d40507048f725a59e4cbbb6964bf5b4c7c2e8504008add9)(eslint@9.28.0(jiti@2.4.2))(storybook@9.0.12(@testing-library/dom@10.4.0)(prettier@3.5.3))(typescript@5.8.3)
       globals:
         specifier: ^16.2.0
         version: 16.2.0
@@ -5457,7 +5457,7 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-storybook@9.0.12(patch_hash=cd54da34c8d2e55d2b000f8fd7c691967cdde77689aff7095071225736fa8835)(eslint@9.28.0(jiti@2.4.2))(storybook@9.0.12(@testing-library/dom@10.4.0)(prettier@3.5.3))(typescript@5.8.3):
+  eslint-plugin-storybook@9.0.12(patch_hash=1bac842ade927bb41d40507048f725a59e4cbbb6964bf5b4c7c2e8504008add9)(eslint@9.28.0(jiti@2.4.2))(storybook@9.0.12(@testing-library/dom@10.4.0)(prettier@3.5.3))(typescript@5.8.3):
     dependencies:
       '@typescript-eslint/utils': 8.34.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
       eslint: 9.28.0(jiti@2.4.2)
