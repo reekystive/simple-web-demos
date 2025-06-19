@@ -11,26 +11,26 @@
     "test:update": "pnpm -r --workspace-concurrency -1 run test:update"
   },
   "devDependencies": {
-    "@cspell/eslint-plugin": "^9.0.2",
-    "@eslint/css": "^0.8.1",
-    "@eslint/js": "^9.28.0",
+    "@cspell/eslint-plugin": "catalog:",
+    "@eslint/css": "catalog:",
+    "@eslint/js": "catalog:",
     "@monorepo/tsconfig": "workspace:^",
-    "@types/eslint": "^9.6.1",
-    "@types/eslint-config-prettier": "^6.11.3",
+    "@types/eslint": "catalog:",
+    "@types/eslint-config-prettier": "catalog:",
     "@types/node": "catalog:",
-    "eslint": "^9.28.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.4.1",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "eslint-plugin-react": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "eslint-plugin-react-refresh": "catalog:",
     "eslint-plugin-storybook": "catalog:storybook9",
-    "globals": "^16.2.0",
-    "prettier": "^3.5.3",
-    "prettier-plugin-organize-imports": "^4.1.0",
-    "prettier-plugin-tailwindcss": "^0.6.12",
+    "globals": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-organize-imports": "catalog:",
+    "prettier-plugin-tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "^8.33.1"
+    "typescript-eslint": "catalog:"
   },
-  "packageManager": "pnpm@10.8.1"
+  "packageManager": "pnpm@10.12.1"
 }

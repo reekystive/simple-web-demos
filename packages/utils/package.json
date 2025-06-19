@@ -22,8 +22,8 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^3.3.0"
+    "clsx": "catalog:",
+    "tailwind-merge": "catalog:"
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:^",
