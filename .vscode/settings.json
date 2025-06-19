@@ -26,5 +26,6 @@
   },
   "[tailwindcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "tailwindCSS.experimental.configFile": "packages/tailwindcss/tailwindcss.css"
 }

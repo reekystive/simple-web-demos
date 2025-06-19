@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/storybook",
+  "name": "@monorepo/components",
   "version": "0.0.0",
   "private": true,
   "sideEffects": [
