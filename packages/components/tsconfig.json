@@ -14,7 +14,10 @@
       "path": "./tsconfig.tests.json"
     },
     {
-      "path": "./node_modules/@monorepo/utils/tsconfig.json",
+      "path": "./node_modules/@monorepo/utils/tsconfig.json"
+    },
+    {
+      "path": "./node_modules/@monorepo/app-types/tsconfig.json"
     }
   ]
 }
