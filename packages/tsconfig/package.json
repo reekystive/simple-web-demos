@@ -1,0 +1,17 @@
+{
+  "name": "@monorepo/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": {
+      "default": "./tsconfig.base.json"
+    },
+    "./tsconfig.node.json": {
+      "default": "./tsconfig.node.json"
+    },
+    "./tsconfig.web.json": {
+      "default": "./tsconfig.web.json"
+    }
+  }
+}

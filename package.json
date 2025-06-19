@@ -1,0 +1,35 @@
+{
+  "name": "simple-web-demos",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r --workspace-concurrency -1 run build",
+    "lint:eslint": "pnpm -r --workspace-concurrency -1 run lint:eslint",
+    "lint:tsc": "pnpm -r --workspace-concurrency -1 run lint:tsc",
+    "test": "pnpm -r --workspace-concurrency -1 run test",
+    "test:update": "pnpm -r --workspace-concurrency -1 run test:update"
+  },
+  "devDependencies": {
+    "@cspell/eslint-plugin": "^9.0.2",
+    "@eslint/css": "^0.8.1",
+    "@eslint/js": "^9.28.0",
+    "@monorepo/tsconfig": "workspace:^",
+    "@types/eslint": "^9.6.1",
+    "@types/eslint-config-prettier": "^6.11.3",
+    "@types/node": "catalog:",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.2.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-tailwindcss": "^0.6.12",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.33.1"
+  },
+  "packageManager": "pnpm@10.8.1"
+}
