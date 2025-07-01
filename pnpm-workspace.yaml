@@ -2,8 +2,6 @@ packages:
   - packages/*
   - apps/*
 
-catalogMode: strict
-
 catalog:
   typescript: ^5.8.3
   vite: ^6.3.5
@@ -12,7 +10,7 @@ catalog:
   '@vitejs/plugin-react-swc': ^3.10.1
   '@types/node': ^22.15.29
   motion: ^12.18.1
-  react-scan: ^0.3.4
+  react-scan: 0.3.4
   usehooks-ts: ^3.1.1
   '@microsoft/api-extractor': ^7.52.8
   clsx: 2.1.1
@@ -33,6 +31,11 @@ catalog:
   prettier-plugin-organize-imports: ^4.1.0
   prettier-plugin-tailwindcss: ^0.6.12
   typescript-eslint: ^8.33.1
+  '@storybook/react-vite': 9.0.15
+  '@storybook/builder-vite': ^9.0.15
+  storybook: ^9.0.15
+
+catalogMode: strict
 
 catalogs:
   react19:
