@@ -9,6 +9,6 @@
     }
   },
   "dependencies": {
-    "tailwindcss": "catalog:tailwindcss4"
+    "tailwindcss": "catalog:"
   }
 }

@@ -21,16 +21,16 @@
     "@monorepo/components": "workspace:^",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
-    "react": "catalog:react19",
-    "react-dom": "catalog:react19"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@monorepo/app-types": "workspace:^",
     "@monorepo/tsconfig": "workspace:^",
-    "@tailwindcss/vite": "catalog:tailwindcss4",
+    "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "catalog:react19",
-    "@types/react-dom": "catalog:react19",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "@vitejs/plugin-react-swc": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

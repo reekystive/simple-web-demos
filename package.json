@@ -24,7 +24,7 @@
     "eslint-plugin-react": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "eslint-plugin-react-refresh": "catalog:",
-    "eslint-plugin-storybook": "catalog:storybook9",
+    "eslint-plugin-storybook": "catalog:",
     "globals": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-organize-imports": "catalog:",
