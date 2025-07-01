@@ -3,7 +3,11 @@ import type { Preview } from '@storybook/react-vite';
 import { scan } from 'react-scan';
 import './preview.css';
 
-const preview: Preview = {};
+const preview: Preview = {
+  parameters: {
+    layout: 'fullscreen',
+  },
+};
 
 export default preview;
 
