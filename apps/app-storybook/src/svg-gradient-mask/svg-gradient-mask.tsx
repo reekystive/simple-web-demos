@@ -103,13 +103,13 @@ export const SvgGradientMask: FC = () => {
               <motion.stop
                 initial={{ offset: '-20%' }}
                 animate={{ offset: '100%' }}
-                transition={{ type: 'tween', ease: 'easeOut', duration: 3, repeat: Infinity, repeatDelay: 1 }}
+                transition={{ type: 'tween', ease: 'linear', duration: 3, repeat: Infinity, repeatDelay: 1 }}
                 stopColor="white"
               />
               <motion.stop
                 initial={{ offset: '0%' }}
                 animate={{ offset: '120%' }}
-                transition={{ type: 'tween', ease: 'easeOut', duration: 3, repeat: Infinity, repeatDelay: 1 }}
+                transition={{ type: 'tween', ease: 'linear', duration: 3, repeat: Infinity, repeatDelay: 1 }}
                 stopColor="black"
               />
             </linearGradient>
@@ -129,10 +129,6 @@ export const SvgGradientMask: FC = () => {
           </defs>
         </svg>
 
-        <svg className="h-[400px] w-[200px]" viewBox="0 0 100 200">
-          <rect width="100%" height="100%" className="fill-amber-600" mask={`url(#${animatedMaskId})`} />
-        </svg>
-
         <div
           className="h-[400px] w-[200px] overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${animatedMaskId})` }}
@@ -145,6 +141,20 @@ export const SvgGradientMask: FC = () => {
           style={{ maskImage: `url(#${invertAnimatedMaskId})` }}
         >
           {LOREM_IPSUM}
+        </div>
+
+        <div className="h-[400px] w-[200px] overflow-hidden" style={{ maskImage: `url(#${animatedMaskId})` }}>
+          {LOREM_IPSUM}
+        </div>
+
+        <div className="relative h-[400px] w-[200px] overflow-hidden">
+          <div className="size-full" style={{ maskImage: `url(#${animatedMaskId})` }}>
+            {LOREM_IPSUM}
+          </div>
+          <div
+            className="absolute inset-0 bg-red-200 p-2 dark:bg-red-900"
+            style={{ maskImage: `url(#${invertAnimatedMaskId})` }}
+          />
         </div>
       </div>
     </div>
