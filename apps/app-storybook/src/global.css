@@ -1,5 +1,7 @@
 @import '@monorepo/tailwindcss/tailwindcss.css';
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @layer base {
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -12,33 +14,17 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
 
-    color-scheme: light dark;
-    color: #213547;
-    background-color: #ffffff;
+    @apply bg-neutral-50 text-neutral-950;
+    color-scheme: light;
+  }
 
-    @media (prefers-color-scheme: dark) {
-      color: #e3e3e3;
-      background-color: #242424;
-    }
+  :root[data-theme='dark'] {
+    @apply bg-neutral-950 text-neutral-50;
+    color-scheme: dark;
   }
 
   body {
     margin: 0;
     padding: 0;
-  }
-
-  a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-
-    /* eslint-disable-next-line css/use-baseline */
-    &:hover {
-      color: #747bff;
-
-      @media (prefers-color-scheme: dark) {
-        color: #535bf2;
-      }
-    }
   }
 }

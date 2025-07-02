@@ -26,7 +26,7 @@ export const SvgGradientMask: FC = () => {
     <div className="flex min-h-screen flex-col items-stretch justify-center gap-6 py-6">
       {/* static svg mask */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-900 p-8">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
         <svg className="absolute size-20" viewBox="0 0 1 1">
           <defs>
             <linearGradient gradientUnits="objectBoundingBox" id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -45,7 +45,7 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
-          <rect width="100%" height="100%" className="fill-amber-600" mask={`url(#${maskId})`} />
+          <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
         </svg>
 
         <div
@@ -58,7 +58,7 @@ export const SvgGradientMask: FC = () => {
 
       {/* static svg mask with invert filter */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask with Invert Filter</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-900 p-8">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
         <svg className="absolute size-20" viewBox="0 0 1 1">
           <defs>
             <filter id={invertFilterId} colorInterpolationFilters="sRGB">
@@ -79,11 +79,16 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
-          <rect width="100%" height="100%" className="fill-amber-600" mask={`url(#${maskId})`} />
+          <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
         </svg>
 
         <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
-          <rect width="100%" height="100%" className="fill-amber-600" mask={`url(#${invertMaskId})`} />
+          <rect
+            width="100%"
+            height="100%"
+            className="fill-amber-400 dark:fill-amber-600"
+            mask={`url(#${invertMaskId})`}
+          />
         </svg>
 
         <div
@@ -96,7 +101,7 @@ export const SvgGradientMask: FC = () => {
 
       {/* animated svg mask (animate stops) */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Animated Svg Mask (Animate stops)</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-900 p-8">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
         <svg className="absolute size-20" viewBox="0 0 1 1">
           <defs>
             <linearGradient gradientUnits="objectBoundingBox" id={animatedGradientId} x1="0%" y1="0%" x2="0%" y2="100%">
