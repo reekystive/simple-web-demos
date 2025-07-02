@@ -153,6 +153,15 @@ export const SvgGradientMask: FC = () => {
           </defs>
         </svg>
 
+        <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
+          <rect
+            width="100%"
+            height="100%"
+            className="fill-amber-400 dark:fill-amber-600"
+            mask={`url(#${animatedMaskId})`}
+          />
+        </svg>
+
         <div
           className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${animatedMaskId})` }}
