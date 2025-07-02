@@ -26,7 +26,7 @@ export const SvgGradientMask: FC = () => {
     <div className="flex min-h-screen flex-col items-stretch justify-center gap-6 py-6">
       {/* static svg mask */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
         <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
             <linearGradient
@@ -74,7 +74,7 @@ export const SvgGradientMask: FC = () => {
 
       {/* static svg mask with invert filter */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask with Invert Filter</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
         <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
             <filter id={invertFilterId} colorInterpolationFilters="sRGB">
@@ -117,7 +117,7 @@ export const SvgGradientMask: FC = () => {
 
       {/* animated svg mask (animate stops) */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Animated Svg Mask (Animate stops)</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
+      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
         <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
             <linearGradient
