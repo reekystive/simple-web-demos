@@ -27,15 +27,31 @@ export const SvgGradientMask: FC = () => {
       {/* static svg mask */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask</h2>
       <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
-        <svg className="absolute size-20" viewBox="0 0 1 1">
+        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
-            <linearGradient gradientUnits="objectBoundingBox" id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="40%" stopColor="white" />
-              <stop offset="60%" stopColor="black" />
+            <linearGradient
+              gradientUnits="objectBoundingBox"
+              gradientTransform="translate(0,-0.1) scale(1,1.25)"
+              id={gradientId}
+              x1={0}
+              y1={0}
+              x2={0}
+              y2={1}
+            >
+              <stop offset={0.45} stopColor="white" />
+              <stop offset={0.55} stopColor="black" />
             </linearGradient>
 
-            <mask maskContentUnits="objectBoundingBox" id={maskId}>
-              <rect width="100%" height="100%" fill={`url(#${gradientId})`} />
+            <mask
+              x={0}
+              y={0}
+              width={1}
+              height={1}
+              maskUnits="objectBoundingBox"
+              maskContentUnits="objectBoundingBox"
+              id={maskId}
+            >
+              <rect width={1} height={1} fill={`url(#${gradientId})`} />
             </mask>
           </defs>
         </svg>
@@ -59,7 +75,7 @@ export const SvgGradientMask: FC = () => {
       {/* static svg mask with invert filter */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask with Invert Filter</h2>
       <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
-        <svg className="absolute size-20" viewBox="0 0 1 1">
+        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
             <filter id={invertFilterId} colorInterpolationFilters="sRGB">
               <feColorMatrix
@@ -72,8 +88,8 @@ export const SvgGradientMask: FC = () => {
               />
             </filter>
 
-            <mask maskContentUnits="objectBoundingBox" id={invertMaskId}>
-              <rect width="100%" height="100%" fill={`url(#${gradientId})`} filter={`url(#${invertFilterId})`} />
+            <mask maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" id={invertMaskId}>
+              <rect width={1} height={1} fill={`url(#${gradientId})`} filter={`url(#${invertFilterId})`} />
             </mask>
           </defs>
         </svg>
@@ -102,34 +118,37 @@ export const SvgGradientMask: FC = () => {
       {/* animated svg mask (animate stops) */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Animated Svg Mask (Animate stops)</h2>
       <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-900">
-        <svg className="absolute size-20" viewBox="0 0 1 1">
+        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
           <defs>
-            <linearGradient gradientUnits="objectBoundingBox" id={animatedGradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient
+              gradientUnits="objectBoundingBox"
+              gradientTransform="translate(0,-0.1) scale(1,1.25)"
+              id={animatedGradientId}
+              x1={0}
+              y1={0}
+              x2={0}
+              y2={1}
+            >
               <motion.stop
-                initial={{ offset: '-20%' }}
-                animate={{ offset: '100%' }}
+                initial={{ offset: 0 }}
+                animate={{ offset: 0.9 }}
                 transition={{ type: 'tween', ease: 'linear', duration: 3, repeat: Infinity, repeatDelay: 1 }}
                 stopColor="white"
               />
               <motion.stop
-                initial={{ offset: '0%' }}
-                animate={{ offset: '120%' }}
+                initial={{ offset: 0.1 }}
+                animate={{ offset: 1 }}
                 transition={{ type: 'tween', ease: 'linear', duration: 3, repeat: Infinity, repeatDelay: 1 }}
                 stopColor="black"
               />
             </linearGradient>
 
-            <mask maskContentUnits="objectBoundingBox" id={animatedMaskId}>
-              <rect width="100%" height="100%" fill={`url(#${animatedGradientId})`} />
+            <mask maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" id={animatedMaskId}>
+              <rect width={1} height={1} fill={`url(#${animatedGradientId})`} />
             </mask>
 
-            <mask maskContentUnits="objectBoundingBox" id={invertAnimatedMaskId}>
-              <rect
-                width="100%"
-                height="100%"
-                fill={`url(#${animatedGradientId})`}
-                filter={`url(#${invertFilterId})`}
-              />
+            <mask maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" id={invertAnimatedMaskId}>
+              <rect width={1} height={1} fill={`url(#${animatedGradientId})`} filter={`url(#${invertFilterId})`} />
             </mask>
           </defs>
         </svg>
