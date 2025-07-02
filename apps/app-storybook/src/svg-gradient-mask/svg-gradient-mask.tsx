@@ -40,16 +40,16 @@ export const SvgGradientMask: FC = () => {
           </defs>
         </svg>
 
-        <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
+        <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
           <rect width="100%" height="100%" fill={`url(#${gradientId})`} />
         </svg>
 
-        <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
+        <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
           <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
         </svg>
 
         <div
-          className="h-[400px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${maskId})` }}
         >
           {LOREM_IPSUM}
@@ -65,10 +65,10 @@ export const SvgGradientMask: FC = () => {
               <feColorMatrix
                 type="matrix"
                 values="
-              -1 0 0 0 1
-              0 -1 0 0 1
-              0 0 -1 0 1
-              0 0 0 1 0"
+                -1 0 0 0 1
+                0 -1 0 0 1
+                0 0 -1 0 1
+                0 0 0 1 0"
               />
             </filter>
 
@@ -78,11 +78,11 @@ export const SvgGradientMask: FC = () => {
           </defs>
         </svg>
 
-        <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
+        <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
           <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
         </svg>
 
-        <svg className="h-[400px] w-[200px] shrink-0" viewBox="0 0 100 200">
+        <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
           <rect
             width="100%"
             height="100%"
@@ -92,7 +92,7 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <div
-          className="h-[400px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${invertMaskId})` }}
         >
           {LOREM_IPSUM}
@@ -135,24 +135,24 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <div
-          className="h-[400px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${animatedMaskId})` }}
         >
           {LOREM_IPSUM}
         </div>
 
         <div
-          className="h-[400px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
           style={{ maskImage: `url(#${invertAnimatedMaskId})` }}
         >
           {LOREM_IPSUM}
         </div>
 
-        <div className="h-[400px] w-[200px] shrink-0 overflow-hidden" style={{ maskImage: `url(#${animatedMaskId})` }}>
+        <div className="h-[300px] w-[200px] shrink-0 overflow-hidden" style={{ maskImage: `url(#${animatedMaskId})` }}>
           {LOREM_IPSUM}
         </div>
 
-        <div className="relative h-[400px] w-[200px] shrink-0 overflow-hidden">
+        <div className="relative h-[300px] w-[200px] shrink-0 overflow-hidden">
           <div className="size-full" style={{ maskImage: `url(#${animatedMaskId})` }}>
             {LOREM_IPSUM}
           </div>

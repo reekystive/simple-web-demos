@@ -14,12 +14,12 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
 
-    @apply bg-neutral-50 text-neutral-950;
+    @apply bg-white text-black;
     color-scheme: light;
   }
 
   :root[data-theme='dark'] {
-    @apply bg-neutral-950 text-neutral-50;
+    @apply bg-neutral-900 text-neutral-50;
     color-scheme: dark;
   }
 
