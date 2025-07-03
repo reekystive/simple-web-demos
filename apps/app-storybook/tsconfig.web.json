@@ -4,10 +4,11 @@
   "compilerOptions": {
     "types": ["@monorepo/app-types"],
     "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "./node_modules/.cache/tsc-web",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./node_modules/.cache/tsc-web/tsconfig.web.tsbuildinfo",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "emitDeclarationOnly": true
   },
   "include": ["./src"],
   "exclude": ["**/node_modules/", "**/__tests__/", "**/*.stories.tsx", "**/*.stories.ts"]
