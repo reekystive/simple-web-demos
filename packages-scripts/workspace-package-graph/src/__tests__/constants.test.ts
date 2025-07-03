@@ -13,11 +13,11 @@ describe('workspaceRootPath', () => {
 
   it('should contain a package.json file', async () => {
     const packageJson = new URL('package.json', workspaceRootPath);
-    expect(await fs.stat(packageJson)).toBeDefined();
+    expect((await fs.stat(packageJson)).isFile()).toBe(true);
   });
 
   it('should contain a pnpm-workspace.yaml file', async () => {
     const pnpmWorkspaceYaml = new URL('pnpm-workspace.yaml', workspaceRootPath);
-    expect(await fs.stat(pnpmWorkspaceYaml)).toBeDefined();
+    expect((await fs.stat(pnpmWorkspaceYaml)).isFile()).toBe(true);
   });
 });
