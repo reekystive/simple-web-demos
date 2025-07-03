@@ -17,7 +17,7 @@ export const getGitRepoRoot = async (from?: URL): Promise<URL | null> => {
     if (await existsFileOrDir(git.pathname)) {
       return dir;
     }
-    const parent = new URL('..', dir);
+    const parent = new URL('../', dir);
     return parent.href === dir.href ? null : resolve(parent);
   };
   const fromUrl = from ?? new URL(import.meta.url);
