@@ -15,6 +15,15 @@
     },
     {
       "path": "./apps/app-template/tsconfig.json"
+    },
+    {
+      "path": "./apps/app-storybook/tsconfig.json"
+    },
+    {
+      "path": "./packages-scripts/tsserver-benchmark/tsconfig.json"
+    },
+    {
+      "path": "./packages-scripts/workspace-package-graph/tsconfig.json"
     }
   ]
 }
