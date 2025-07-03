@@ -4,6 +4,7 @@ words:
   - esbuild
   - grayscale
   - nodenext
+  - pkgs
   - reekystive
   - unplugin
   - usehooks
