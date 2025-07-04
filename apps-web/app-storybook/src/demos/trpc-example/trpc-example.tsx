@@ -1,5 +1,12 @@
 import { cn } from '@monorepo/utils';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  DefaultError,
+  MutationState,
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { ButtonHTMLAttributes, FC, useCallback, useState } from 'react';
 import { trpc } from './trpc-client.js';
 
@@ -27,10 +34,18 @@ export const TRPCExample: FC = () => {
   });
 
   const addUserMutation = useMutation({
+    mutationKey: ['userCreate'],
     mutationFn: (name: string) => trpc.userCreate.mutate({ name }),
+    onMutate: () => {
+      void queryClient.cancelQueries({ queryKey: ['users'] });
+    },
     onSettled: () => {
       return queryClient.invalidateQueries({ queryKey: ['users'] });
     },
+  });
+
+  const addUserMutationState = useMutationState<MutationState<unknown, DefaultError, string>>({
+    filters: { mutationKey: ['userCreate'] },
   });
 
   const deleteAllUsersMutation = useMutation({
@@ -41,10 +56,15 @@ export const TRPCExample: FC = () => {
   });
 
   const deleteUserMutation = useMutation({
+    mutationKey: ['userDelete'],
     mutationFn: (id: string) => trpc.userDelete.mutate({ id }),
     onSettled: () => {
       return queryClient.invalidateQueries({ queryKey: ['users'] });
     },
+  });
+
+  const deleteUserMutationState = useMutationState<MutationState<unknown, DefaultError, string>>({
+    filters: { mutationKey: ['userDelete'] },
   });
 
   const handleRefetchUsers = useCallback(() => {
@@ -68,8 +88,6 @@ export const TRPCExample: FC = () => {
   const handleDeleteAllUsers = useCallback(() => {
     deleteAllUsersMutation.mutate();
   }, [deleteAllUsersMutation]);
-
-  const isMutating = addUserMutation.isPending || deleteUserMutation.isPending || deleteAllUsersMutation.isPending;
 
   return (
     <div className="flex flex-col items-center gap-2 p-2">
@@ -126,27 +144,30 @@ export const TRPCExample: FC = () => {
         <Button onClick={handleRefetchUsers} disabled={userQuery.isFetching}>
           Refetch
         </Button>
-        <Button onClick={handleDeleteAllUsers} disabled={isMutating}>
+        <Button onClick={handleDeleteAllUsers} disabled={deleteAllUsersMutation.isPending}>
           Delete All Users
         </Button>
       </div>
 
-      <div className="flex gap-2">
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleAddUser();
+        }}
+      >
         <input
           type="text"
           autoComplete="off"
           className="w-40 rounded-sm border border-gray-500/50 px-2 py-1 text-sm outline-none"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAddUser()}
           placeholder="Magic happens"
-          disabled={addUserMutation.isPending}
         />
-
-        <Button onClick={handleAddUser} disabled={!name.trim() || isMutating}>
+        <Button type="submit" disabled={!name.trim()}>
           Add User
         </Button>
-      </div>
+      </form>
 
       <div className="flex min-w-[10rem] flex-col gap-1">
         {userQuery.isLoading && <div className="text-center text-xs">⚙️ Loading...</div>}
@@ -155,10 +176,18 @@ export const TRPCExample: FC = () => {
             key={user.id}
             name={user.name}
             onDeleteClick={() => handleDeleteUser(user.id)}
-            pending={isMutating}
+            pending={
+              deleteAllUsersMutation.isPending ||
+              deleteUserMutationState.some(
+                (mutation) => mutation.variables === user.id && mutation.status === 'pending'
+              )
+            }
           />
         ))}
-        {addUserMutation.isPending && <UserItem name={addUserMutation.variables} pending />}
+        {addUserMutationState.map((mutation, index) => {
+          if (mutation.status !== 'pending' || !mutation.variables) return null;
+          return <UserItem key={index} name={mutation.variables} pending />;
+        })}
       </div>
     </div>
   );
