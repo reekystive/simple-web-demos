@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.web.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.tests.json"
+    },
+    {
+      "path": "./node_modules/@monorepo/utils/tsconfig.json"
+    },
+    {
+      "path": "./node_modules/@monorepo/app-types/tsconfig.json"
+    },
+    {
+      "path": "./node_modules/@monorepo/components/tsconfig.json"
+    }
+  ]
+}

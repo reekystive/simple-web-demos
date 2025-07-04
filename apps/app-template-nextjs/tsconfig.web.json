@@ -2,14 +2,20 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": ["@monorepo/app-types/vite"],
+    "types": [],
     "rootDir": "./src",
     "outDir": "./node_modules/.cache/tsc-web",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./node_modules/.cache/tsc-web/tsconfig.web.tsbuildinfo",
-    "jsx": "react-jsx",
-    "emitDeclarationOnly": true
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "plugins": [{ "name": "next" }],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    // required by next.js
+    "noEmit": true
   },
-  "include": ["./src"],
-  "exclude": ["**/node_modules/", "**/__tests__/", "**/*.stories.tsx", "**/*.stories.ts"]
+  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["**/node_modules/", "**/__tests__/"]
 }

@@ -1,4 +1,5 @@
 import cspellPlugin from '@cspell/eslint-plugin';
+import { FlatCompat } from '@eslint/eslintrc';
 import eslintJsPlugin from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
@@ -19,6 +20,13 @@ const STORYBOOK_FILES = ['**/{,.}*.stories.{,c,m}{j,t}s{,x}'];
 /** @type {string[]} */
 const STORYBOOK_MAIN_FILES = ['**/.storybook/main.{,c,m}{j,t}s'];
 
+/** @type {string[]} */
+const NEXTJS_FILES = ['apps/app-template-nextjs/src/**/{,.}*.{,c,m}{j,t}s{,x}'];
+
+const flatCompat = new FlatCompat({
+  baseDirectory: new URL('.', import.meta.url).pathname,
+});
+
 const typescriptConfigs = /** @type {import('eslint').Linter.Config[]} */ (
   tsEslint.config({
     plugins: {
@@ -36,6 +44,9 @@ const typescriptConfigs = /** @type {import('eslint').Linter.Config[]} */ (
   })
 );
 
+const nextjsTemplateAppPath = new URL('./apps/app-template-nextjs', import.meta.url);
+const nextjsConfig = flatCompat.extends('next/core-web-vitals', 'next/typescript');
+
 /**
  * @type {import('eslint').Linter.Config[]}
  */
@@ -46,15 +57,14 @@ const eslintConfig = [
 
   // config for javascript/typescript code
   {
-    files: TS_FILES,
     ...eslintJsPlugin.configs.recommended,
+    files: TS_FILES,
   },
   ...typescriptConfigs.map((config) => ({
-    files: TS_FILES,
     ...config,
+    files: TS_FILES,
   })),
   {
-    files: TS_FILES,
     plugins: {
       'react-hooks': reactHooksPlugin,
       'react-refresh': reactRefreshPlugin,
@@ -69,37 +79,48 @@ const eslintConfig = [
     settings: {
       react: { version: '19.1.0' },
     },
+    files: TS_FILES,
   },
   {
-    files: STORYBOOK_MAIN_FILES,
     plugins: {
       storybook: /** @type {any} */ (storybook),
     },
     ...storybook.configs['flat/recommended'][2],
+    files: STORYBOOK_MAIN_FILES,
   },
   {
-    files: STORYBOOK_FILES,
     plugins: {
       storybook: /** @type {any} */ (storybook),
     },
     ...storybook.configs['flat/recommended'][1],
+    files: STORYBOOK_FILES,
+  },
+  ...nextjsConfig.map((config) => ({
+    ...config,
+    files: NEXTJS_FILES,
+  })),
+  {
+    rules: {
+      '@next/next/no-html-link-for-pages': ['error', nextjsTemplateAppPath.pathname],
+    },
+    files: NEXTJS_FILES,
   },
   {
-    files: TS_FILES,
     ...eslintConfigPrettier,
+    files: TS_FILES,
   },
   {
-    files: TS_FILES,
     plugins: { prettier: prettierPlugin },
     rules: { 'prettier/prettier': 'error' },
+    files: TS_FILES,
   },
   {
-    files: TS_FILES,
     rules: {
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-confusing-void-expression': 'off',
     },
+    files: TS_FILES,
   },
 
   // config for all

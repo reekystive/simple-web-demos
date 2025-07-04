@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": ["@monorepo/app-types"],
+    "types": ["@monorepo/app-types/vite"],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-stories",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766

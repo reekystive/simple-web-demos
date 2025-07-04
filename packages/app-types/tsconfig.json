@@ -8,6 +8,6 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsc/tsconfig.tsbuildinfo",
     "types": []
   },
-  "files": ["app-types.d.ts"],
+  "files": ["app-types-vite.d.ts"],
   "exclude": ["**/node_modules/"]
 }

@@ -21,4 +21,8 @@ storybook-static/
 # macOS
 .DS_Store
 
+# Next.js
+.next/
+
+# Workspace temp files
 workspace-tmp/

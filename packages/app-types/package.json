@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "default": "./app-types.d.ts"
+    "./vite": {
+      "types": "./app-types-vite.d.ts",
+      "default": null
     }
   },
   "scripts": {

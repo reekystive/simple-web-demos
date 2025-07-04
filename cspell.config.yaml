@@ -3,9 +3,11 @@ words:
   - clsx
   - esbuild
   - grayscale
+  - logomark
   - nodenext
   - pkgs
   - reekystive
+  - turbopack
   - unplugin
   - usehooks
   - Vite

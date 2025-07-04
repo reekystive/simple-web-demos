@@ -41,11 +41,16 @@ catalog:
   usehooks-ts: ^3.1.1
   vite: ^6.3.5
   vite-tsconfig-paths: ^5.1.4
-  vitest: 3.2.0
+  vitest: ^3.2.0
   tsx: ^4.20.3
   '@pnpm/workspace.pkgs-graph': ^1000.0.15
   '@pnpm/lockfile.fs': ^1001.1.14
   '@pnpm/types': ^1000.6.0
+  next: ^15.3.5
+  '@eslint/eslintrc': ^3.3.1
+  eslint-config-next: ^15.3.5
+  '@next/eslint-plugin-next': ^15.3.5
+  '@tailwindcss/postcss': ^4.1.11
 
 catalogMode: strict
 
@@ -57,3 +62,4 @@ onlyBuiltDependencies:
 
 patchedDependencies:
   eslint-plugin-storybook: patches/eslint-plugin-storybook.patch
+  next: patches/next.patch
