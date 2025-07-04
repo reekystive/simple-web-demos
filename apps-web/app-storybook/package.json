@@ -20,12 +20,15 @@
     "@monorepo/components": "workspace:^",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
     "motion": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-scan": "catalog:"
   },
   "devDependencies": {
+    "@monorepo/app-trpc-server": "workspace:*",
     "@monorepo/app-types": "workspace:^",
     "@monorepo/tsconfig": "workspace:^",
     "@storybook/builder-vite": "catalog:",

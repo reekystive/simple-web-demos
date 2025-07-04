@@ -8,6 +8,8 @@ words:
   - nodenext
   - pkgs
   - reekystive
+  - tanstack
+  - trpc
   - turbopack
   - unplugin
   - usehooks
