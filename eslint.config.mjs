@@ -73,7 +73,7 @@ const eslintConfig = [
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactPlugin.configs['jsx-runtime'].rules,
-      ...reactHooksPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs['recommended-latest'].rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
     settings: {
@@ -81,6 +81,8 @@ const eslintConfig = [
     },
     files: TS_FILES,
   },
+
+  // config for storybook
   {
     plugins: {
       storybook: /** @type {any} */ (storybook),
@@ -95,6 +97,8 @@ const eslintConfig = [
     ...storybook.configs['flat/recommended'][1],
     files: STORYBOOK_FILES,
   },
+
+  // config for nextjs
   ...nextjsConfig.map((config) => ({
     ...config,
     files: NEXTJS_FILES,
@@ -105,6 +109,8 @@ const eslintConfig = [
     },
     files: NEXTJS_FILES,
   },
+
+  // config for javascript/typescript code
   {
     ...eslintConfigPrettier,
     files: TS_FILES,
