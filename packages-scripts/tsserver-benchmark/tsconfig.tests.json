@@ -2,14 +2,13 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "composite": false,
     "types": ["node"],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-tests",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./node_modules/.cache/tsc-tests/tsconfig.tests.tsbuildinfo",
-    "noEmit": true
+    "emitDeclarationOnly": true
   },
-  "include": ["**/__tests__/"],
+  "include": ["./src", "**/__tests__/"],
   "exclude": ["**/node_modules/"]
 }

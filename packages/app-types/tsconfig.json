@@ -1,7 +1,6 @@
 {
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "composite": false,
     "noEmit": true,
     "skipLibCheck": false,
     "rootDir": ".",

@@ -11,7 +11,9 @@ const getPackageManifest = async (p: URL): Promise<BaseManifest> => {
   return manifest;
 };
 
-export const resolveWorkspacePackagesGraph = async () => {
+export type WorkspacePackageGraph = ReturnType<typeof createPkgGraph>;
+
+export const resolveWorkspacePackagesGraph: () => Promise<WorkspacePackageGraph> = async () => {
   const projectPaths = [workspaceRootPath, ...(await resolveWorkspaceProjectPaths())];
   const pkgs: Package[] = await Promise.all(
     projectPaths.map(async (p) => ({

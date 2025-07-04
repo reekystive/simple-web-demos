@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "composite": false,
     "types": ["node"],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-tests",
@@ -14,8 +13,8 @@
     "plugins": [{ "name": "next" }],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    "emitDeclarationOnly": true
   },
-  "include": ["**/__tests__/", "next-env.d.ts", ".next/types/**/*.ts"],
+  "include": ["./src", "**/__tests__/", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["**/node_modules/"]
 }

@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.node.json",
   "compilerOptions": {
-    "composite": false,
     "types": ["node"],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-node",
@@ -10,7 +9,7 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsc-node/tsconfig.node.tsbuildinfo",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "noEmit": true
+    "emitDeclarationOnly": true
   },
   "include": ["./*.ts", "./.*.ts", "./*.js", "./.*.js", "./*.mjs", "./.*.mjs", "./*.cjs", "./.*.cjs"],
   "exclude": ["**/node_modules/", "next-env.d.ts"]

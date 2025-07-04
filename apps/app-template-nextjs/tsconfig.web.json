@@ -13,7 +13,7 @@
     "plugins": [{ "name": "next" }],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    "emitDeclarationOnly": true
   },
   "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["**/node_modules/", "**/__tests__/"]
