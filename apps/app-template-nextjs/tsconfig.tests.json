@@ -2,15 +2,20 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": ["@monorepo/app-types/nextjs", "node"],
+    "composite": false,
+    "types": ["node"],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-tests",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./node_modules/.cache/tsc-tests/tsconfig.tests.tsbuildinfo",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "emitDeclarationOnly": true
+    "jsx": "preserve",
+    "plugins": [{ "name": "next" }],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noEmit": true
   },
-  "include": ["**/__tests__/"],
+  "include": ["**/__tests__/", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["**/node_modules/"]
 }

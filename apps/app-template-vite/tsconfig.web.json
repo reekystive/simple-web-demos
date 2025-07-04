@@ -8,7 +8,7 @@
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./node_modules/.cache/tsc-web/tsconfig.web.tsbuildinfo",
     "jsx": "react-jsx",
-    "emitDeclarationOnly": true
+    "noEmit": true
   },
   "include": ["./src"],
   "exclude": ["**/node_modules/", "**/__tests__/"]
