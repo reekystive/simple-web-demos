@@ -52,7 +52,7 @@ const nextjsConfig = flatCompat.extends('next/core-web-vitals', 'next/typescript
  */
 const eslintConfig = [
   // config for all
-  { ignores: ['**/node_modules/', '**/dist/', '**/storybook-static/'] },
+  { ignores: ['**/node_modules/', '**/dist/', '**/storybook-static/', '**/.next/'] },
   { linterOptions: { reportUnusedDisableDirectives: true } },
 
   // config for javascript/typescript code
