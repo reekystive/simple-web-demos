@@ -1,7 +1,8 @@
 packages:
   - packages/*
   - packages-scripts/*
-  - apps/*
+  - apps-web/*
+  - apps-server/*
 
 catalog:
   '@cspell/eslint-plugin': ^9.0.2

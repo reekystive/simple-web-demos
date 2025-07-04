@@ -14,13 +14,13 @@
       "path": "./packages/components/tsconfig.json"
     },
     {
-      "path": "./apps/app-template-vite/tsconfig.json"
+      "path": "./apps-web/app-template-vite/tsconfig.json"
     },
     {
-      "path": "./apps/app-template-nextjs/tsconfig.json"
+      "path": "./apps-web/app-template-nextjs/tsconfig.json"
     },
     {
-      "path": "./apps/app-storybook/tsconfig.json"
+      "path": "./apps-web/app-storybook/tsconfig.json"
     },
     {
       "path": "./packages-scripts/tsserver-benchmark/tsconfig.json"
