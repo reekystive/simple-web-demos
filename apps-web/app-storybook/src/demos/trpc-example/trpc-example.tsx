@@ -149,6 +149,7 @@ export const TRPCExample: FC = () => {
       </div>
 
       <div className="flex min-w-[10rem] flex-col gap-1">
+        {userQuery.isLoading && <div className="text-center text-xs">⚙️ Loading...</div>}
         {(userQuery.data ?? []).map((user) => (
           <UserItem
             key={user.id}
