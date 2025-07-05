@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:tsc": "tsc --build tsconfig.json",
     "build:opennext": "opennextjs-cloudflare build",
     "preview": "next start",
     "preview:opennext": "opennextjs-cloudflare preview",
