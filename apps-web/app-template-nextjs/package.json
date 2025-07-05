@@ -20,7 +20,7 @@
     "test:update": "vitest run --update",
     "test:watch": "vitest --watch",
     "predeploy": "pnpm run build:opennext",
-    "deploy": "opennextjs-cloudflare deploy",
+    "deploy": "wrangler deploy",
     "typegen:cloudflare": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
