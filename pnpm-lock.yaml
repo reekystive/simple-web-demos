@@ -360,6 +360,9 @@ importers:
       '@monorepo/utils':
         specifier: workspace:^
         version: link:../../packages/utils
+      '@opennextjs/cloudflare':
+        specifier: 'catalog:'
+        version: 1.4.0(wrangler@4.23.0)
       next:
         specifier: 'catalog:'
         version: 15.3.5(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.86.3)
@@ -370,15 +373,9 @@ importers:
         specifier: 'catalog:'
         version: 19.1.0(react@19.1.0)
     devDependencies:
-      '@monorepo/app-types':
-        specifier: workspace:^
-        version: link:../../packages/app-types
       '@monorepo/tsconfig':
         specifier: workspace:^
         version: link:../../packages/tsconfig
-      '@opennextjs/cloudflare':
-        specifier: 'catalog:'
-        version: 1.4.0(wrangler@4.23.0)
       '@tailwindcss/postcss':
         specifier: 'catalog:'
         version: 4.1.11
