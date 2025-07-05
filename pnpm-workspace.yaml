@@ -56,6 +56,8 @@ catalog:
   '@trpc/client': ^11.4.3
   zod: ^3.25.73
   '@tanstack/react-query': ^5.81.5
+  '@opennextjs/cloudflare': ^1.4.0
+  wrangler: ^4.23.0
 
 catalogMode: strict
 

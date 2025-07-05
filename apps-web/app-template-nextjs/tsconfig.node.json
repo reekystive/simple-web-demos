@@ -12,5 +12,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["./*.ts", "./.*.ts", "./*.js", "./.*.js", "./*.mjs", "./.*.mjs", "./*.cjs", "./.*.cjs"],
-  "exclude": ["**/node_modules/", "next-env.d.ts"]
+  "exclude": ["**/node_modules/", "next-env.d.ts", "cloudflare-env.d.ts"]
 }

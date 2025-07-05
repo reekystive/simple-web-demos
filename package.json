@@ -33,7 +33,8 @@
     "prettier-plugin-organize-imports": "catalog:",
     "prettier-plugin-tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript-eslint": "catalog:",
+    "wrangler": "catalog:"
   },
   "packageManager": "pnpm@10.12.4"
 }

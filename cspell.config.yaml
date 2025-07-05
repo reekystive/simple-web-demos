@@ -4,8 +4,11 @@ words:
   - esbuild
   - grayscale
   - logomark
+  - MERCHANTABLITY
   - nextjs
   - nodenext
+  - opennext
+  - opennextjs
   - pkgs
   - reekystive
   - tanstack
@@ -13,6 +16,7 @@ words:
   - turbopack
   - unplugin
   - usehooks
+  - Vercel
   - Vite
   - vitejs
   - Vitest
@@ -25,3 +29,5 @@ suggestWords:
   - colour -> color
 ignorePaths:
   - cspell.config.yaml
+  - cloudflare-env.d.ts
+  - pnpm-lock.yaml

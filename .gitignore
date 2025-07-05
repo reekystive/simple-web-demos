@@ -23,6 +23,20 @@ storybook-static/
 
 # Next.js
 .next/
+.open-next/
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel/
 
 # Workspace temp files
 workspace-tmp/
+
+# TypeScript
+*.tsbuildinfo
+
+# Wrangler files
+.wrangler/
+.dev.vars*

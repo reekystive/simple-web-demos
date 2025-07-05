@@ -13,5 +13,9 @@ export default {
       files: 'tsconfig{,.*}.json',
       options: { parser: 'jsonc', trailingComma: 'none' },
     },
+    {
+      files: 'wrangler.jsonc',
+      options: { parser: 'jsonc', trailingComma: 'none' },
+    },
   ],
 };
