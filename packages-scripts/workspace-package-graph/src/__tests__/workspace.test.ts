@@ -1,7 +1,12 @@
 import { resolveWorkspaceProjectPaths } from '#src/project-paths.js';
 import { describe, expect, it } from 'vitest';
 
-const expectedProjectPaths = ['apps/app-storybook', 'apps/app-template', 'packages/tsconfig', 'packages/utils'];
+const expectedProjectPaths = [
+  'apps-web/app-storybook',
+  'apps-web/app-template-vite',
+  'packages/tsconfig',
+  'packages/utils',
+];
 
 describe('resolveWorkspaceProjectPaths', () => {
   it('should return at least one project path', async () => {
