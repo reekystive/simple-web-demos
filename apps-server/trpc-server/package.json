@@ -22,6 +22,7 @@
   "scripts": {
     "dev": "tsx --tsconfig tsconfig.src.json src/bootstrap.ts",
     "build": "tsc --build tsconfig.json",
+    "build:tsc": "tsc --build tsconfig.json",
     "start": "node dist/bootstrap.js",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "lint:tsc": "tsc --build tsconfig.json --noEmit",
