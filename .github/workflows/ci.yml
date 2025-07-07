@@ -32,13 +32,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Pre-build dependencies
-        run: pnpm run build:tsc
+        run: pnpm -w run build:tsc:packages
 
       - name: Build & typecheck
-        run: pnpm run build
+        run: pnpm -w run build:tsc:root
 
       - name: Run ESLint
-        run: pnpm run lint:eslint:root
+        run: pnpm -w run lint:eslint:root
 
   test:
     runs-on: ubuntu-latest
@@ -60,10 +60,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Pre-build dependencies
-        run: pnpm run build:tsc
+        run: pnpm -w run build:tsc:packages
 
       - name: Build & typecheck
-        run: pnpm run build
+        run: pnpm -w run build:tsc:root
 
       - name: Run tests
-        run: pnpm run test
+        run: pnpm -w run test:packages

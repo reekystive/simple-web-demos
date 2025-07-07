@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --build tsconfig.json",
-    "build:tsc": "pnpm --filter '*' --workspace-concurrency -1 run build:tsc",
+    "build:tsc:root": "tsc --build tsconfig.json",
+    "build:tsc:packages": "pnpm --filter '*' --workspace-concurrency -1 run build:tsc",
     "lint:eslint:root": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "lint:eslint:packages": "pnpm -r --workspace-concurrency -1 run lint:eslint",
     "lint:tsc:root": "tsc --build tsconfig.json --noEmit",
     "lint:tsc:packages": "pnpm -r --workspace-concurrency -1 run lint:tsc",
-    "test": "pnpm -r --workspace-concurrency -1 run test",
-    "test:update": "pnpm -r --workspace-concurrency -1 run test:update"
+    "test:packages": "pnpm -r --workspace-concurrency -1 run test",
+    "test:update:packages": "pnpm -r --workspace-concurrency -1 run test:update"
   },
   "devDependencies": {
     "@cspell/eslint-plugin": "catalog:",
