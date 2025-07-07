@@ -20,6 +20,7 @@ runs:
         CURRENT_TIMESTAMP=$(date +%s)
         WEEK_NUMBER=$(( CURRENT_TIMESTAMP / 604800 ))
 
+        PNPM_STORE_PATH=$(pnpm store path --silent)
         LOCKFILE_HASH=${{ hashFiles('**/pnpm-lock.yaml') }}
         LOCKFILE_SHORT_HASH=${LOCKFILE_HASH:0:7}
 
@@ -31,14 +32,15 @@ runs:
         echo "week_number=${WEEK_NUMBER}" >> $GITHUB_OUTPUT
         echo "lockfile_hash=${LOCKFILE_SHORT_HASH}" >> $GITHUB_OUTPUT
         echo "os=${LOWERCASE_OS}" >> $GITHUB_OUTPUT
+        echo "pnpm_store_path=${PNPM_STORE_PATH}" >> $GITHUB_OUTPUT
 
     - name: Setup build cache
       uses: actions/cache@v4
       with:
         path: |
           ${{ steps.cache-info.outputs.pnpm_store_path }}
-          **/node_modules/.cache
-          **/.next/cache
+          **/node_modules/.cache/
+          **/.next/cache/
         key: |
           cache-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-lockfile-${{ steps.cache-info.outputs.lockfile_hash }}-pnpm${{ steps.cache-info.outputs.pnpm_version }}-node${{ steps.cache-info.outputs.node_version }}
         restore-keys: |
