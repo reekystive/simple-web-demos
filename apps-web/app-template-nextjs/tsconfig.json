@@ -11,10 +11,10 @@
       "path": "./tsconfig.tests.json"
     },
     {
-      "path": "./node_modules/@monorepo/utils/tsconfig.json"
+      "path": "../../packages/utils/tsconfig.json"
     },
     {
-      "path": "./node_modules/@monorepo/components/tsconfig.json"
+      "path": "../../packages/components/tsconfig.json"
     }
   ]
 }

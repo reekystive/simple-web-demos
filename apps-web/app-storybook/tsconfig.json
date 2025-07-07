@@ -14,16 +14,16 @@
       "path": "./tsconfig.tests.json"
     },
     {
-      "path": "./node_modules/@monorepo/utils/tsconfig.json"
+      "path": "../../packages/utils/tsconfig.json"
     },
     {
-      "path": "./node_modules/@monorepo/app-types/tsconfig.json"
+      "path": "../../packages/app-types/tsconfig.json"
     },
     {
-      "path": "./node_modules/@monorepo/components/tsconfig.json"
+      "path": "../../packages/components/tsconfig.json"
     },
     {
-      "path": "./node_modules/@monorepo/app-trpc-server/tsconfig.json"
+      "path": "../../packages/app-trpc-server/tsconfig.json"
     }
   ]
 }

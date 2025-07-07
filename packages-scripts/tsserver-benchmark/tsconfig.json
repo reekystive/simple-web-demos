@@ -11,7 +11,7 @@
       "path": "./tsconfig.tests.json"
     },
     {
-      "path": "./node_modules/@monorepo/workspace-package-graph/tsconfig.json"
+      "path": "../../packages/workspace-package-graph/tsconfig.json"
     }
   ]
 }
