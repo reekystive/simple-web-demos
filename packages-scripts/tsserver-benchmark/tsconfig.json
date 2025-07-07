@@ -11,7 +11,7 @@
       "path": "./tsconfig.tests.json"
     },
     {
-      "path": "../../packages/workspace-package-graph/tsconfig.json"
+      "path": "../../packages-scripts/workspace-package-graph/tsconfig.json"
     }
   ]
 }
