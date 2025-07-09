@@ -23,7 +23,7 @@
       "path": "../../packages/components/tsconfig.json"
     },
     {
-      "path": "../../packages/app-trpc-server/tsconfig.json"
+      "path": "../../apps-server/trpc-server/tsconfig.json"
     }
   ]
 }
