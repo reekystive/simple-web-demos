@@ -1,8 +1,14 @@
-name: 'Setup cache'
-description: 'Setup cache for all node_modules/.cache and .next/cache directories'
+name: Setup cache
+description: Setup cache for all node_modules/.cache and .next/cache directories
+
+inputs:
+  restore-key-prefix:
+    description: The prefix to use for the restore key
+    required: false
+    default: 'cache'
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Get versions and cache info
       id: cache-info
@@ -40,9 +46,11 @@ runs:
         path: |
           ${{ steps.cache-info.outputs.pnpm_store_path }}
           **/node_modules/.cache/
+          !**/node_modules/**/node_modules/.cache/
           **/.next/cache/
+          !**/node_modules/**/.next/cache/
         key: |
-          cache-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-lockfile-${{ steps.cache-info.outputs.lockfile_hash }}-pnpm${{ steps.cache-info.outputs.pnpm_version }}-node${{ steps.cache-info.outputs.node_version }}
+          ${{ inputs.restore-key-prefix }}-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-lockfile-${{ steps.cache-info.outputs.lockfile_hash }}-pnpm${{ steps.cache-info.outputs.pnpm_version }}-node${{ steps.cache-info.outputs.node_version }}
         restore-keys: |
-          cache-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-lockfile-${{ steps.cache-info.outputs.lockfile_hash }}-
-          cache-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-
+          ${{ inputs.restore-key-prefix }}-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-lockfile-${{ steps.cache-info.outputs.lockfile_hash }}-
+          ${{ inputs.restore-key-prefix }}-${{ steps.cache-info.outputs.os }}-w${{ steps.cache-info.outputs.week_number }}-

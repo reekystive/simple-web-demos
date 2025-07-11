@@ -1,8 +1,8 @@
-name: 'Setup Node.js with corepack'
-description: 'Setup Node.js from package.json and enable corepack'
+name: Setup Node.js with corepack
+description: Setup Node.js from package.json and enable corepack
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Read Node.js version from package.json
       id: node-version
