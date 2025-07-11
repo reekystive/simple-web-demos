@@ -1,7 +1,5 @@
 @import '@monorepo/tailwindcss/tailwindcss.css';
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
 @layer base {
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -13,14 +11,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-
-    @apply bg-white text-black;
-    color-scheme: light;
-  }
-
-  :root[data-theme='dark'] {
-    @apply bg-neutral-900 text-neutral-50;
-    color-scheme: dark;
   }
 
   body {

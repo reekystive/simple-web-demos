@@ -11,15 +11,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-
-    color-scheme: light dark;
-    color: #213547;
-    background-color: #ffffff;
-
-    @media (prefers-color-scheme: dark) {
-      color: #e3e3e3;
-      background-color: #242424;
-    }
   }
 
   body {

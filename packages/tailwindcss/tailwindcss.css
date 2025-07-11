@@ -1,4 +1,42 @@
 @layer theme, base, components, utilities;
+
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
+
+@custom-variant dark {
+  &:where(:root[data-theme='dark'], :root[data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(
+        :root:not([data-theme='light']):not([data-theme='dark']),
+        :root:not([data-theme='light']):not([data-theme='dark']) *
+      ) {
+      @slot;
+    }
+  }
+}
+
+@layer base {
+  :root:where([data-theme='light']) {
+    color-scheme: light;
+    @apply bg-neutral-50 text-neutral-950;
+  }
+  :root:where([data-theme='dark']) {
+    color-scheme: dark;
+    @apply bg-neutral-950 text-neutral-50;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
+      color-scheme: light;
+      @apply bg-neutral-50 text-neutral-950;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
+      color-scheme: dark;
+      @apply bg-neutral-950 text-neutral-50;
+    }
+  }
+}
