@@ -8,10 +8,22 @@
 }
 
 @layer base {
-  :root {
+  :root:where([data-theme='light']) {
     --background: #ffffff;
     --foreground: #171717;
-    @media (prefers-color-scheme: dark) {
+  }
+  :root:where([data-theme='dark']) {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
+      --background: #ffffff;
+      --foreground: #171717;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
       --background: #0a0a0a;
       --foreground: #ededed;
     }
