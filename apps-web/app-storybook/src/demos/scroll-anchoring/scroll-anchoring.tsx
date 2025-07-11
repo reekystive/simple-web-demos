@@ -434,10 +434,10 @@ export const Profile: FC<{ name?: string; avatar?: string; introduction?: string
         <img src={avatar} alt={name} className="h-full w-full rounded-full" />
       </div>
       <div className="flex flex-col">
-        <div data-scroll-anchor className="text-sm font-medium">
+        <div data-scroll-anchor className="self-start text-sm font-medium">
           {name}
         </div>
-        <div className="text-xs text-neutral-500">{introduction}</div>
+        <div className="self-stretch text-xs text-neutral-500">{introduction}</div>
       </div>
     </div>
   );
