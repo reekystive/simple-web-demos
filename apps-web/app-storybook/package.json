@@ -20,15 +20,19 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@faker-js/faker": "catalog:",
     "@monorepo/components": "workspace:^",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
+    "@react-hookz/web": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "motion": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-scan": "catalog:"
+    "react-scan": "catalog:",
+    "react-usestateref": "catalog:",
+    "usehooks-ts": "catalog:"
   },
   "devDependencies": {
     "@monorepo/app-trpc-server": "workspace:*",

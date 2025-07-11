@@ -27,5 +27,6 @@
   "[tailwindcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "tailwindCSS.experimental.configFile": "packages/tailwindcss/tailwindcss.css"
+  "tailwindCSS.experimental.configFile": "packages/tailwindcss/tailwindcss.css",
+  "tailwindCSS.classFunctions": ["cva", "cx", "cn", "clsx", "twMerge", "tw"]
 }

@@ -3,6 +3,7 @@ words:
   - clsx
   - esbuild
   - grayscale
+  - hookz
   - logomark
   - MERCHANTABLITY
   - nextjs
@@ -16,6 +17,7 @@ words:
   - turbopack
   - unplugin
   - usehooks
+  - usestateref
   - Vercel
   - Vite
   - vitejs

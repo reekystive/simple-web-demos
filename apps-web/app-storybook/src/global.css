@@ -1,6 +1,23 @@
 @import '@monorepo/tailwindcss/tailwindcss.css';
 
 @layer base {
+  :root:where([data-theme='light']) {
+    @apply bg-neutral-50 text-neutral-950;
+  }
+  :root:where([data-theme='dark']) {
+    @apply bg-neutral-950 text-neutral-50;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
+      @apply bg-neutral-50 text-neutral-950;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light']):not([data-theme='dark'])) {
+      @apply bg-neutral-950 text-neutral-50;
+    }
+  }
+
   :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
