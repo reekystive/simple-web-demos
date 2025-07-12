@@ -267,7 +267,7 @@ export const ScrollAnchoring: FC = () => {
           ))}
         </ScrollContainer>
 
-        <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-500/30 bg-neutral-900 px-3 py-2 font-mono text-xs opacity-70">
+        <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-400/50 bg-neutral-200/70 px-3 py-2 font-mono text-xs text-black opacity-70 dark:border-neutral-500/30 dark:bg-neutral-900 dark:text-white">
           <div>Potential anchors: {potentialAnchorsCount}</div>
           <div>Anchors in view: {anchorsInViewCount}</div>
           <div>Active anchor: {activeAnchorString}</div>
