@@ -1,22 +1,23 @@
 import { en, Faker } from '@faker-js/faker';
 import { cn, cva, VariantProps } from '@monorepo/utils';
-import { useIntervalEffect } from '@react-hookz/web';
-import { motion, useAnimationFrame } from 'motion/react';
+import { useIntervalEffect, useRafState } from '@react-hookz/web';
+import { useAnimationFrame } from 'motion/react';
 import {
   ButtonHTMLAttributes,
   FC,
   forwardRef,
   ReactNode,
   UIEvent,
-  useCallback,
   useId,
   useImperativeHandle,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import useStateRef from 'react-usestateref';
+import { AnimationIndicator } from './components/indicator.js';
+import { useAnchorInView } from './hooks/use-anchor-in-view.js';
+import { useSlidingFrequency } from './hooks/use-slide-frequency.js';
 
 const buttonVariants = cva(
   'cursor-pointer rounded-sm border transition-all duration-150 ease-out hover:opacity-90 active:opacity-70 dark:border-blue-500/20 dark:bg-blue-500/20',
@@ -134,7 +135,7 @@ export const ScrollAnchoring: FC = () => {
   );
 
   return (
-    <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-2">
+    <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-2 p-2">
       <div className="flex flex-row flex-wrap justify-center gap-2">
         <Button
           size="sm"
@@ -162,7 +163,7 @@ export const ScrollAnchoring: FC = () => {
             setSnapTo((prev) => ({ ...prev, start: !prev.start }));
           }}
         >
-          Snap to start
+          Snap to top
         </Button>
         <Button
           size="sm"
@@ -171,7 +172,7 @@ export const ScrollAnchoring: FC = () => {
             setSnapTo((prev) => ({ ...prev, end: !prev.end }));
           }}
         >
-          Scroll to bottom
+          Snap to bottom
         </Button>
         <Button
           size="sm"
@@ -180,7 +181,7 @@ export const ScrollAnchoring: FC = () => {
             scrollContainerRef.current?.scrollToStart();
           }}
         >
-          Scroll to start
+          Scroll to top
         </Button>
         <Button
           size="sm"
@@ -189,7 +190,7 @@ export const ScrollAnchoring: FC = () => {
             scrollContainerRef.current?.scrollToEnd();
           }}
         >
-          Scroll to end
+          Scroll to bottom
         </Button>
         <Button
           size="sm"
@@ -211,7 +212,7 @@ export const ScrollAnchoring: FC = () => {
         <ScrollContainer
           key={count}
           ref={scrollContainerRef}
-          className="flex h-[30rem] w-[20rem] flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
+          className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
         >
           {content.map((item) => (
             <Item key={item.id}>
@@ -238,15 +239,25 @@ interface ScrollContainerProps {
   snapTo?: 'start' | 'end' | { start?: boolean; end?: boolean };
 }
 
-function deduplicate<T>(array: T[]) {
-  return Array.from(new Set(array));
-}
-
 export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContainerProps>(
   function ScrollContainer(props, ref) {
     const { children, className } = props;
     const containerRef = useRef<HTMLDivElement>(null);
     const id = useId();
+
+    const [potentialAnchorsCount, setPotentialAnchorsCount] = useRafState(0);
+    const [anchorsInViewCount, setAnchorsInViewCount] = useRafState(0);
+    const [activeAnchorString, setActiveAnchorString] = useRafState('');
+
+    const { track: trackPotentialAnchors } = useSlidingFrequency(1000, 200, (freq) => {
+      console.log('[ScrollContainer] potential anchors frequency', freq);
+    });
+    const { track: trackAnchorsInView } = useSlidingFrequency(1000, 200, (freq) => {
+      console.log('[ScrollContainer] anchors in view frequency', freq);
+    });
+    const { track: trackActiveAnchor } = useSlidingFrequency(1000, 200, (freq) => {
+      console.log('[ScrollContainer] active anchor frequency', freq);
+    });
 
     useImperativeHandle(ref, () => {
       const container = containerRef.current;
@@ -269,155 +280,38 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       };
     });
 
-    const anchorElementsRef = useRef<Element[]>([]);
-    const [intersectedElements, setIntersectedElements, intersectedElementsRef] = useStateRef<Element[]>([]);
-    const [_activeAnchorElement, setActiveAnchorElement, activeAnchorElementRef] = useStateRef<Element | null>(null);
-
-    const getTopIntersectingElementInView = useCallback((intersectingElements: Element[]): Element | null => {
-      let minTop = Infinity;
-      let currentSelectedElement: Element | null = null;
-      intersectingElements.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        if (rect.top < minTop) {
-          minTop = rect.top;
-          currentSelectedElement = element;
-        }
-      });
-      return currentSelectedElement;
-    }, []);
-
-    const handleIntersectedElementsChange = useCallback(
-      (intersectingElements: Element[]) => {
-        setIntersectedElements(intersectingElements);
-        const firstIntersectingElement = getTopIntersectingElementInView(intersectingElements);
-        if (!firstIntersectingElement) {
-          return;
-        }
-        const previousAnchorElement = activeAnchorElementRef.current;
-        if (previousAnchorElement) {
-          previousAnchorElement.removeAttribute('data-scroll-anchor-active');
-        }
-        firstIntersectingElement.setAttribute('data-scroll-anchor-active', '');
-        setActiveAnchorElement(firstIntersectingElement);
-        console.log('active anchor element', firstIntersectingElement);
+    useAnchorInView({
+      containerId: id,
+      onPotentialAnchorsChange: (anchors) => {
+        console.log('[ScrollContainer] potential anchors', anchors);
+        setPotentialAnchorsCount(anchors.length);
+        trackPotentialAnchors();
       },
-      [activeAnchorElementRef, getTopIntersectingElementInView, setActiveAnchorElement, setIntersectedElements]
-    );
-
-    const getAnchorElements = useCallback(() => {
-      const container = containerRef.current;
-      if (!container) {
-        return [];
-      }
-      const subtreeContainerIds = deduplicate(
-        Array.from(container.querySelectorAll(`[data-scroll-container-id]:where([data-scroll-container-id="${id}"] *)`))
-          .map((element) => element.getAttribute('data-scroll-container-id'))
-          .filter((id): id is Exclude<typeof id, null> => id !== null)
-          .filter((id) => !!id)
-      );
-      const anchorElements = Array.from(
-        container.querySelectorAll(
-          `[data-scroll-anchor]:where([data-scroll-container-id="${id}"] *)` +
-            subtreeContainerIds.map((id) => `:not(:where([data-scroll-container-id="${id}"] *))`).join('')
-        )
-      );
-      return anchorElements;
-    }, [id]);
-
-    const observeAnchorElementsIntersection = useCallback(
-      (elements: Element[], root: Element, onIntersectionChange: (intersectingElements: Element[]) => void) => {
-        let intersectingElements: Element[] = [];
-        const intersectionObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                intersectingElements.push(entry.target);
-              } else {
-                intersectingElements = intersectingElements.filter((element) => element !== entry.target);
-              }
-            });
-            onIntersectionChange(intersectingElements);
-          },
-          { root, threshold: [0], rootMargin: '0px' }
-        );
-        elements.forEach((element) => {
-          intersectionObserver.observe(element);
-        });
-        return () => {
-          intersectionObserver.disconnect();
-          intersectingElements = [];
-        };
+      onAnchorsInViewChange: (anchors) => {
+        console.log('[ScrollContainer] anchors in view', anchors);
+        setAnchorsInViewCount(anchors.length);
+        trackAnchorsInView();
       },
-      []
-    );
-
-    const intersectionObserverDisconnectRef = useRef<() => void>(() => undefined);
-
-    useLayoutEffect(() => {
-      const container = containerRef.current;
-      if (!container) {
-        return;
-      }
-      const anchorElements = getAnchorElements();
-      anchorElementsRef.current = anchorElements;
-      const disconnect = observeAnchorElementsIntersection(anchorElements, container, (intersectingElements) => {
-        handleIntersectedElementsChange(intersectingElements);
-        console.log('[LayoutEffect IntersectionObserver] %o', intersectedElementsRef.current);
-      });
-      intersectionObserverDisconnectRef.current = disconnect;
-      console.log('[LayoutEffect] %o', anchorElements);
-    }, [getAnchorElements, handleIntersectedElementsChange, intersectedElementsRef, observeAnchorElementsIntersection]);
-
-    useLayoutEffect(() => {
-      const container = containerRef.current;
-      if (!container) {
-        return;
-      }
-
-      const mutationObserver = new MutationObserver(() => {
-        console.log('[MutationObserver] triggered');
-
-        const anchorElements = getAnchorElements();
-
-        anchorElementsRef.current = anchorElements;
-        console.log('[MutationObserver] %o', anchorElements);
-
-        intersectionObserverDisconnectRef.current();
-        intersectionObserverDisconnectRef.current = observeAnchorElementsIntersection(
-          anchorElements,
-          container,
-          (intersectingElements) => {
-            handleIntersectedElementsChange(intersectingElements);
-            console.log('[MutationObserver IntersectionObserver] %o', intersectedElements);
-          }
-        );
-      });
-
-      mutationObserver.observe(container, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeOldValue: false,
-        attributeFilter: ['data-scroll-anchor'],
-        characterData: false,
-        characterDataOldValue: false,
-      });
-
-      return () => {
-        mutationObserver.disconnect();
-      };
-    }, [
-      getAnchorElements,
-      handleIntersectedElementsChange,
-      id,
-      intersectedElements,
-      observeAnchorElementsIntersection,
-    ]);
+      onActiveAnchorChange: (anchor, previousAnchor) => {
+        console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
+        previousAnchor?.removeAttribute('data-scroll-anchor-active');
+        anchor.setAttribute('data-scroll-anchor-active', '');
+        setActiveAnchorString(anchor.textContent ?? '');
+        trackActiveAnchor();
+      },
+    });
 
     return (
-      <div data-scroll-container-id={id} ref={containerRef} className={cn('[overflow-anchor:none]', className)}>
-        {children}
-      </div>
+      <>
+        <div className="flex flex-row gap-2">
+          <div>Potential anchors: {potentialAnchorsCount}</div>
+          <div>Anchors in view: {anchorsInViewCount}</div>
+          <div>Active anchor: {activeAnchorString}</div>
+        </div>
+        <div data-scroll-container-id={id} ref={containerRef} className={cn('[overflow-anchor:none]', className)}>
+          {children}
+        </div>
+      </>
     );
   }
 );
@@ -449,42 +343,6 @@ export const Item: FC<{ children?: ReactNode; className?: string }> = ({ childre
       className={cn('border-b-[0.5px] border-t-[0.5px] border-neutral-500/50 bg-white/50 dark:bg-black/50', className)}
     >
       {children}
-    </div>
-  );
-};
-
-export const AnimationIndicator: FC<{ className?: string }> = ({ className }) => {
-  const framesRef = useRef<{ relativeTime: number }[]>([]);
-  const [fps, setFps] = useState(0);
-  const [showAnimation, setShowAnimation] = useState(false);
-
-  useAnimationFrame(() => {
-    framesRef.current = framesRef.current.filter((frame) => frame.relativeTime > performance.now() - 1000);
-    framesRef.current.push({ relativeTime: performance.now() });
-  });
-
-  useIntervalEffect(() => {
-    setFps(framesRef.current.length);
-  }, 100);
-
-  return (
-    <div
-      className={cn(
-        'flex h-fit w-fit flex-row items-stretch gap-3 bg-red-500/50 p-2 font-mono text-xs text-black dark:text-white',
-        className
-      )}
-      onClick={() => setShowAnimation((v) => !v)}
-    >
-      {showAnimation && (
-        <div className="relative w-[5rem]">
-          <motion.div
-            animate={{ left: ['0', '4rem', '0'] }}
-            transition={{ duration: 1, repeat: Infinity, repeatType: 'loop' }}
-            className="absolute top-0 h-4 w-4 rounded-full bg-black dark:bg-white"
-          />
-        </div>
-      )}
-      <div>{fps} FPS</div>
     </div>
   );
 };

@@ -4,6 +4,8 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
+@import 'tw-animate-css';
+
 @custom-variant dark {
   &:where(:root[data-theme='dark'], :root[data-theme='dark'] *) {
     @slot;
