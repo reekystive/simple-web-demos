@@ -49,7 +49,6 @@ const observeAnchorElementsIntersection = (
   const intersectingElements = new Set<Element>();
   const intersectionObserver = new IntersectionObserver(
     (entries) => {
-      console.log('[observeAnchorElementsIntersection] entries', entries);
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           intersectingElements.add(entry.target);

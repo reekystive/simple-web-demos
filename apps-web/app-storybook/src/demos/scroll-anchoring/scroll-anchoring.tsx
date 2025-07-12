@@ -7,7 +7,6 @@ import {
   FC,
   forwardRef,
   ReactNode,
-  UIEvent,
   useId,
   useImperativeHandle,
   useMemo,
@@ -18,7 +17,6 @@ import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
 import { useAnchorInView } from './hooks/use-anchor-in-view.js';
 import { useScrollAnchoring } from './hooks/use-scroll-anchoring.js';
-import { useSlidingFrequency } from './hooks/use-slide-frequency.js';
 
 const buttonVariants = cva(
   'cursor-pointer rounded-sm border transition-all duration-150 ease-out hover:opacity-90 active:opacity-70 dark:border-blue-500/20 dark:bg-blue-500/20',
@@ -189,7 +187,7 @@ export const ScrollAnchoring: FC = () => {
             size="sm"
             color="blue"
             onClick={() => {
-              scrollContainerRef.current?.scrollToStart();
+              scrollContainerRef.current?.scrollToTop();
             }}
           >
             Scroll to top
@@ -198,7 +196,7 @@ export const ScrollAnchoring: FC = () => {
             size="sm"
             color="blue"
             onClick={() => {
-              scrollContainerRef.current?.scrollToEnd();
+              scrollContainerRef.current?.scrollToBottom();
             }}
           >
             Scroll to bottom
@@ -232,32 +230,29 @@ export const ScrollAnchoring: FC = () => {
           </Button>
         </div>
 
-        <div>
-          <style>{` [data-scroll-anchor-active] { background-color: red; } `}</style>
-          <ScrollContainer
-            key={count}
-            ref={scrollContainerRef}
-            className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
-            onPotentialAnchorsChange={(anchors) => {
-              setPotentialAnchorsCount(anchors.length);
-            }}
-            onAnchorsInViewChange={(anchors) => {
-              setAnchorsInViewCount(anchors.length);
-            }}
-            onActiveAnchorChange={(anchor, previousAnchor) => {
-              previousAnchor?.removeAttribute('data-scroll-anchor-active');
-              anchor?.setAttribute('data-scroll-anchor-active', '');
-              setActiveAnchorString(anchor?.textContent ?? '');
-            }}
-            defaultEnableAnchoring={true}
-          >
-            {content.map((item) => (
-              <Item key={item.id}>
-                <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
-              </Item>
-            ))}
-          </ScrollContainer>
-        </div>
+        <style>{` [data-scroll-anchor-active] { background-color: rgba(255,0,0,0.5); } `}</style>
+
+        <ScrollContainer
+          key={count}
+          ref={scrollContainerRef}
+          className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
+          onPotentialAnchorsChange={(anchors) => {
+            setPotentialAnchorsCount(anchors.length);
+          }}
+          onAnchorsInViewChange={(anchors) => {
+            setAnchorsInViewCount(anchors.length);
+          }}
+          onActiveAnchorChange={(anchor) => {
+            setActiveAnchorString(anchor?.textContent ?? '');
+          }}
+          defaultEnableAnchoring={true}
+        >
+          {content.map((item) => (
+            <Item key={item.id}>
+              <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
+            </Item>
+          ))}
+        </ScrollContainer>
 
         <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-500/30 bg-neutral-900 px-3 py-2 font-mono text-xs opacity-70">
           <div>Potential anchors: {potentialAnchorsCount}</div>
@@ -272,8 +267,6 @@ export const ScrollAnchoring: FC = () => {
 interface ScrollContainerControls {
   scrollToTop: () => void;
   scrollToBottom: () => void;
-  scrollToStart: () => void;
-  scrollToEnd: () => void;
   enableAnchoring: () => void;
   disableAnchoring: () => void;
   getIsAnchoringEnabled: () => boolean;
@@ -285,7 +278,6 @@ interface ScrollContainerControls {
 interface ScrollContainerProps {
   children?: ReactNode;
   className?: string;
-  onScroll?: (event: UIEvent<HTMLDivElement>) => void;
   snapTo?: 'start' | 'end' | { start?: boolean; end?: boolean };
   onPotentialAnchorsChange?: (anchors: Element[]) => void;
   onAnchorsInViewChange?: (anchors: Element[]) => void;
@@ -308,17 +300,8 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
 
     const { updateActiveAnchor, enableAnchoring, disableAnchoring, getIsAnchoringEnabled } = useScrollAnchoring({
       containerRef,
+      containerId: id,
       defaultEnableAnchoring,
-    });
-
-    const { track: trackPotentialAnchors } = useSlidingFrequency(1000, 200, (freq) => {
-      console.log('[ScrollContainer] potential anchors frequency', freq);
-    });
-    const { track: trackAnchorsInView } = useSlidingFrequency(1000, 200, (freq) => {
-      console.log('[ScrollContainer] anchors in view frequency', freq);
-    });
-    const { track: trackActiveAnchor } = useSlidingFrequency(1000, 200, (freq) => {
-      console.log('[ScrollContainer] active anchor frequency', freq);
     });
 
     useImperativeHandle(ref, () => {
@@ -331,12 +314,6 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
           containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
         },
         scrollToBottom: () => {
-          containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
-        },
-        scrollToStart: () => {
-          containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-        },
-        scrollToEnd: () => {
           containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
         },
         enableAnchoring: () => {
@@ -368,26 +345,20 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       containerId: id,
       onPotentialAnchorsChange: (anchors) => {
         potentialAnchorsRef.current = anchors;
-        console.log('[ScrollContainer] potential anchors', anchors);
-        // setPotentialAnchorsCount(anchors.length);
-        trackPotentialAnchors();
+        // console.log('[ScrollContainer] potential anchors', anchors);
         onPotentialAnchorsChange?.(anchors);
       },
       onAnchorsInViewChange: (anchors) => {
         inViewAnchorsRef.current = anchors;
-        console.log('[ScrollContainer] anchors in view', anchors);
-        // setAnchorsInViewCount(anchors.length);
-        trackAnchorsInView();
+        // console.log('[ScrollContainer] anchors in view', anchors);
         onAnchorsInViewChange?.(anchors);
       },
       onActiveAnchorChange: (anchor, previousAnchor) => {
         activeAnchorRef.current = anchor;
-        console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
+        // console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
         previousAnchor?.removeAttribute('data-scroll-anchor-active');
         anchor?.setAttribute('data-scroll-anchor-active', '');
-        // setActiveAnchorString(anchor?.textContent ?? '');
         updateActiveAnchor(anchor);
-        trackActiveAnchor();
         onActiveAnchorChange?.(anchor, previousAnchor);
       },
     });
@@ -398,6 +369,10 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         ref={containerRef}
         className={cn('relative [overflow-anchor:none]', className)}
       >
+        <div
+          data-scroll-container-anchor-id={id}
+          className="invisible absolute left-0 top-0 h-0 w-0 overflow-clip"
+        ></div>
         {children}
       </div>
     );
@@ -419,7 +394,9 @@ export const Profile: FC<{ name?: string; avatar?: string; introduction?: string
         <div data-scroll-anchor className="self-start text-sm font-medium">
           {name}
         </div>
-        <div className="self-stretch text-xs text-neutral-500">{introduction}</div>
+        <div data-scroll-anchor className="self-stretch text-xs text-neutral-500">
+          {introduction}
+        </div>
       </div>
     </div>
   );

@@ -1,15 +1,33 @@
 import { useAnimationFrame } from 'motion/react';
 import { RefObject, useCallback, useRef } from 'react';
 
-const getTopPositionInContainer = (element: Element, container: Element): number => {
-  return element.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+const getTopPositionInContainer = (element: Element, container: Element, containerId: string): number => {
+  return (
+    element.getBoundingClientRect().top -
+    container.getBoundingClientRect().top +
+    getPreciseScrollTop(container, containerId)
+  );
+};
+
+const getPreciseScrollTop = (container: Element, containerId: string): number => {
+  const containerAnchor = document.querySelector(
+    `[data-scroll-container-anchor-id="${containerId}"]:where([data-scroll-container-id="${containerId}"] *)`
+  );
+  if (!containerAnchor) {
+    console.warn('[ScrollAnchoring] container anchor not found, using scrollTop as fallback.');
+    return container.scrollTop;
+  }
+  const preciseScrollTop = -(containerAnchor.getBoundingClientRect().top - container.getBoundingClientRect().top);
+  return preciseScrollTop;
 };
 
 export const useScrollAnchoring = ({
   containerRef,
+  containerId,
   defaultEnableAnchoring = true,
 }: {
   containerRef: RefObject<HTMLElement | null>;
+  containerId: string;
   defaultEnableAnchoring: boolean;
 }) => {
   const rafPreviousAnchor = useRef<{ anchor: Element; topPositionInContainer: number } | null>(null);
@@ -44,7 +62,7 @@ export const useScrollAnchoring = ({
       }
       rafPreviousAnchor.current = {
         anchor: active,
-        topPositionInContainer: getTopPositionInContainer(active, container),
+        topPositionInContainer: getTopPositionInContainer(active, container, containerId),
       };
       return;
     }
@@ -55,35 +73,68 @@ export const useScrollAnchoring = ({
         activeAnchorRef.current = null;
         return;
       }
-      const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+      const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container, containerId);
       const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
       if (diff !== 0 && isAnchoringEnabledRef.current) {
+        const expected = getPreciseScrollTop(container, containerId) + diff;
+        console.warn('[ScrollAnchoring] triggering active scroll, diff: %f', diff);
         container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+        const actual = getPreciseScrollTop(container, containerId);
+        if (Math.abs(actual - expected) > 0.001) {
+          console.warn(
+            '[ScrollAnchoring] expected scrollTop is %f, got %f. diff: %f',
+            expected,
+            actual,
+            actual - expected
+          );
+        }
       }
       activeAnchorRef.current = null;
       return;
     }
     if (rafPreviousAnchor.current.anchor !== active) {
-      const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+      const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container, containerId);
       const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
       if (diff !== 0 && getIsAnchoringEnabled()) {
+        const expected = getPreciseScrollTop(container, containerId) + diff;
+        console.warn('[ScrollAnchoring] triggering active scroll, diff: %f', diff);
         container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+        const actual = getPreciseScrollTop(container, containerId);
+        if (Math.abs(actual - expected) > 0.001) {
+          console.warn(
+            '[ScrollAnchoring] expected scrollTop is %f, got %f. diff: %f',
+            expected,
+            actual,
+            actual - expected
+          );
+        }
       }
       rafPreviousAnchor.current = {
         anchor: active,
-        topPositionInContainer: getTopPositionInContainer(active, container),
+        topPositionInContainer: getTopPositionInContainer(active, container, containerId),
       };
       return;
     }
     // the anchor is not changed since last frame and both current and previous is not null
-    const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+    const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container, containerId);
     const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
     if (diff !== 0 && isAnchoringEnabledRef.current) {
+      const expected = getPreciseScrollTop(container, containerId) + diff;
+      console.warn('[ScrollAnchoring] triggering active scroll, diff: %f', diff);
       container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+      const actual = getPreciseScrollTop(container, containerId);
+      if (Math.abs(actual - expected) > 0.001) {
+        console.warn(
+          '[ScrollAnchoring] expected scrollTop is %f, got %f. diff: %f',
+          expected,
+          actual,
+          actual - expected
+        );
+      }
     }
     rafPreviousAnchor.current = {
       anchor: active,
-      topPositionInContainer: getTopPositionInContainer(active, container),
+      topPositionInContainer: getTopPositionInContainer(active, container, containerId),
     };
   });
 
