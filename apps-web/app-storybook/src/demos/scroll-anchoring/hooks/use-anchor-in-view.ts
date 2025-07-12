@@ -150,24 +150,6 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     [handleIntersectedElementsChange, handlePotentialAnchorElementsRemoval, onPotentialAnchorsChange]
   );
 
-  // const handlePotentialAnchorsRemoval = useCallback(
-  //   (container: Element, removedElements: Element[]) => {
-  //     potentialAnchorElementsRef.current = potentialAnchorElementsRef.current.filter(
-  //       (element) => !removedElements.includes(element)
-  //     );
-  //     onPotentialAnchorsChange?.(potentialAnchorElementsRef.current);
-  //     const disconnect = observeAnchorElementsIntersection(
-  //       potentialAnchorElementsRef.current,
-  //       container,
-  //       (intersectingElements) => {
-  //         handleIntersectedElementsChange(intersectingElements);
-  //       }
-  //     );
-  //     return disconnect;
-  //   },
-  //   [handleIntersectedElementsChange, onPotentialAnchorsChange]
-  // );
-
   // observe anchor elements intersection on first mount
   useLayoutEffect(() => {
     const container = getContainerRef(id);
@@ -191,8 +173,6 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     const mutationObserver = new MutationObserver(() => {
       const potentialAnchorElements = getPotentialAnchorElements(container, id);
       handlePotentialAnchorsChange(container, potentialAnchorElements);
-      // const removedElements = mutations.flatMap((mutation) => mutation.removedNodes);
-      // console.log('removed elements', removedElements);
     });
 
     mutationObserver.observe(container, {

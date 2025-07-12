@@ -1,6 +1,6 @@
 import { en, Faker } from '@faker-js/faker';
 import { cn, cva, VariantProps } from '@monorepo/utils';
-import { useIntervalEffect, useRafState } from '@react-hookz/web';
+import { useIntervalEffect } from '@react-hookz/web';
 import { useAnimationFrame } from 'motion/react';
 import {
   ButtonHTMLAttributes,
@@ -44,16 +44,19 @@ const buttonVariants = cva(
   }
 );
 
-export const Button: FC<ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>> = ({
-  children,
-  className,
-  size,
-  color,
-  ...props
-}) => {
+export const Button: FC<
+  ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants> & { allPossibleContents?: ReactNode[] }
+> = ({ children, className, size, color, allPossibleContents, ...props }) => {
   return (
-    <button className={buttonVariants({ className, size, color })} {...props}>
+    <button className={cn(buttonVariants({ className, size, color }))} {...props}>
       {children}
+      {allPossibleContents && allPossibleContents.length > 0 && (
+        <div className="leading-0 invisible flex h-0 flex-col overflow-clip">
+          {allPossibleContents.map((content, index) => (
+            <div key={index}>{content}</div>
+          ))}
+        </div>
+      )}
     </button>
   );
 };
@@ -87,6 +90,10 @@ export const ScrollAnchoring: FC = () => {
   const [rollingToBottom, setRollingToBottom] = useState(false);
   const [snapTo, setSnapTo] = useState<{ start?: boolean; end?: boolean }>({ start: false, end: false });
   const [slowDown, setSlowDown, slowDownRef] = useStateRef(false);
+  const [isAnchoringEnabled, setIsAnchoringEnabled] = useState(true);
+  const [potentialAnchorsCount, setPotentialAnchorsCount] = useState(0);
+  const [anchorsInViewCount, setAnchorsInViewCount] = useState(0);
+  const [activeAnchorString, setActiveAnchorString] = useState('');
 
   const [content, setContent] = useState(() => {
     return Array.from({ length: 50 }).map(() => ({
@@ -136,93 +143,129 @@ export const ScrollAnchoring: FC = () => {
   );
 
   return (
-    <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-2 p-2">
-      <div className="flex flex-row flex-wrap justify-center gap-2">
-        <Button
-          size="sm"
-          color="blue"
-          onClick={() => {
-            resetFaker();
-            setCount((c) => (c + 1) % 10);
-          }}
-        >
-          Remount
-        </Button>
-        <Button size="sm" color="blue" onClick={() => setContent([])}>
-          Clear
-        </Button>
-        <Button size="sm" color={rollingToTop ? 'red' : 'blue'} onClick={() => setRollingToTop((v) => !v)}>
-          Roll top
-        </Button>
-        <Button size="sm" color={rollingToBottom ? 'red' : 'blue'} onClick={() => setRollingToBottom((v) => !v)}>
-          Roll bottom
-        </Button>
-        <Button
-          size="sm"
-          color={snapTo.start ? 'red' : 'blue'}
-          onClick={() => {
-            setSnapTo((prev) => ({ ...prev, start: !prev.start }));
-          }}
-        >
-          Snap to top
-        </Button>
-        <Button
-          size="sm"
-          color={snapTo.end ? 'red' : 'blue'}
-          onClick={() => {
-            setSnapTo((prev) => ({ ...prev, end: !prev.end }));
-          }}
-        >
-          Snap to bottom
-        </Button>
-        <Button
-          size="sm"
-          color="blue"
-          onClick={() => {
-            scrollContainerRef.current?.scrollToStart();
-          }}
-        >
-          Scroll to top
-        </Button>
-        <Button
-          size="sm"
-          color="blue"
-          onClick={() => {
-            scrollContainerRef.current?.scrollToEnd();
-          }}
-        >
-          Scroll to bottom
-        </Button>
-        <Button
-          size="sm"
-          color={slowDown ? 'red' : 'blue'}
-          onClick={() => {
-            setSlowDown((v) => !v);
-          }}
-        >
-          Slow down
-        </Button>
-      </div>
+    <>
       <AnimationIndicator className="fixed bottom-0 left-0" />
-      <div>
-        <style>{`
-          [data-scroll-anchor-active] {
-            background-color: red;
-          }
-        `}</style>
-        <ScrollContainer
-          key={count}
-          ref={scrollContainerRef}
-          className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
-        >
-          {content.map((item) => (
-            <Item key={item.id}>
-              <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
-            </Item>
-          ))}
-        </ScrollContainer>
+
+      <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-2 p-2">
+        <div className="flex flex-row flex-wrap justify-center gap-2">
+          <Button
+            size="sm"
+            color="blue"
+            onClick={() => {
+              resetFaker();
+              setCount((c) => (c + 1) % 10);
+            }}
+          >
+            Remount
+          </Button>
+          <Button size="sm" color="blue" onClick={() => setContent([])}>
+            Clear
+          </Button>
+          <Button size="sm" color={rollingToTop ? 'red' : 'blue'} onClick={() => setRollingToTop((v) => !v)}>
+            Roll top
+          </Button>
+          <Button size="sm" color={rollingToBottom ? 'red' : 'blue'} onClick={() => setRollingToBottom((v) => !v)}>
+            Roll bottom
+          </Button>
+          <Button
+            size="sm"
+            color={snapTo.start ? 'red' : 'blue'}
+            onClick={() => {
+              setSnapTo((prev) => ({ ...prev, start: !prev.start }));
+            }}
+          >
+            Snap to top
+          </Button>
+          <Button
+            size="sm"
+            color={snapTo.end ? 'red' : 'blue'}
+            onClick={() => {
+              setSnapTo((prev) => ({ ...prev, end: !prev.end }));
+            }}
+          >
+            Snap to bottom
+          </Button>
+          <Button
+            size="sm"
+            color="blue"
+            onClick={() => {
+              scrollContainerRef.current?.scrollToStart();
+            }}
+          >
+            Scroll to top
+          </Button>
+          <Button
+            size="sm"
+            color="blue"
+            onClick={() => {
+              scrollContainerRef.current?.scrollToEnd();
+            }}
+          >
+            Scroll to bottom
+          </Button>
+          <Button
+            size="sm"
+            color={slowDown ? 'red' : 'blue'}
+            onClick={() => {
+              setSlowDown((v) => !v);
+            }}
+          >
+            Slow down
+          </Button>
+          <Button
+            size="sm"
+            color={isAnchoringEnabled ? 'red' : 'blue'}
+            onClick={() => {
+              setIsAnchoringEnabled((v) => {
+                const newValue = !v;
+                if (newValue) {
+                  scrollContainerRef.current?.enableAnchoring();
+                } else {
+                  scrollContainerRef.current?.disableAnchoring();
+                }
+                return newValue;
+              });
+            }}
+            allPossibleContents={['Disable anchoring', 'Enable anchoring']}
+          >
+            {isAnchoringEnabled ? 'Disable anchoring' : 'Enable anchoring'}
+          </Button>
+        </div>
+
+        <div>
+          <style>{` [data-scroll-anchor-active] { background-color: red; } `}</style>
+          <ScrollContainer
+            key={count}
+            ref={scrollContainerRef}
+            className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
+            onPotentialAnchorsChange={(anchors) => {
+              setPotentialAnchorsCount(anchors.length);
+            }}
+            onAnchorsInViewChange={(anchors) => {
+              setAnchorsInViewCount(anchors.length);
+            }}
+            onActiveAnchorChange={(anchor, previousAnchor) => {
+              previousAnchor?.removeAttribute('data-scroll-anchor-active');
+              anchor?.setAttribute('data-scroll-anchor-active', '');
+              setActiveAnchorString(anchor?.textContent ?? '');
+            }}
+            defaultEnableAnchoring={true}
+          >
+            {content.map((item) => (
+              <Item key={item.id}>
+                <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
+              </Item>
+            ))}
+          </ScrollContainer>
+        </div>
+
+        <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-500/30 bg-neutral-900 px-3 py-2 font-mono text-xs opacity-70">
+          <div>Potential anchors: {potentialAnchorsCount}</div>
+          <div>Anchors in view: {anchorsInViewCount}</div>
+          <div>Active anchor: {activeAnchorString}</div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -231,6 +274,12 @@ interface ScrollContainerControls {
   scrollToBottom: () => void;
   scrollToStart: () => void;
   scrollToEnd: () => void;
+  enableAnchoring: () => void;
+  disableAnchoring: () => void;
+  getIsAnchoringEnabled: () => boolean;
+  getActiveAnchor: () => Element | null;
+  getPotentialAnchors: () => Element[];
+  getAnchorsInView: () => Element[];
 }
 
 interface ScrollContainerProps {
@@ -238,19 +287,29 @@ interface ScrollContainerProps {
   className?: string;
   onScroll?: (event: UIEvent<HTMLDivElement>) => void;
   snapTo?: 'start' | 'end' | { start?: boolean; end?: boolean };
+  onPotentialAnchorsChange?: (anchors: Element[]) => void;
+  onAnchorsInViewChange?: (anchors: Element[]) => void;
+  onActiveAnchorChange?: (anchor: Element | null, previousAnchor: Element | null) => void;
+  defaultEnableAnchoring: boolean;
 }
 
 export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContainerProps>(
   function ScrollContainer(props, ref) {
-    const { children, className } = props;
+    const {
+      children,
+      className,
+      onPotentialAnchorsChange,
+      onAnchorsInViewChange,
+      onActiveAnchorChange,
+      defaultEnableAnchoring,
+    } = props;
     const containerRef = useRef<HTMLDivElement>(null);
     const id = useId();
 
-    const [potentialAnchorsCount, setPotentialAnchorsCount] = useRafState(0);
-    const [anchorsInViewCount, setAnchorsInViewCount] = useRafState(0);
-    const [activeAnchorString, setActiveAnchorString] = useRafState('');
-
-    const { updateActiveAnchor } = useScrollAnchoring({ containerRef });
+    const { updateActiveAnchor, enableAnchoring, disableAnchoring, getIsAnchoringEnabled } = useScrollAnchoring({
+      containerRef,
+      defaultEnableAnchoring,
+    });
 
     const { track: trackPotentialAnchors } = useSlidingFrequency(1000, 200, (freq) => {
       console.log('[ScrollContainer] potential anchors frequency', freq);
@@ -280,6 +339,24 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         scrollToEnd: () => {
           containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
         },
+        enableAnchoring: () => {
+          enableAnchoring();
+        },
+        disableAnchoring: () => {
+          disableAnchoring();
+        },
+        getIsAnchoringEnabled: () => {
+          return getIsAnchoringEnabled();
+        },
+        getActiveAnchor: () => {
+          return activeAnchorRef.current;
+        },
+        getPotentialAnchors: () => {
+          return potentialAnchorsRef.current;
+        },
+        getAnchorsInView: () => {
+          return inViewAnchorsRef.current;
+        },
       };
     });
 
@@ -292,40 +369,36 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       onPotentialAnchorsChange: (anchors) => {
         potentialAnchorsRef.current = anchors;
         console.log('[ScrollContainer] potential anchors', anchors);
-        setPotentialAnchorsCount(anchors.length);
+        // setPotentialAnchorsCount(anchors.length);
         trackPotentialAnchors();
+        onPotentialAnchorsChange?.(anchors);
       },
       onAnchorsInViewChange: (anchors) => {
         inViewAnchorsRef.current = anchors;
         console.log('[ScrollContainer] anchors in view', anchors);
-        setAnchorsInViewCount(anchors.length);
+        // setAnchorsInViewCount(anchors.length);
         trackAnchorsInView();
+        onAnchorsInViewChange?.(anchors);
       },
       onActiveAnchorChange: (anchor, previousAnchor) => {
         activeAnchorRef.current = anchor;
         console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
         previousAnchor?.removeAttribute('data-scroll-anchor-active');
         anchor?.setAttribute('data-scroll-anchor-active', '');
-        setActiveAnchorString(anchor?.textContent ?? '');
+        // setActiveAnchorString(anchor?.textContent ?? '');
         updateActiveAnchor(anchor);
         trackActiveAnchor();
+        onActiveAnchorChange?.(anchor, previousAnchor);
       },
     });
 
     return (
-      <div className="relative">
-        <div
-          data-scroll-container-id={id}
-          ref={containerRef}
-          className={cn('relative [overflow-anchor:none]', className)}
-        >
-          {children}
-        </div>
-        <div className="pointer-events-none absolute left-0 right-0 top-0 flex flex-col border-b border-neutral-500/30 bg-neutral-900 px-3 py-2 font-mono text-xs opacity-70">
-          <div>Potential anchors: {potentialAnchorsCount}</div>
-          <div>Anchors in view: {anchorsInViewCount}</div>
-          <div>Active anchor: {activeAnchorString}</div>
-        </div>
+      <div
+        data-scroll-container-id={id}
+        ref={containerRef}
+        className={cn('relative [overflow-anchor:none]', className)}
+      >
+        {children}
       </div>
     );
   }

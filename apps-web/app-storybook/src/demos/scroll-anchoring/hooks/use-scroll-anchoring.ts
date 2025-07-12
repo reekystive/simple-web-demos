@@ -5,12 +5,31 @@ const getTopPositionInContainer = (element: Element, container: Element): number
   return element.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
 };
 
-export const useScrollAnchoring = ({ containerRef }: { containerRef: RefObject<HTMLElement | null> }) => {
+export const useScrollAnchoring = ({
+  containerRef,
+  defaultEnableAnchoring = true,
+}: {
+  containerRef: RefObject<HTMLElement | null>;
+  defaultEnableAnchoring: boolean;
+}) => {
   const rafPreviousAnchor = useRef<{ anchor: Element; topPositionInContainer: number } | null>(null);
   const activeAnchorRef = useRef<Element | null>(null);
+  const isAnchoringEnabledRef = useRef(defaultEnableAnchoring);
 
   const updateActiveAnchor = useCallback((anchor: Element | null) => {
     activeAnchorRef.current = anchor;
+  }, []);
+
+  const enableAnchoring = useCallback(() => {
+    isAnchoringEnabledRef.current = true;
+  }, []);
+
+  const disableAnchoring = useCallback(() => {
+    isAnchoringEnabledRef.current = false;
+  }, []);
+
+  const getIsAnchoringEnabled = useCallback(() => {
+    return isAnchoringEnabledRef.current;
   }, []);
 
   useAnimationFrame(() => {
@@ -38,7 +57,7 @@ export const useScrollAnchoring = ({ containerRef }: { containerRef: RefObject<H
       }
       const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
       const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
-      if (diff !== 0) {
+      if (diff !== 0 && isAnchoringEnabledRef.current) {
         container.scrollBy({ behavior: 'instant', left: 0, top: diff });
       }
       activeAnchorRef.current = null;
@@ -47,7 +66,7 @@ export const useScrollAnchoring = ({ containerRef }: { containerRef: RefObject<H
     if (rafPreviousAnchor.current.anchor !== active) {
       const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
       const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
-      if (diff !== 0) {
+      if (diff !== 0 && getIsAnchoringEnabled()) {
         container.scrollBy({ behavior: 'instant', left: 0, top: diff });
       }
       rafPreviousAnchor.current = {
@@ -59,7 +78,7 @@ export const useScrollAnchoring = ({ containerRef }: { containerRef: RefObject<H
     // the anchor is not changed since last frame and both current and previous is not null
     const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
     const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
-    if (diff !== 0) {
+    if (diff !== 0 && isAnchoringEnabledRef.current) {
       container.scrollBy({ behavior: 'instant', left: 0, top: diff });
     }
     rafPreviousAnchor.current = {
@@ -68,5 +87,5 @@ export const useScrollAnchoring = ({ containerRef }: { containerRef: RefObject<H
     };
   });
 
-  return { updateActiveAnchor };
+  return { updateActiveAnchor, enableAnchoring, disableAnchoring, getIsAnchoringEnabled };
 };
