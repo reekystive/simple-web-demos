@@ -159,11 +159,21 @@ export const ScrollAnchoring: FC = () => {
           <Button size="sm" color="blue" onClick={() => setContent([])}>
             Clear
           </Button>
-          <Button size="sm" color={rollingToTop ? 'red' : 'blue'} onClick={() => setRollingToTop((v) => !v)}>
-            Roll top
+          <Button
+            size="sm"
+            color={rollingToTop ? 'red' : 'blue'}
+            onClick={() => setRollingToTop((v) => !v)}
+            allPossibleContents={['Stop rolling to top', 'Start rolling to top']}
+          >
+            {rollingToTop ? 'Stop rolling to top' : 'Start rolling to top'}
           </Button>
-          <Button size="sm" color={rollingToBottom ? 'red' : 'blue'} onClick={() => setRollingToBottom((v) => !v)}>
-            Roll bottom
+          <Button
+            size="sm"
+            color={rollingToBottom ? 'red' : 'blue'}
+            onClick={() => setRollingToBottom((v) => !v)}
+            allPossibleContents={['Stop rolling to bottom', 'Start rolling to bottom']}
+          >
+            {rollingToBottom ? 'Stop rolling to bottom' : 'Start rolling to bottom'}
           </Button>
           <Button
             size="sm"
@@ -171,8 +181,9 @@ export const ScrollAnchoring: FC = () => {
             onClick={() => {
               setSnapTo((prev) => ({ ...prev, start: !prev.start }));
             }}
+            allPossibleContents={['Un-snap to top', 'Snap to top']}
           >
-            Snap to top
+            {snapTo.start ? 'Un-snap to top' : 'Snap to top'}
           </Button>
           <Button
             size="sm"
@@ -180,8 +191,9 @@ export const ScrollAnchoring: FC = () => {
             onClick={() => {
               setSnapTo((prev) => ({ ...prev, end: !prev.end }));
             }}
+            allPossibleContents={['Un-snap to bottom', 'Snap to bottom']}
           >
-            Snap to bottom
+            {snapTo.end ? 'Un-snap to bottom' : 'Snap to bottom'}
           </Button>
           <Button
             size="sm"
@@ -207,8 +219,9 @@ export const ScrollAnchoring: FC = () => {
             onClick={() => {
               setSlowDown((v) => !v);
             }}
+            allPossibleContents={['Stop slowing down', 'Execute slow code']}
           >
-            Slow down
+            {slowDown ? 'Stop slowing down' : 'Execute slow code'}
           </Button>
           <Button
             size="sm"
