@@ -1,76 +1,13 @@
-import { en, Faker } from '@faker-js/faker';
-import { cn, cva, VariantProps } from '@monorepo/utils';
+import { Button } from '#src/components/button/button.js';
+import { cn } from '@monorepo/utils';
 import { useIntervalEffect } from '@react-hookz/web';
 import { useAnimationFrame } from 'motion/react';
-import {
-  ButtonHTMLAttributes,
-  FC,
-  forwardRef,
-  ReactNode,
-  useId,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { FC, forwardRef, ReactNode, useId, useImperativeHandle, useRef, useState } from 'react';
 import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
 import { useAnchorInView } from './hooks/use-anchor-in-view.js';
+import { useFaker } from './hooks/use-faker.js';
 import { useScrollAnchoring } from './hooks/use-scroll-anchoring.js';
-
-const buttonVariants = cva(
-  'cursor-pointer rounded-sm border transition-all duration-150 ease-out hover:opacity-90 active:opacity-70 dark:border-blue-500/20 dark:bg-blue-500/20',
-  {
-    variants: {
-      size: {
-        md: 'px-2 py-0.5 text-sm',
-        sm: 'px-1.5 py-0.5 text-xs',
-      },
-      color: {
-        blue: 'border-blue-600/40 bg-blue-600/80 text-white dark:border-blue-500/20 dark:bg-blue-500/20 dark:text-white',
-        red: 'border-red-600/40 bg-red-600/80 text-white dark:border-red-500/20 dark:bg-red-500/20 dark:text-white',
-        yellow:
-          'border-yellow-600/40 bg-yellow-600/80 text-white dark:border-yellow-500/20 dark:bg-yellow-500/20 dark:text-white',
-        green:
-          'border-green-600/40 bg-green-600/80 text-white dark:border-green-500/20 dark:bg-green-500/20 dark:text-white',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
-      color: 'blue',
-    },
-  }
-);
-
-export const Button: FC<
-  ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants> & { allPossibleContents?: ReactNode[] }
-> = ({ children, className, size, color, allPossibleContents, ...props }) => {
-  return (
-    <button className={cn(buttonVariants({ className, size, color }))} {...props}>
-      {children}
-      {allPossibleContents && allPossibleContents.length > 0 && (
-        <div className="leading-0 invisible flex h-0 flex-col overflow-clip">
-          {allPossibleContents.map((content, index) => (
-            <div key={index}>{content}</div>
-          ))}
-        </div>
-      )}
-    </button>
-  );
-};
-
-const useFaker = () => {
-  const seed = useMemo(() => Math.floor(Math.random() * 1000000), []);
-  const fakerWithSeed = useMemo(() => new Faker({ locale: [en], seed }), [seed]);
-  const faker = useMemo(() => new Faker({ locale: [en] }), []);
-  return {
-    faker,
-    fakerWithSeed,
-    reset: () => {
-      fakerWithSeed.seed(seed);
-    },
-  };
-};
 
 interface Content {
   id: string;
@@ -94,6 +31,7 @@ export const ScrollAnchoring: FC = () => {
   const [activeAnchorString, setActiveAnchorString] = useState('');
 
   const [content, setContent] = useState(() => {
+    resetFaker();
     return Array.from({ length: 50 }).map(() => ({
       id: fakerWithSeed.string.uuid(),
       name: fakerWithSeed.person.fullName(),
