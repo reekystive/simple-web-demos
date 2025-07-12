@@ -38,7 +38,7 @@ interface UseAnchorInViewContainer {
 type UseAnchorInViewProps = {
   onPotentialAnchorsChange?: (anchorElements: Element[]) => void;
   onAnchorsInViewChange?: (anchorElements: Element[]) => void;
-  onActiveAnchorChange?: (anchorElement: Element, previousAnchorElement: Element | null) => void;
+  onActiveAnchorChange?: (anchorElement: Element | null, previousAnchorElement: Element | null) => void;
 } & UseAnchorInViewContainer;
 
 const observeAnchorElementsIntersection = (
@@ -85,7 +85,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
   const potentialAnchorElementsRef = useRef<Element[]>([]);
   const memoedContainerRef = useRef<Element | null>(null);
   const disconnectIntersectionObserverRef = useRef<(() => void) | null>(() => null);
-  const intersectingElementsRef = useRef<Element[]>([]);
+  const inViewAnchorElementsRef = useRef<Element[]>([]);
   const activeAnchorElementRef = useRef<Element | null>(null);
 
   const getContainerRef = useCallback((id: string): Element | null => {
@@ -103,7 +103,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
   const handleIntersectedElementsChange = useCallback(
     (intersectedElements: Element[]) => {
       onAnchorsInViewChange?.(intersectedElements);
-      intersectingElementsRef.current = intersectedElements;
+      inViewAnchorElementsRef.current = intersectedElements;
       const firstIntersectingElement = getTopElementInView(intersectedElements);
       if (!firstIntersectingElement) {
         return;
@@ -115,20 +115,39 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     [activeAnchorElementRef, onActiveAnchorChange, onAnchorsInViewChange]
   );
 
+  const handlePotentialAnchorElementsRemoval = useCallback(
+    (removedElements: Element[]) => {
+      const newAnchorsInView = inViewAnchorElementsRef.current.filter((prev) => !removedElements.includes(prev));
+      inViewAnchorElementsRef.current = newAnchorsInView;
+      onAnchorsInViewChange?.(newAnchorsInView);
+      if (activeAnchorElementRef.current !== null && removedElements.includes(activeAnchorElementRef.current)) {
+        onActiveAnchorChange?.(null, activeAnchorElementRef.current);
+        activeAnchorElementRef.current = null;
+      }
+    },
+    [onActiveAnchorChange, onAnchorsInViewChange]
+  );
+
   const handlePotentialAnchorsChange = useCallback(
     (container: Element, potentialAnchorElements: Element[]) => {
+      const removedAnchorElements = potentialAnchorElementsRef.current.filter(
+        (prev) => !potentialAnchorElements.includes(prev)
+      );
+      if (removedAnchorElements.length > 0) {
+        handlePotentialAnchorElementsRemoval(removedAnchorElements);
+      }
       potentialAnchorElementsRef.current = potentialAnchorElements;
       onPotentialAnchorsChange?.(potentialAnchorElements);
-      const disconnect = observeAnchorElementsIntersection(
+      disconnectIntersectionObserverRef.current?.();
+      disconnectIntersectionObserverRef.current = observeAnchorElementsIntersection(
         potentialAnchorElements,
         container,
         (intersectingElements) => {
           handleIntersectedElementsChange(intersectingElements);
         }
       );
-      return disconnect;
     },
-    [handleIntersectedElementsChange, onPotentialAnchorsChange]
+    [handleIntersectedElementsChange, handlePotentialAnchorElementsRemoval, onPotentialAnchorsChange]
   );
 
   // const handlePotentialAnchorsRemoval = useCallback(
@@ -156,7 +175,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
       return;
     }
     const potentialAnchorElements = getPotentialAnchorElements(container, id);
-    disconnectIntersectionObserverRef.current = handlePotentialAnchorsChange(container, potentialAnchorElements);
+    handlePotentialAnchorsChange(container, potentialAnchorElements);
     return () => {
       disconnectIntersectionObserverRef.current?.();
     };
@@ -171,8 +190,9 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
 
     const mutationObserver = new MutationObserver(() => {
       const potentialAnchorElements = getPotentialAnchorElements(container, id);
-      disconnectIntersectionObserverRef.current?.();
-      disconnectIntersectionObserverRef.current = handlePotentialAnchorsChange(container, potentialAnchorElements);
+      handlePotentialAnchorsChange(container, potentialAnchorElements);
+      // const removedElements = mutations.flatMap((mutation) => mutation.removedNodes);
+      // console.log('removed elements', removedElements);
     });
 
     mutationObserver.observe(container, {

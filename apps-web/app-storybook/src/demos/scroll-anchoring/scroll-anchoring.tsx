@@ -203,7 +203,7 @@ export const ScrollAnchoring: FC = () => {
         </Button>
       </div>
       <AnimationIndicator className="fixed bottom-0 left-0" />
-      <>
+      <div>
         <style>{`
           [data-scroll-anchor-active] {
             background-color: red;
@@ -220,7 +220,7 @@ export const ScrollAnchoring: FC = () => {
             </Item>
           ))}
         </ScrollContainer>
-      </>
+      </div>
     </div>
   );
 };
@@ -238,6 +238,10 @@ interface ScrollContainerProps {
   onScroll?: (event: UIEvent<HTMLDivElement>) => void;
   snapTo?: 'start' | 'end' | { start?: boolean; end?: boolean };
 }
+
+const getTopPositionInContainer = (element: Element, container: Element): number => {
+  return element.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+};
 
 export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContainerProps>(
   function ScrollContainer(props, ref) {
@@ -280,38 +284,106 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       };
     });
 
+    const potentialAnchorsRef = useRef<Element[]>([]);
+    const inViewAnchorsRef = useRef<Element[]>([]);
+    const activeAnchorRef = useRef<Element | null>(null);
+
     useAnchorInView({
       containerId: id,
       onPotentialAnchorsChange: (anchors) => {
+        potentialAnchorsRef.current = anchors;
         console.log('[ScrollContainer] potential anchors', anchors);
         setPotentialAnchorsCount(anchors.length);
         trackPotentialAnchors();
       },
       onAnchorsInViewChange: (anchors) => {
+        inViewAnchorsRef.current = anchors;
         console.log('[ScrollContainer] anchors in view', anchors);
         setAnchorsInViewCount(anchors.length);
         trackAnchorsInView();
       },
       onActiveAnchorChange: (anchor, previousAnchor) => {
+        activeAnchorRef.current = anchor;
         console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
         previousAnchor?.removeAttribute('data-scroll-anchor-active');
-        anchor.setAttribute('data-scroll-anchor-active', '');
-        setActiveAnchorString(anchor.textContent ?? '');
+        anchor?.setAttribute('data-scroll-anchor-active', '');
+        setActiveAnchorString(anchor?.textContent ?? '');
         trackActiveAnchor();
       },
     });
 
+    const rafPreviousAnchor = useRef<{ anchor: Element; topPositionInContainer: number } | null>(null);
+
+    useAnimationFrame(() => {
+      const container = containerRef.current;
+      if (!container) {
+        return;
+      }
+      const active = activeAnchorRef.current;
+      if (!rafPreviousAnchor.current?.anchor) {
+        if (!active) {
+          return;
+        }
+        rafPreviousAnchor.current = {
+          anchor: active,
+          topPositionInContainer: getTopPositionInContainer(active, container),
+        };
+        return;
+      }
+      if (!active) {
+        // previous.anchor is always truthy in this condition
+        if (!container.contains(activeAnchorRef.current)) {
+          // has been removed from document or moved to outside of the container
+          activeAnchorRef.current = null;
+          return;
+        }
+        const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+        const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
+        if (diff !== 0) {
+          container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+        }
+        activeAnchorRef.current = null;
+        return;
+      }
+      if (rafPreviousAnchor.current.anchor !== active) {
+        const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+        const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
+        if (diff !== 0) {
+          container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+        }
+        rafPreviousAnchor.current = {
+          anchor: active,
+          topPositionInContainer: getTopPositionInContainer(active, container),
+        };
+        return;
+      }
+      // the anchor is not changed since last frame and both current and previous is not null
+      const currentTopPosition = getTopPositionInContainer(rafPreviousAnchor.current.anchor, container);
+      const diff = currentTopPosition - rafPreviousAnchor.current.topPositionInContainer;
+      if (diff !== 0) {
+        container.scrollBy({ behavior: 'instant', left: 0, top: diff });
+      }
+      rafPreviousAnchor.current = {
+        anchor: active,
+        topPositionInContainer: getTopPositionInContainer(active, container),
+      };
+    });
+
     return (
-      <>
-        <div className="flex flex-row gap-2">
+      <div className="relative">
+        <div
+          data-scroll-container-id={id}
+          ref={containerRef}
+          className={cn('relative [overflow-anchor:none]', className)}
+        >
+          {children}
+        </div>
+        <div className="pointer-events-none absolute left-0 right-0 top-0 flex flex-col border-b border-neutral-500/30 bg-neutral-900 px-3 py-2 font-mono text-xs opacity-70">
           <div>Potential anchors: {potentialAnchorsCount}</div>
           <div>Anchors in view: {anchorsInViewCount}</div>
           <div>Active anchor: {activeAnchorString}</div>
         </div>
-        <div data-scroll-container-id={id} ref={containerRef} className={cn('[overflow-anchor:none]', className)}>
-          {children}
-        </div>
-      </>
+      </div>
     );
   }
 );
