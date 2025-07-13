@@ -12,6 +12,7 @@
     "build:tsc:watch": "tsc --build tsconfig.json --watch",
     "build:tsc:deps": "pnpm --workspace-concurrency -1 --filter '@monorepo/app-storybook...' run build:tsc",
     "dev": "storybook dev --no-open --port 6009",
+    "preview": "vite preview --outDir storybook-static",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "lint:tsc": "tsc --build tsconfig.json --noEmit",
     "test": "vitest run",

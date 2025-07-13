@@ -14,6 +14,11 @@ const viteFinal = (config: UserConfig): UserConfig => {
         },
       },
     },
+    build: {
+      ...config.build,
+      chunkSizeWarningLimit: 1500,
+      sourcemap: process.env.ENABLE_SOURCE_MAP === 'true',
+    },
   };
 };
 
