@@ -28,5 +28,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "tailwindCSS.experimental.configFile": "packages/tailwindcss/tailwindcss.css",
-  "tailwindCSS.classFunctions": ["cva", "cx", "cn", "clsx", "twMerge", "tw"]
+  "tailwindCSS.classFunctions": ["cva", "cx", "cn", "clsx", "twMerge", "tw"],
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list"]
 }

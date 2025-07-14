@@ -2,7 +2,18 @@ import { Button } from '#src/components/button/button.js';
 import { cn } from '@monorepo/utils';
 import { useIntervalEffect } from '@react-hookz/web';
 import { motion, useAnimationFrame } from 'motion/react';
-import { FC, forwardRef, ReactNode, RefObject, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  FC,
+  forwardRef,
+  ReactNode,
+  RefObject,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
 import { useAnchorInView } from './hooks/use-anchor-in-view.js';
@@ -13,6 +24,7 @@ type Content =
   | {
       type: 'profile';
       id: string;
+      padding: 'integer' | 'float';
       name: string;
       avatar: string;
       introduction: string;
@@ -29,7 +41,9 @@ export const ScrollAnchoring: FC = () => {
   const scrollContainerRef = useRef<ScrollContainerControls>(null);
 
   const [rollingToTop, setRollingToTop] = useState(false);
+  const [rollingToTopFloat, setRollingToTopFloat] = useState(false);
   const [rollingToBottom, setRollingToBottom] = useState(false);
+  const [rollingToBottomFloat, setRollingToBottomFloat] = useState(false);
   const [snapTo, setSnapTo] = useState<{ start?: boolean; end?: boolean }>({ start: false, end: false });
   const [slowDown, setSlowDown, slowDownRef] = useStateRef(false);
   const [isJavaScriptAnchoringEnabled, setIsJavaScriptAnchoringEnabled] = useState(true);
@@ -47,6 +61,7 @@ export const ScrollAnchoring: FC = () => {
     return Array.from({ length: 50 }).map(() => ({
       type: 'profile',
       id: fakerWithSeed.string.uuid(),
+      padding: 'integer',
       name: fakerWithSeed.person.fullName(),
       avatar: fakerWithSeed.image.avatar(),
       introduction: fakerWithSeed.lorem.paragraph({ min: 1, max: 2 }),
@@ -70,6 +85,7 @@ export const ScrollAnchoring: FC = () => {
       const newContent: Content = {
         type: 'profile',
         id: faker.string.uuid(),
+        padding: 'integer',
         name: faker.person.fullName(),
         avatar: faker.image.avatar(),
         introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
@@ -84,6 +100,22 @@ export const ScrollAnchoring: FC = () => {
       const newContent: Content = {
         type: 'profile',
         id: faker.string.uuid(),
+        padding: 'float',
+        name: faker.person.fullName(),
+        avatar: faker.image.avatar(),
+        introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+      };
+      setContent((prev) => [newContent, ...prev]);
+    },
+    rollingToTopFloat ? 500 : undefined
+  );
+
+  useIntervalEffect(
+    () => {
+      const newContent: Content = {
+        type: 'profile',
+        id: faker.string.uuid(),
+        padding: 'integer',
         name: faker.person.fullName(),
         avatar: faker.image.avatar(),
         introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
@@ -93,11 +125,26 @@ export const ScrollAnchoring: FC = () => {
     rollingToBottom ? 500 : undefined
   );
 
+  useIntervalEffect(
+    () => {
+      const newContent: Content = {
+        type: 'profile',
+        id: faker.string.uuid(),
+        padding: 'float',
+        name: faker.person.fullName(),
+        avatar: faker.image.avatar(),
+        introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+      };
+      setContent((prev) => [...prev, newContent]);
+    },
+    rollingToBottomFloat ? 500 : undefined
+  );
+
   return (
     <>
       <AnimationIndicator className="fixed bottom-0 left-0" />
 
-      <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-4 p-2">
+      <div className="mx-auto flex h-dvh max-w-3xl flex-col items-center justify-center gap-4 p-2">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row flex-wrap justify-center gap-2">
             <Button
@@ -195,6 +242,7 @@ export const ScrollAnchoring: FC = () => {
               onClick={() => {
                 const newContent: Content = {
                   type: 'profile',
+                  padding: 'integer',
                   id: faker.string.uuid(),
                   name: faker.person.fullName(),
                   avatar: faker.image.avatar(),
@@ -203,7 +251,24 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one profile to top
+              Add one profile (integer padding) to top
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'profile',
+                  padding: 'float',
+                  id: faker.string.uuid(),
+                  name: faker.person.fullName(),
+                  avatar: faker.image.avatar(),
+                  introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+                };
+                setContent((prev) => [newContent, ...prev]);
+              }}
+            >
+              Add one profile (float padding) to top
             </Button>
             <Button
               size="sm"
@@ -247,16 +312,24 @@ export const ScrollAnchoring: FC = () => {
             >
               Add one janky (random, float) to top
             </Button>
-            <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(1))}>
-              Remove one from top
-            </Button>
             <Button
               size="sm"
               color={rollingToTop ? 'red' : 'blue'}
               onClick={() => setRollingToTop((v) => !v)}
-              allPossibleContents={['Stop rolling to top', 'Start rolling to top']}
+              allPossibleContents={['Stop rolling to top (integer padding)', 'Start rolling to top (integer padding)']}
             >
-              {rollingToTop ? 'Stop rolling to top' : 'Start rolling to top'}
+              {rollingToTop ? 'Stop rolling to top (integer padding)' : 'Start rolling to top (integer padding)'}
+            </Button>
+            <Button
+              size="sm"
+              color={rollingToTopFloat ? 'red' : 'blue'}
+              onClick={() => setRollingToTopFloat((v) => !v)}
+              allPossibleContents={['Stop rolling to top (float padding)', 'Start rolling to top (float padding)']}
+            >
+              {rollingToTopFloat ? 'Stop rolling to top (float padding)' : 'Start rolling to top (float padding)'}
+            </Button>
+            <Button size="sm" color="red" onClick={() => setContent((prev) => prev.slice(1))}>
+              Remove one from top
             </Button>
           </div>
 
@@ -270,6 +343,7 @@ export const ScrollAnchoring: FC = () => {
                 const newContent: Content = {
                   type: 'profile',
                   id: faker.string.uuid(),
+                  padding: 'integer',
                   name: faker.person.fullName(),
                   avatar: faker.image.avatar(),
                   introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
@@ -277,7 +351,24 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one profile to bottom
+              Add one profile (integer padding) to bottom
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'profile',
+                  padding: 'float',
+                  id: faker.string.uuid(),
+                  name: faker.person.fullName(),
+                  avatar: faker.image.avatar(),
+                  introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+                };
+                setContent((prev) => [...prev, newContent]);
+              }}
+            >
+              Add one profile (float padding) to bottom
             </Button>
             <Button
               size="sm"
@@ -321,16 +412,34 @@ export const ScrollAnchoring: FC = () => {
             >
               Add one janky (random, float) to bottom
             </Button>
-            <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(0, -1))}>
-              Remove one from bottom
-            </Button>
             <Button
               size="sm"
               color={rollingToBottom ? 'red' : 'blue'}
               onClick={() => setRollingToBottom((v) => !v)}
-              allPossibleContents={['Stop rolling to bottom', 'Start rolling to bottom']}
+              allPossibleContents={[
+                'Stop rolling to bottom (integer padding)',
+                'Start rolling to bottom (integer padding)',
+              ]}
             >
-              {rollingToBottom ? 'Stop rolling to bottom' : 'Start rolling to bottom'}
+              {rollingToBottom
+                ? 'Stop rolling to bottom (integer padding)'
+                : 'Start rolling to bottom (integer padding)'}
+            </Button>
+            <Button
+              size="sm"
+              color={rollingToBottomFloat ? 'red' : 'blue'}
+              onClick={() => setRollingToBottomFloat((v) => !v)}
+              allPossibleContents={[
+                'Stop rolling to bottom (float padding)',
+                'Start rolling to bottom (float padding)',
+              ]}
+            >
+              {rollingToBottomFloat
+                ? 'Stop rolling to bottom (float padding)'
+                : 'Start rolling to bottom (float padding)'}
+            </Button>
+            <Button size="sm" color="red" onClick={() => setContent((prev) => prev.slice(0, -1))}>
+              Remove one from bottom
             </Button>
           </div>
 
@@ -402,23 +511,41 @@ export const ScrollAnchoring: FC = () => {
           }}
           defaultEnableAnchoring={true}
         >
-          {content.map((item) =>
-            item.type === 'profile' ? (
-              <Item key={item.id}>
-                <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
-              </Item>
-            ) : (
-              <Item key={item.id}>
-                {item.variant === 'smooth' ? (
-                  <JankySmooth />
-                ) : item.variant === 'random-integer' ? (
-                  <JankyUnpredictable randomType="integer" />
-                ) : (
-                  (item.variant satisfies 'random-float', (<JankyUnpredictable randomType="float" />))
-                )}
-              </Item>
-            )
-          )}
+          {content.map((item) => {
+            if (item.type === 'profile') {
+              return (
+                <Item key={item.id}>
+                  <Profile
+                    name={item.name}
+                    avatar={item.avatar}
+                    introduction={item.introduction}
+                    padding={item.padding}
+                  />
+                </Item>
+              );
+            } else {
+              if (item.variant === 'smooth') {
+                return (
+                  <Item key={item.id}>
+                    <JankySmooth />
+                  </Item>
+                );
+              } else if (item.variant === 'random-integer') {
+                return (
+                  <Item key={item.id}>
+                    <JankyRandom randomType="integer" />
+                  </Item>
+                );
+              } else {
+                item.variant satisfies 'random-float';
+                return (
+                  <Item key={item.id}>
+                    <JankyRandom randomType="float" />
+                  </Item>
+                );
+              }
+            }
+          })}
         </ScrollContainer>
 
         <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-400/50 bg-neutral-200/70 px-3 py-2 font-mono text-xs text-black opacity-70 dark:border-neutral-500/30 dark:bg-neutral-900 dark:text-white">
@@ -543,10 +670,9 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       >
         <div data-scroll-container-anchor-id={id} className="invisible absolute left-0 top-0 h-0 w-0 overflow-clip" />
         <div
-          data-scroll-container-subpixel-compensation-id={id}
-          className="invisible h-0 w-full shrink-0 overflow-clip"
-        />
-        <div data-scroll-container-content-id={id} className={props.contentProps?.className}>
+          data-scroll-container-content-id={id}
+          className={cn('will-change-transform', props.contentProps?.className)}
+        >
           {children}
         </div>
       </div>
@@ -554,14 +680,26 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
   }
 );
 
-export const Profile: FC<{ name?: string; avatar?: string; introduction?: string; className?: string }> = ({
-  name,
-  avatar,
-  introduction,
-  className,
-}) => {
+export const Profile: FC<{
+  name?: string;
+  avatar?: string;
+  introduction?: string;
+  className?: string;
+  padding: 'integer' | 'float';
+}> = ({ name, avatar, introduction, className, padding }) => {
+  const randomValue = useMemo(() => Math.random(), []);
+  const remInPx = useMemo(() => parseFloat(getComputedStyle(document.documentElement).fontSize), []);
+
+  const paddingBlockStyle = useMemo<CSSProperties>(() => {
+    if (padding === 'integer') {
+      return { paddingBlock: '0.5rem' };
+    } else {
+      return { paddingBlock: `${remInPx * 0.5 + randomValue * 2}px` };
+    }
+  }, [padding, randomValue, remInPx]);
+
   return (
-    <div className={cn('flex flex-row items-center gap-3 px-3 py-2', className)}>
+    <div className={cn('flex flex-row items-center gap-3 px-3', className)} style={paddingBlockStyle}>
       <div className="h-8 w-8 shrink-0 rounded-full bg-neutral-500/50">
         <img src={avatar} alt={name} className="h-full w-full rounded-full" />
       </div>
@@ -619,7 +757,7 @@ export const JankySmooth: FC = () => {
   );
 };
 
-export const JankyUnpredictable: FC<{ randomType: 'integer' | 'float' }> = ({ randomType }) => {
+export const JankyRandom: FC<{ randomType: 'integer' | 'float' }> = ({ randomType }) => {
   const { fakerWithSeed } = useFaker();
   const ref = useRef<HTMLDivElement>(null);
   const title = useMemo(() => fakerWithSeed.person.fullName(), [fakerWithSeed]);
