@@ -144,7 +144,7 @@ export const ScrollAnchoring: FC = () => {
     <>
       <AnimationIndicator className="fixed bottom-0 left-0" />
 
-      <div className="mx-auto flex h-dvh max-w-3xl flex-col items-center justify-center gap-4 p-2">
+      <div className="mx-auto flex h-dvh max-w-5xl flex-col items-center justify-center gap-4 p-2">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row flex-wrap justify-center gap-2">
             <Button
@@ -251,7 +251,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one profile (integer padding) to top
+              Add profile (integer) to top
             </Button>
             <Button
               size="sm"
@@ -268,7 +268,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one profile (float padding) to top
+              Add profile (float) to top
             </Button>
             <Button
               size="sm"
@@ -282,7 +282,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one janky (smooth) to top
+              Add janky (smooth) to top
             </Button>
             <Button
               size="sm"
@@ -296,7 +296,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one janky (random, integer) to top
+              Add janky (integer) to top
             </Button>
             <Button
               size="sm"
@@ -310,23 +310,23 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one janky (random, float) to top
+              Add janky (float) to top
             </Button>
             <Button
               size="sm"
               color={rollingToTop ? 'red' : 'blue'}
               onClick={() => setRollingToTop((v) => !v)}
-              allPossibleContents={['Stop rolling to top (integer padding)', 'Start rolling to top (integer padding)']}
+              allPossibleContents={['Stop rolling to top (integer)', 'Start rolling to top (integer)']}
             >
-              {rollingToTop ? 'Stop rolling to top (integer padding)' : 'Start rolling to top (integer padding)'}
+              {rollingToTop ? 'Stop rolling to top (integer)' : 'Start rolling to top (integer)'}
             </Button>
             <Button
               size="sm"
               color={rollingToTopFloat ? 'red' : 'blue'}
               onClick={() => setRollingToTopFloat((v) => !v)}
-              allPossibleContents={['Stop rolling to top (float padding)', 'Start rolling to top (float padding)']}
+              allPossibleContents={['Stop rolling to top (float)', 'Start rolling to top (float)']}
             >
-              {rollingToTopFloat ? 'Stop rolling to top (float padding)' : 'Start rolling to top (float padding)'}
+              {rollingToTopFloat ? 'Stop rolling to top (float)' : 'Start rolling to top (float)'}
             </Button>
             <Button size="sm" color="red" onClick={() => setContent((prev) => prev.slice(1))}>
               Remove one from top
@@ -351,7 +351,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one profile (integer padding) to bottom
+              Add profile (integer) to bottom
             </Button>
             <Button
               size="sm"
@@ -368,7 +368,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one profile (float padding) to bottom
+              Add profile (float) to bottom
             </Button>
             <Button
               size="sm"
@@ -382,7 +382,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one janky (smooth) to bottom
+              Add janky (smooth) to bottom
             </Button>
             <Button
               size="sm"
@@ -396,7 +396,7 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one janky (random, integer) to bottom
+              Add janky (integer) to bottom
             </Button>
             <Button
               size="sm"
@@ -410,33 +410,23 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one janky (random, float) to bottom
+              Add janky (float) to bottom
             </Button>
             <Button
               size="sm"
               color={rollingToBottom ? 'red' : 'blue'}
               onClick={() => setRollingToBottom((v) => !v)}
-              allPossibleContents={[
-                'Stop rolling to bottom (integer padding)',
-                'Start rolling to bottom (integer padding)',
-              ]}
+              allPossibleContents={['Stop rolling to bottom (integer)', 'Start rolling to bottom (integer)']}
             >
-              {rollingToBottom
-                ? 'Stop rolling to bottom (integer padding)'
-                : 'Start rolling to bottom (integer padding)'}
+              {rollingToBottom ? 'Stop rolling to bottom (integer)' : 'Start rolling to bottom (integer)'}
             </Button>
             <Button
               size="sm"
               color={rollingToBottomFloat ? 'red' : 'blue'}
               onClick={() => setRollingToBottomFloat((v) => !v)}
-              allPossibleContents={[
-                'Stop rolling to bottom (float padding)',
-                'Start rolling to bottom (float padding)',
-              ]}
+              allPossibleContents={['Stop rolling to bottom (float)', 'Start rolling to bottom (float)']}
             >
-              {rollingToBottomFloat
-                ? 'Stop rolling to bottom (float padding)'
-                : 'Start rolling to bottom (float padding)'}
+              {rollingToBottomFloat ? 'Stop rolling to bottom (float)' : 'Start rolling to bottom (float)'}
             </Button>
             <Button size="sm" color="red" onClick={() => setContent((prev) => prev.slice(0, -1))}>
               Remove one from bottom
