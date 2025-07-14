@@ -1,20 +1,27 @@
 import { Button } from '#src/components/button/button.js';
 import { cn } from '@monorepo/utils';
 import { useIntervalEffect } from '@react-hookz/web';
-import { useAnimationFrame } from 'motion/react';
-import { FC, forwardRef, ReactNode, useId, useImperativeHandle, useRef, useState } from 'react';
+import { motion, useAnimationFrame } from 'motion/react';
+import { FC, forwardRef, ReactNode, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
 import { useAnchorInView } from './hooks/use-anchor-in-view.js';
 import { useFaker } from './hooks/use-faker.js';
 import { useScrollAnchoring } from './hooks/use-scroll-anchoring.js';
 
-interface Content {
-  id: string;
-  name: string;
-  avatar: string;
-  introduction: string;
-}
+type Content =
+  | {
+      type: 'profile';
+      id: string;
+      name: string;
+      avatar: string;
+      introduction: string;
+    }
+  | {
+      type: 'janky';
+      id: string;
+      variant: 'smooth' | 'unpredictable';
+    };
 
 export const ScrollAnchoring: FC = () => {
   const { faker, fakerWithSeed, reset: resetFaker } = useFaker();
@@ -31,9 +38,10 @@ export const ScrollAnchoring: FC = () => {
   const [activeAnchorString, setActiveAnchorString] = useState('');
   const [width, setWidth] = useState<'small' | 'large'>('small');
 
-  const [content, setContent] = useState(() => {
+  const [content, setContent] = useState<Content[]>(() => {
     resetFaker();
     return Array.from({ length: 50 }).map(() => ({
+      type: 'profile',
       id: fakerWithSeed.string.uuid(),
       name: fakerWithSeed.person.fullName(),
       avatar: fakerWithSeed.image.avatar(),
@@ -56,6 +64,7 @@ export const ScrollAnchoring: FC = () => {
   useIntervalEffect(
     () => {
       const newContent: Content = {
+        type: 'profile',
         id: faker.string.uuid(),
         name: faker.person.fullName(),
         avatar: faker.image.avatar(),
@@ -69,6 +78,7 @@ export const ScrollAnchoring: FC = () => {
   useIntervalEffect(
     () => {
       const newContent: Content = {
+        type: 'profile',
         id: faker.string.uuid(),
         name: faker.person.fullName(),
         avatar: faker.image.avatar(),
@@ -153,6 +163,7 @@ export const ScrollAnchoring: FC = () => {
               color="blue"
               onClick={() => {
                 const newContent: Content = {
+                  type: 'profile',
                   id: faker.string.uuid(),
                   name: faker.person.fullName(),
                   avatar: faker.image.avatar(),
@@ -161,7 +172,35 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one to top
+              Add one profile to top
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'smooth',
+                };
+                setContent((prev) => [newContent, ...prev]);
+              }}
+            >
+              Add one janky (smooth) to top
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'unpredictable',
+                };
+                setContent((prev) => [newContent, ...prev]);
+              }}
+            >
+              Add one janky (unpredictable) to top
             </Button>
             <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(1))}>
               Remove one from top
@@ -184,6 +223,7 @@ export const ScrollAnchoring: FC = () => {
               color="blue"
               onClick={() => {
                 const newContent: Content = {
+                  type: 'profile',
                   id: faker.string.uuid(),
                   name: faker.person.fullName(),
                   avatar: faker.image.avatar(),
@@ -192,7 +232,35 @@ export const ScrollAnchoring: FC = () => {
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one to bottom
+              Add one profile to bottom
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'smooth',
+                };
+                setContent((prev) => [...prev, newContent]);
+              }}
+            >
+              Add one janky (smooth) to bottom
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'unpredictable',
+                };
+                setContent((prev) => [...prev, newContent]);
+              }}
+            >
+              Add one janky (unpredictable) to bottom
             </Button>
             <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(0, -1))}>
               Remove one from bottom
@@ -271,11 +339,21 @@ export const ScrollAnchoring: FC = () => {
           }}
           defaultEnableAnchoring={true}
         >
-          {content.map((item) => (
-            <Item key={item.id}>
-              <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
-            </Item>
-          ))}
+          {content.map((item) =>
+            item.type === 'profile' ? (
+              <Item key={item.id}>
+                <Profile name={item.name} avatar={item.avatar} introduction={item.introduction} />
+              </Item>
+            ) : (
+              <Item key={item.id}>
+                {item.variant === 'smooth' ? (
+                  <JankySmooth />
+                ) : (
+                  (item.variant satisfies 'unpredictable', (<JankyUnpredictable />))
+                )}
+              </Item>
+            )
+          )}
         </ScrollContainer>
 
         <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-400/50 bg-neutral-200/70 px-3 py-2 font-mono text-xs text-black opacity-70 dark:border-neutral-500/30 dark:bg-neutral-900 dark:text-white">
@@ -432,6 +510,66 @@ export const Item: FC<{ children?: ReactNode; className?: string }> = ({ childre
       className={cn('border-b-[0.5px] border-t-[0.5px] border-neutral-500/50 bg-white/50 dark:bg-black/50', className)}
     >
       {children}
+    </div>
+  );
+};
+
+export const JankySmooth: FC = () => {
+  const { fakerWithSeed } = useFaker();
+  const title = useMemo(() => fakerWithSeed.person.fullName(), [fakerWithSeed]);
+  const lorem = useMemo(() => fakerWithSeed.lorem.paragraph({ min: 8, max: 10 }), [fakerWithSeed]);
+
+  return (
+    <motion.div
+      className="flex flex-col overflow-clip px-3 py-2"
+      initial={{
+        height: '4rem',
+      }}
+      animate={{
+        height: '8rem',
+      }}
+      transition={{
+        duration: 0.5,
+        ease: 'circInOut',
+        repeat: Infinity,
+        repeatType: 'reverse',
+        delay: -1 * Math.random() * 0.5,
+      }}
+    >
+      <div className="self-start text-sm" data-scroll-anchor>
+        {title}
+      </div>
+      <div className="self-stretch text-xs text-neutral-500" data-scroll-anchor>
+        {lorem}
+      </div>
+    </motion.div>
+  );
+};
+
+export const JankyUnpredictable: FC = () => {
+  const { fakerWithSeed } = useFaker();
+  const ref = useRef<HTMLDivElement>(null);
+  const title = useMemo(() => fakerWithSeed.person.fullName(), [fakerWithSeed]);
+  const lorem = useMemo(() => fakerWithSeed.lorem.paragraph({ min: 8, max: 10 }), [fakerWithSeed]);
+
+  useAnimationFrame(() => {
+    if (!ref.current) {
+      return;
+    }
+    const minRem = 4;
+    const maxRem = 8;
+    const height = Math.random() * (maxRem - minRem) + minRem;
+    ref.current.style.height = `${height}rem`;
+  });
+
+  return (
+    <div ref={ref} className="flex flex-col overflow-clip px-3 py-2">
+      <div className="self-start text-sm" data-scroll-anchor>
+        {title}
+      </div>
+      <div className="self-stretch text-xs text-neutral-500" data-scroll-anchor>
+        {lorem}
+      </div>
     </div>
   );
 };
