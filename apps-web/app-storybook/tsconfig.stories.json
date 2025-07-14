@@ -10,6 +10,6 @@
     "jsx": "react-jsx",
     "emitDeclarationOnly": true
   },
-  "include": ["./src", ".storybook/preview.tsx"],
+  "include": ["./src", "./.storybook/preview.tsx", "./.storybook/preview-utils/"],
   "exclude": ["**/node_modules/"]
 }

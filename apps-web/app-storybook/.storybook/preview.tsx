@@ -4,18 +4,7 @@ import type { Preview } from '@storybook/react-vite';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { scan } from 'react-scan';
-
-const THEME_STORAGE_KEY = 'sb-theme';
-const resolveTheme = (theme: 'light' | 'dark' | 'system', systemTheme: 'dark' | 'light') => {
-  if (theme === 'system') return systemTheme;
-  return theme;
-};
-const getSavedTheme = (): 'light' | 'dark' | 'system' => {
-  const theme = localStorage.getItem(THEME_STORAGE_KEY);
-  if (theme === 'dark') return 'dark';
-  if (theme === 'light') return 'light';
-  return 'system';
-};
+import { resolveTheme, THEME_STORAGE_KEY } from './preview-utils/theme.js';
 
 const preview: Preview = {
   parameters: {
@@ -36,7 +25,7 @@ const preview: Preview = {
     },
   },
   initialGlobals: {
-    theme: getSavedTheme(),
+    theme: 'system',
   },
   decorators: [
     // Theme decorator
