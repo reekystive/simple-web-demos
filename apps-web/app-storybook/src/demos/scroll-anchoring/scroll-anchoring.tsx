@@ -2,7 +2,7 @@ import { Button } from '#src/components/button/button.js';
 import { cn } from '@monorepo/utils';
 import { useIntervalEffect } from '@react-hookz/web';
 import { motion, useAnimationFrame } from 'motion/react';
-import { FC, forwardRef, ReactNode, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { FC, forwardRef, ReactNode, RefObject, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
 import { useAnchorInView } from './hooks/use-anchor-in-view.js';
@@ -20,7 +20,7 @@ type Content =
   | {
       type: 'janky';
       id: string;
-      variant: 'smooth' | 'unpredictable';
+      variant: 'smooth' | 'random-integer' | 'random-float';
     };
 
 export const ScrollAnchoring: FC = () => {
@@ -59,7 +59,7 @@ export const ScrollAnchoring: FC = () => {
     }
     // execute a 10 frames (at 60fps) blocking code
     const start = performance.now();
-    console.warn('[ScrollAnchoring] executing blocking code for performance testing purposes');
+    console.warn('[ScrollAnchoring] executing synchronous blocking code for performance testing purposes');
     while (performance.now() - start < (1 / 60) * 10 * 1000) {
       // do nothing
     }
@@ -174,7 +174,7 @@ export const ScrollAnchoring: FC = () => {
               onClick={() =>
                 setWidth((v) => {
                   // remove inline width from the container set by resize handle
-                  const container = document.querySelector<HTMLElement>('[data-scroll-container-id]');
+                  const container = scrollContainerRef.current?.containerDomRef.current;
                   if (container) {
                     container.style.width = '';
                   }
@@ -226,12 +226,26 @@ export const ScrollAnchoring: FC = () => {
                 const newContent: Content = {
                   type: 'janky',
                   id: faker.string.uuid(),
-                  variant: 'unpredictable',
+                  variant: 'random-integer',
                 };
                 setContent((prev) => [newContent, ...prev]);
               }}
             >
-              Add one janky (unpredictable) to top
+              Add one janky (random, integer) to top
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'random-float',
+                };
+                setContent((prev) => [newContent, ...prev]);
+              }}
+            >
+              Add one janky (random, float) to top
             </Button>
             <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(1))}>
               Remove one from top
@@ -286,12 +300,26 @@ export const ScrollAnchoring: FC = () => {
                 const newContent: Content = {
                   type: 'janky',
                   id: faker.string.uuid(),
-                  variant: 'unpredictable',
+                  variant: 'random-integer',
                 };
                 setContent((prev) => [...prev, newContent]);
               }}
             >
-              Add one janky (unpredictable) to bottom
+              Add one janky (random, integer) to bottom
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  type: 'janky',
+                  id: faker.string.uuid(),
+                  variant: 'random-float',
+                };
+                setContent((prev) => [...prev, newContent]);
+              }}
+            >
+              Add one janky (random, float) to bottom
             </Button>
             <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(0, -1))}>
               Remove one from bottom
@@ -356,10 +384,13 @@ export const ScrollAnchoring: FC = () => {
           key={count}
           ref={scrollContainerRef}
           className={cn(
-            'flex h-[25rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50',
+            'h-[25rem] w-[20rem] resize overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 ring-1 ring-neutral-500/50',
             width === 'large' && 'w-[30rem]',
             isCSSAnchoringEnabled && '[overflow-anchor:auto]'
           )}
+          contentProps={{
+            className: 'flex flex-col gap-2 py-3 text-sm',
+          }}
           onPotentialAnchorsChange={(anchors) => {
             setPotentialAnchorsCount(anchors.length);
           }}
@@ -380,8 +411,10 @@ export const ScrollAnchoring: FC = () => {
               <Item key={item.id}>
                 {item.variant === 'smooth' ? (
                   <JankySmooth />
+                ) : item.variant === 'random-integer' ? (
+                  <JankyUnpredictable randomType="integer" />
                 ) : (
-                  (item.variant satisfies 'unpredictable', (<JankyUnpredictable />))
+                  (item.variant satisfies 'random-float', (<JankyUnpredictable randomType="float" />))
                 )}
               </Item>
             )
@@ -399,6 +432,7 @@ export const ScrollAnchoring: FC = () => {
 };
 
 interface ScrollContainerControls {
+  containerDomRef: RefObject<HTMLDivElement | null>;
   scrollToTop: () => void;
   scrollToBottom: () => void;
   enableAnchoring: () => void;
@@ -417,6 +451,9 @@ interface ScrollContainerProps {
   onAnchorsInViewChange?: (anchors: Element[]) => void;
   onActiveAnchorChange?: (anchor: Element | null, previousAnchor: Element | null) => void;
   defaultEnableAnchoring: boolean;
+  contentProps?: {
+    className?: string;
+  };
 }
 
 export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContainerProps>(
@@ -444,6 +481,7 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         throw new Error('Scroll container not found');
       }
       return {
+        containerDomRef: containerRef,
         scrollToTop: () => {
           containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
         },
@@ -468,7 +506,7 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         getAnchorsInView: () => {
           return inViewAnchorsRef.current;
         },
-      };
+      } satisfies ScrollContainerControls;
     });
 
     const potentialAnchorsRef = useRef<Element[]>([]);
@@ -503,11 +541,14 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         ref={containerRef}
         className={cn('relative [overflow-anchor:none]', className)}
       >
+        <div data-scroll-container-anchor-id={id} className="invisible absolute left-0 top-0 h-0 w-0 overflow-clip" />
         <div
-          data-scroll-container-anchor-id={id}
-          className="invisible absolute left-0 top-0 h-0 w-0 overflow-clip"
-        ></div>
-        {children}
+          data-scroll-container-subpixel-compensation-id={id}
+          className="invisible h-0 w-full shrink-0 overflow-clip"
+        />
+        <div data-scroll-container-content-id={id} className={props.contentProps?.className}>
+          {children}
+        </div>
       </div>
     );
   }
@@ -578,7 +619,7 @@ export const JankySmooth: FC = () => {
   );
 };
 
-export const JankyUnpredictable: FC = () => {
+export const JankyUnpredictable: FC<{ randomType: 'integer' | 'float' }> = ({ randomType }) => {
   const { fakerWithSeed } = useFaker();
   const ref = useRef<HTMLDivElement>(null);
   const title = useMemo(() => fakerWithSeed.person.fullName(), [fakerWithSeed]);
@@ -590,8 +631,17 @@ export const JankyUnpredictable: FC = () => {
     }
     const minRem = 4;
     const maxRem = 8;
-    const height = Math.random() * (maxRem - minRem) + minRem;
-    ref.current.style.height = `${height}rem`;
+    if (randomType === 'integer') {
+      const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const minPx = Math.floor(minRem * remInPx);
+      const maxPx = Math.ceil(maxRem * remInPx);
+      const height = Math.floor(Math.random() * (maxPx - minPx) + minPx);
+      ref.current.style.height = `${height}px`;
+    } else {
+      randomType satisfies 'float';
+      const height = Math.random() * (maxRem - minRem) + minRem;
+      ref.current.style.height = `${height}rem`;
+    }
   });
 
   return (
