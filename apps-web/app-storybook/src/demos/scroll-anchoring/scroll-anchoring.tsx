@@ -32,7 +32,8 @@ export const ScrollAnchoring: FC = () => {
   const [rollingToBottom, setRollingToBottom] = useState(false);
   const [snapTo, setSnapTo] = useState<{ start?: boolean; end?: boolean }>({ start: false, end: false });
   const [slowDown, setSlowDown, slowDownRef] = useStateRef(false);
-  const [isAnchoringEnabled, setIsAnchoringEnabled] = useState(true);
+  const [isJavaScriptAnchoringEnabled, setIsJavaScriptAnchoringEnabled] = useState(true);
+  const [isCSSAnchoringEnabled, setIsCSSAnchoringEnabled] = useState(false);
   const [potentialAnchorsCount, setPotentialAnchorsCount] = useState(0);
   const [anchorsInViewCount, setAnchorsInViewCount] = useState(0);
   const [activeAnchorString, setActiveAnchorString] = useState('');
@@ -121,21 +122,39 @@ export const ScrollAnchoring: FC = () => {
             </Button>
             <Button
               size="sm"
-              color={isAnchoringEnabled ? 'red' : 'blue'}
+              color={isJavaScriptAnchoringEnabled ? 'red' : 'blue'}
               onClick={() => {
-                setIsAnchoringEnabled((v) => {
+                setIsJavaScriptAnchoringEnabled((v) => {
                   const newValue = !v;
                   if (newValue) {
                     scrollContainerRef.current?.enableAnchoring();
+                    setIsCSSAnchoringEnabled(false);
                   } else {
                     scrollContainerRef.current?.disableAnchoring();
                   }
                   return newValue;
                 });
               }}
-              allPossibleContents={['Disable anchoring', 'Enable anchoring']}
+              allPossibleContents={['Disable JavaScript anchoring', 'Enable JavaScript anchoring']}
             >
-              {isAnchoringEnabled ? 'Disable anchoring' : 'Enable anchoring'}
+              {isJavaScriptAnchoringEnabled ? 'Disable JavaScript anchoring' : 'Enable JavaScript anchoring'}
+            </Button>
+            <Button
+              size="sm"
+              color={isCSSAnchoringEnabled ? 'red' : 'blue'}
+              onClick={() => {
+                setIsCSSAnchoringEnabled((v) => {
+                  const newValue = !v;
+                  if (newValue) {
+                    setIsJavaScriptAnchoringEnabled(false);
+                    scrollContainerRef.current?.disableAnchoring();
+                  }
+                  return newValue;
+                });
+              }}
+              allPossibleContents={['Disable CSS anchoring', 'Enable CSS anchoring']}
+            >
+              {isCSSAnchoringEnabled ? 'Disable CSS anchoring' : 'Enable CSS anchoring'}
             </Button>
             <Button
               size="sm"
@@ -326,7 +345,8 @@ export const ScrollAnchoring: FC = () => {
           ref={scrollContainerRef}
           className={cn(
             'flex h-[25rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50',
-            width === 'large' && 'w-[30rem]'
+            width === 'large' && 'w-[30rem]',
+            isCSSAnchoringEnabled && '[overflow-anchor:auto]'
           )}
           onPotentialAnchorsChange={(anchors) => {
             setPotentialAnchorsCount(anchors.length);
