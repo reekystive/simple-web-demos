@@ -29,6 +29,7 @@ export const ScrollAnchoring: FC = () => {
   const [potentialAnchorsCount, setPotentialAnchorsCount] = useState(0);
   const [anchorsInViewCount, setAnchorsInViewCount] = useState(0);
   const [activeAnchorString, setActiveAnchorString] = useState('');
+  const [width, setWidth] = useState<'small' | 'large'>('small');
 
   const [content, setContent] = useState(() => {
     resetFaker();
@@ -82,103 +83,172 @@ export const ScrollAnchoring: FC = () => {
     <>
       <AnimationIndicator className="fixed bottom-0 left-0" />
 
-      <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-2 p-2">
-        <div className="flex flex-row flex-wrap justify-center gap-2">
-          <Button
-            size="sm"
-            color="blue"
-            onClick={() => {
-              resetFaker();
-              setCount((c) => (c + 1) % 10);
-            }}
-          >
-            Remount
-          </Button>
-          <Button size="sm" color="blue" onClick={() => setContent([])}>
-            Clear
-          </Button>
-          <Button
-            size="sm"
-            color={rollingToTop ? 'red' : 'blue'}
-            onClick={() => setRollingToTop((v) => !v)}
-            allPossibleContents={['Stop rolling to top', 'Start rolling to top']}
-          >
-            {rollingToTop ? 'Stop rolling to top' : 'Start rolling to top'}
-          </Button>
-          <Button
-            size="sm"
-            color={rollingToBottom ? 'red' : 'blue'}
-            onClick={() => setRollingToBottom((v) => !v)}
-            allPossibleContents={['Stop rolling to bottom', 'Start rolling to bottom']}
-          >
-            {rollingToBottom ? 'Stop rolling to bottom' : 'Start rolling to bottom'}
-          </Button>
-          <Button
-            size="sm"
-            color={snapTo.start ? 'red' : 'blue'}
-            onClick={() => {
-              setSnapTo((prev) => ({ ...prev, start: !prev.start }));
-            }}
-            allPossibleContents={['Un-snap to top', 'Snap to top']}
-          >
-            {snapTo.start ? 'Un-snap to top' : 'Snap to top'}
-          </Button>
-          <Button
-            size="sm"
-            color={snapTo.end ? 'red' : 'blue'}
-            onClick={() => {
-              setSnapTo((prev) => ({ ...prev, end: !prev.end }));
-            }}
-            allPossibleContents={['Un-snap to bottom', 'Snap to bottom']}
-          >
-            {snapTo.end ? 'Un-snap to bottom' : 'Snap to bottom'}
-          </Button>
-          <Button
-            size="sm"
-            color="blue"
-            onClick={() => {
-              scrollContainerRef.current?.scrollToTop();
-            }}
-          >
-            Scroll to top
-          </Button>
-          <Button
-            size="sm"
-            color="blue"
-            onClick={() => {
-              scrollContainerRef.current?.scrollToBottom();
-            }}
-          >
-            Scroll to bottom
-          </Button>
-          <Button
-            size="sm"
-            color={slowDown ? 'red' : 'blue'}
-            onClick={() => {
-              setSlowDown((v) => !v);
-            }}
-            allPossibleContents={['Stop slowing down', 'Execute slow code']}
-          >
-            {slowDown ? 'Stop slowing down' : 'Execute slow code'}
-          </Button>
-          <Button
-            size="sm"
-            color={isAnchoringEnabled ? 'red' : 'blue'}
-            onClick={() => {
-              setIsAnchoringEnabled((v) => {
-                const newValue = !v;
-                if (newValue) {
-                  scrollContainerRef.current?.enableAnchoring();
-                } else {
-                  scrollContainerRef.current?.disableAnchoring();
-                }
-                return newValue;
-              });
-            }}
-            allPossibleContents={['Disable anchoring', 'Enable anchoring']}
-          >
-            {isAnchoringEnabled ? 'Disable anchoring' : 'Enable anchoring'}
-          </Button>
+      <div className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center gap-4 p-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row flex-wrap justify-center gap-2">
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                resetFaker();
+                setCount((c) => (c + 1) % 10);
+              }}
+            >
+              Remount
+            </Button>
+            <Button size="sm" color="blue" onClick={() => setContent([])}>
+              Clear
+            </Button>
+            <Button
+              size="sm"
+              color={slowDown ? 'red' : 'blue'}
+              onClick={() => {
+                setSlowDown((v) => !v);
+              }}
+              allPossibleContents={['Stop slowing down', 'Execute slow code']}
+            >
+              {slowDown ? 'Stop slowing down' : 'Execute slow code'}
+            </Button>
+            <Button
+              size="sm"
+              color={isAnchoringEnabled ? 'red' : 'blue'}
+              onClick={() => {
+                setIsAnchoringEnabled((v) => {
+                  const newValue = !v;
+                  if (newValue) {
+                    scrollContainerRef.current?.enableAnchoring();
+                  } else {
+                    scrollContainerRef.current?.disableAnchoring();
+                  }
+                  return newValue;
+                });
+              }}
+              allPossibleContents={['Disable anchoring', 'Enable anchoring']}
+            >
+              {isAnchoringEnabled ? 'Disable anchoring' : 'Enable anchoring'}
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() =>
+                setWidth((v) => {
+                  // remove inline width from the container set by resize handle
+                  const container = document.querySelector<HTMLElement>('[data-scroll-container-id]');
+                  if (container) {
+                    container.style.width = '';
+                  }
+                  return v === 'small' ? 'large' : 'small';
+                })
+              }
+            >
+              Toggle width
+            </Button>
+          </div>
+
+          <hr className="h-[0.5px] w-full border-none bg-neutral-500/50" />
+
+          <div className="flex flex-row flex-wrap justify-center gap-2">
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  id: faker.string.uuid(),
+                  name: faker.person.fullName(),
+                  avatar: faker.image.avatar(),
+                  introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+                };
+                setContent((prev) => [newContent, ...prev]);
+              }}
+            >
+              Add one to top
+            </Button>
+            <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(1))}>
+              Remove one from top
+            </Button>
+            <Button
+              size="sm"
+              color={rollingToTop ? 'red' : 'blue'}
+              onClick={() => setRollingToTop((v) => !v)}
+              allPossibleContents={['Stop rolling to top', 'Start rolling to top']}
+            >
+              {rollingToTop ? 'Stop rolling to top' : 'Start rolling to top'}
+            </Button>
+          </div>
+
+          <hr className="h-[0.5px] w-full border-none bg-neutral-500/50" />
+
+          <div className="flex flex-row flex-wrap justify-center gap-2">
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                const newContent: Content = {
+                  id: faker.string.uuid(),
+                  name: faker.person.fullName(),
+                  avatar: faker.image.avatar(),
+                  introduction: faker.lorem.paragraph({ min: 1, max: 2 }),
+                };
+                setContent((prev) => [...prev, newContent]);
+              }}
+            >
+              Add one to bottom
+            </Button>
+            <Button size="sm" color="blue" onClick={() => setContent((prev) => prev.slice(0, -1))}>
+              Remove one from bottom
+            </Button>
+            <Button
+              size="sm"
+              color={rollingToBottom ? 'red' : 'blue'}
+              onClick={() => setRollingToBottom((v) => !v)}
+              allPossibleContents={['Stop rolling to bottom', 'Start rolling to bottom']}
+            >
+              {rollingToBottom ? 'Stop rolling to bottom' : 'Start rolling to bottom'}
+            </Button>
+          </div>
+
+          <hr className="h-[0.5px] w-full border-none bg-neutral-500/50" />
+
+          <div className="flex flex-row flex-wrap justify-center gap-2">
+            <Button
+              size="sm"
+              color={snapTo.start ? 'red' : 'blue'}
+              onClick={() => {
+                setSnapTo((prev) => ({ ...prev, start: !prev.start }));
+              }}
+              allPossibleContents={['Un-snap to top', 'Snap to top']}
+            >
+              {snapTo.start ? 'Un-snap to top' : 'Snap to top'}
+            </Button>
+            <Button
+              size="sm"
+              color={snapTo.end ? 'red' : 'blue'}
+              onClick={() => {
+                setSnapTo((prev) => ({ ...prev, end: !prev.end }));
+              }}
+              allPossibleContents={['Un-snap to bottom', 'Snap to bottom']}
+            >
+              {snapTo.end ? 'Un-snap to bottom' : 'Snap to bottom'}
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                scrollContainerRef.current?.scrollToTop();
+              }}
+            >
+              Scroll to top
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                scrollContainerRef.current?.scrollToBottom();
+              }}
+            >
+              Scroll to bottom
+            </Button>
+          </div>
         </div>
 
         <style>{` [data-scroll-anchor-active] { background-color: rgba(255,0,0,0.5); } `}</style>
@@ -186,7 +256,10 @@ export const ScrollAnchoring: FC = () => {
         <ScrollContainer
           key={count}
           ref={scrollContainerRef}
-          className="flex h-[30rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50"
+          className={cn(
+            'flex h-[25rem] w-[20rem] resize flex-col gap-2 overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 py-3 text-sm ring-1 ring-neutral-500/50',
+            width === 'large' && 'w-[30rem]'
+          )}
           onPotentialAnchorsChange={(anchors) => {
             setPotentialAnchorsCount(anchors.length);
           }}
