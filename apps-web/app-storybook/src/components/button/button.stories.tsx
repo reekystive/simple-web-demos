@@ -15,6 +15,7 @@ export const Default: StoryObj = {
   render: () => {
     const colors: ButtonVariants['color'][] = useMemo(() => ['blue', 'red', 'yellow', 'green'], []);
     const sizes: ButtonVariants['size'][] = useMemo(() => ['sm', 'md'], []);
+    const disabled = useMemo(() => [false, true], []);
 
     const containerStyles = useMemo<CSSProperties>(() => {
       return {
@@ -27,14 +28,26 @@ export const Default: StoryObj = {
     }, [colors]);
 
     return (
-      <div style={containerStyles}>
-        {sizes.map((size) =>
-          colors.map((color) => (
-            <Button key={`${color}-${size}`} color={color ?? undefined} size={size}>
-              {color} {size}
-            </Button>
-          ))
-        )}
+      <div className="flex flex-col items-center gap-6">
+        {sizes.map((size) => (
+          <div key={size} className="flex flex-col items-center gap-2">
+            <h1 className="font-mono text-sm">size: {size}</h1>
+            <div style={containerStyles}>
+              {disabled.map((isDisabled) =>
+                colors.map((color) => (
+                  <Button
+                    key={`${color}-${size}-${isDisabled}`}
+                    color={color ?? undefined}
+                    size={size}
+                    disabled={isDisabled}
+                  >
+                    {color} {isDisabled ? 'disabled' : ''}
+                  </Button>
+                ))
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     );
   },

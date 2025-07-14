@@ -38,6 +38,9 @@ export const ScrollAnchoring: FC = () => {
   const [anchorsInViewCount, setAnchorsInViewCount] = useState(0);
   const [activeAnchorString, setActiveAnchorString] = useState('');
   const [width, setWidth] = useState<'small' | 'large'>('small');
+  const supportsCSSAnchoring = useMemo(() => {
+    return CSS.supports('overflow-anchor', 'auto');
+  }, []);
 
   const [content, setContent] = useState<Content[]>(() => {
     resetFaker();
@@ -152,9 +155,18 @@ export const ScrollAnchoring: FC = () => {
                   return newValue;
                 });
               }}
-              allPossibleContents={['Disable CSS anchoring', 'Enable CSS anchoring']}
+              disabled={!supportsCSSAnchoring}
+              allPossibleContents={
+                supportsCSSAnchoring
+                  ? ['Disable CSS anchoring', 'Enable CSS anchoring']
+                  : ['CSS anchoring is not supported in current browser']
+              }
             >
-              {isCSSAnchoringEnabled ? 'Disable CSS anchoring' : 'Enable CSS anchoring'}
+              {supportsCSSAnchoring
+                ? isCSSAnchoringEnabled
+                  ? 'Disable CSS anchoring'
+                  : 'Enable CSS anchoring'
+                : 'CSS anchoring is not supported in current browser'}
             </Button>
             <Button
               size="sm"

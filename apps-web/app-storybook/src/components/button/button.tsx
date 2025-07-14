@@ -17,10 +17,15 @@ const buttonVariants = cva(
         green:
           'border-green-600/40 bg-green-600/80 text-white dark:border-green-500/20 dark:bg-green-500/20 dark:text-white',
       },
+      disabled: {
+        true: 'cursor-not-allowed opacity-50 hover:opacity-50 active:opacity-50',
+        false: '',
+      },
     },
     defaultVariants: {
       size: 'md',
       color: 'blue',
+      disabled: false,
     },
   }
 );
@@ -29,9 +34,9 @@ export type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 export const Button: FC<
   ButtonHTMLAttributes<HTMLButtonElement> & ButtonVariants & { allPossibleContents?: ReactNode[] }
-> = ({ children, className, size, color, allPossibleContents, ...props }) => {
+> = ({ children, className, size, color, disabled, allPossibleContents, ...props }) => {
   return (
-    <button className={cn(buttonVariants({ className, size, color }))} {...props}>
+    <button className={cn(buttonVariants({ className, size, color, disabled }))} disabled={disabled} {...props}>
       {children}
       {allPossibleContents && allPossibleContents.length > 0 && (
         <div className="leading-0 invisible flex h-0 flex-col overflow-clip">
