@@ -16,7 +16,7 @@ import {
 } from 'react';
 import useStateRef from 'react-usestateref';
 import { AnimationIndicator } from './components/indicator.js';
-import { useAnchorInView } from './hooks/use-anchor-in-view.js';
+import { AnchoringMode, useAnchorInView } from './hooks/use-anchor-in-view.js';
 import { useFaker } from './hooks/use-faker.js';
 import { useScrollAnchoring } from './hooks/use-scroll-anchoring.js';
 
@@ -52,6 +52,8 @@ export const ScrollAnchoring: FC = () => {
   const [anchorsInViewCount, setAnchorsInViewCount] = useState(0);
   const [activeAnchorString, setActiveAnchorString] = useState('');
   const [width, setWidth] = useState<'small' | 'large'>('small');
+  const [anchoringMode, setAnchoringMode] = useState<AnchoringMode>('top');
+
   const supportsCSSAnchoring = useMemo(() => {
     return CSS.supports('overflow-anchor', 'auto');
   }, []);
@@ -230,6 +232,20 @@ export const ScrollAnchoring: FC = () => {
               }
             >
               Toggle width
+            </Button>
+            <Button
+              size="sm"
+              color="blue"
+              onClick={() => {
+                setAnchoringMode((v) => {
+                  const next = v === 'top' ? 'bottom' : 'top';
+                  scrollContainerRef.current?.setAnchoringMode(next);
+                  return next;
+                });
+              }}
+              allPossibleContents={['Anchoring mode: top', 'Anchoring mode: bottom', 'Anchoring mode: center']}
+            >
+              Anchoring mode: {anchoringMode}
             </Button>
           </div>
 
@@ -558,6 +574,7 @@ interface ScrollContainerControls {
   getActiveAnchor: () => Element | null;
   getPotentialAnchors: () => Element[];
   getAnchorsInView: () => Element[];
+  setAnchoringMode: (mode: AnchoringMode) => void;
 }
 
 interface ScrollContainerProps {
@@ -568,6 +585,7 @@ interface ScrollContainerProps {
   onAnchorsInViewChange?: (anchors: Element[]) => void;
   onActiveAnchorChange?: (anchor: Element | null, previousAnchor: Element | null) => void;
   defaultEnableAnchoring: boolean;
+  defaultAnchoringMode?: AnchoringMode;
   contentProps?: {
     className?: string;
   };
@@ -582,9 +600,37 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       onAnchorsInViewChange,
       onActiveAnchorChange,
       defaultEnableAnchoring,
+      defaultAnchoringMode,
     } = props;
     const containerRef = useRef<HTMLDivElement>(null);
     const id = useId();
+
+    const potentialAnchorsRef = useRef<Element[]>([]);
+    const inViewAnchorsRef = useRef<Element[]>([]);
+    const activeAnchorRef = useRef<Element | null>(null);
+
+    const { setAnchoringMode } = useAnchorInView({
+      containerId: id,
+      onPotentialAnchorsChange: (anchors) => {
+        potentialAnchorsRef.current = anchors;
+        // console.log('[ScrollContainer] potential anchors', anchors);
+        onPotentialAnchorsChange?.(anchors);
+      },
+      onAnchorsInViewChange: (anchors) => {
+        inViewAnchorsRef.current = anchors;
+        // console.log('[ScrollContainer] anchors in view', anchors);
+        onAnchorsInViewChange?.(anchors);
+      },
+      onActiveAnchorChange: (anchor, previousAnchor) => {
+        activeAnchorRef.current = anchor;
+        // console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
+        previousAnchor?.removeAttribute('data-scroll-anchor-active');
+        anchor?.setAttribute('data-scroll-anchor-active', '');
+        updateActiveAnchor(anchor);
+        onActiveAnchorChange?.(anchor, previousAnchor);
+      },
+      defaultAnchoringMode,
+    });
 
     const { updateActiveAnchor, enableAnchoring, disableAnchoring, getIsAnchoringEnabled } = useScrollAnchoring({
       containerRef,
@@ -623,33 +669,10 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
         getAnchorsInView: () => {
           return inViewAnchorsRef.current;
         },
+        setAnchoringMode: (mode) => {
+          setAnchoringMode(mode);
+        },
       } satisfies ScrollContainerControls;
-    });
-
-    const potentialAnchorsRef = useRef<Element[]>([]);
-    const inViewAnchorsRef = useRef<Element[]>([]);
-    const activeAnchorRef = useRef<Element | null>(null);
-
-    useAnchorInView({
-      containerId: id,
-      onPotentialAnchorsChange: (anchors) => {
-        potentialAnchorsRef.current = anchors;
-        // console.log('[ScrollContainer] potential anchors', anchors);
-        onPotentialAnchorsChange?.(anchors);
-      },
-      onAnchorsInViewChange: (anchors) => {
-        inViewAnchorsRef.current = anchors;
-        // console.log('[ScrollContainer] anchors in view', anchors);
-        onAnchorsInViewChange?.(anchors);
-      },
-      onActiveAnchorChange: (anchor, previousAnchor) => {
-        activeAnchorRef.current = anchor;
-        // console.log('[ScrollContainer] active anchor', anchor, previousAnchor);
-        previousAnchor?.removeAttribute('data-scroll-anchor-active');
-        anchor?.setAttribute('data-scroll-anchor-active', '');
-        updateActiveAnchor(anchor);
-        onActiveAnchorChange?.(anchor, previousAnchor);
-      },
     });
 
     return (

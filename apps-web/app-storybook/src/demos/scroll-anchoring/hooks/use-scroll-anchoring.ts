@@ -2,14 +2,10 @@ import { useAnimationFrame } from 'motion/react';
 import { RefObject, useCallback, useRef } from 'react';
 
 const getTopPositionRelativeToContent = (element: Element, container: Element, containerId: string): number => {
-  // const subpixelCompensation = getSubpixelCompensation(container, containerId);
-  const subpixelCompensation = 0;
-
   const result =
     element.getBoundingClientRect().top -
     container.getBoundingClientRect().top +
-    getPreciseScrollTop(container, containerId) +
-    subpixelCompensation;
+    getPreciseScrollTop(container, containerId);
 
   return result;
 };

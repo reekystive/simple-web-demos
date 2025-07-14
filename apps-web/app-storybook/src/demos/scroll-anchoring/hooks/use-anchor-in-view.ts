@@ -2,17 +2,25 @@ import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useEventCallback } from 'usehooks-ts';
 import { deduplicate } from '../utils/deduplicate.js';
 
-const getTopElementInView = (elements: Element[]): Element | null => {
+export type AnchoringMode = 'top' | 'bottom';
+
+const selectAnchorElement = (elements: Element[], anchoringMode: AnchoringMode): Element | null => {
   let minTop = Infinity;
-  let currentSelectedElement: Element | null = null;
+  let maxTop = -Infinity;
+  let currentTopElement: Element | null = null;
+  let currentBottomElement: Element | null = null;
   elements.forEach((element) => {
     const rect = element.getBoundingClientRect();
     if (rect.top < minTop) {
       minTop = rect.top;
-      currentSelectedElement = element;
+      currentTopElement = element;
+    }
+    if (rect.top > maxTop) {
+      maxTop = rect.top;
+      currentBottomElement = element;
     }
   });
-  return currentSelectedElement;
+  return anchoringMode === 'top' ? currentTopElement : currentBottomElement;
 };
 
 const getPotentialAnchorElements = (container: Element, id: string): Element[] => {
@@ -39,6 +47,7 @@ type UseAnchorInViewProps = {
   onPotentialAnchorsChange?: (anchorElements: Element[]) => void;
   onAnchorsInViewChange?: (anchorElements: Element[]) => void;
   onActiveAnchorChange?: (anchorElement: Element | null, previousAnchorElement: Element | null) => void;
+  defaultAnchoringMode?: AnchoringMode;
 } & UseAnchorInViewContainer;
 
 const observeAnchorElementsIntersection = (
@@ -75,6 +84,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     onPotentialAnchorsChange: rawOnPotentialAnchorsChange,
     onAnchorsInViewChange: rawOnAnchorsInViewChange,
     onActiveAnchorChange: rawOnActiveAnchorChange,
+    defaultAnchoringMode = 'top',
   } = props;
 
   const onPotentialAnchorsChange = useEventCallback(rawOnPotentialAnchorsChange);
@@ -86,6 +96,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
   const disconnectIntersectionObserverRef = useRef<(() => void) | null>(() => null);
   const inViewAnchorElementsRef = useRef<Element[]>([]);
   const activeAnchorElementRef = useRef<Element | null>(null);
+  const anchoringModeRef = useRef<AnchoringMode>(defaultAnchoringMode);
 
   const getContainerRef = useCallback((id: string): Element | null => {
     const container = document.querySelector(`[data-scroll-container-id="${id}"]`);
@@ -103,7 +114,7 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     (intersectedElements: Element[]) => {
       onAnchorsInViewChange?.(intersectedElements);
       inViewAnchorElementsRef.current = intersectedElements;
-      const firstIntersectingElement = getTopElementInView(intersectedElements);
+      const firstIntersectingElement = selectAnchorElement(intersectedElements, anchoringModeRef.current);
       if (!firstIntersectingElement) {
         return;
       }
@@ -195,4 +206,16 @@ export const useAnchorInView = (props: UseAnchorInViewProps) => {
     onPotentialAnchorsChange,
     handlePotentialAnchorsChange,
   ]);
+
+  const setAnchoringMode = useCallback(
+    (anchoringMode: AnchoringMode) => {
+      anchoringModeRef.current = anchoringMode;
+      handleIntersectedElementsChange(inViewAnchorElementsRef.current);
+    },
+    [handleIntersectedElementsChange]
+  );
+
+  return {
+    setAnchoringMode,
+  };
 };
