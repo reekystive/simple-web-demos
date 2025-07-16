@@ -16,7 +16,6 @@
   "devDependencies": {
     "@cspell/eslint-plugin": "catalog:",
     "@eslint/css": "catalog:",
-    "@eslint/eslintrc": "catalog:",
     "@eslint/js": "catalog:",
     "@monorepo/tsconfig": "workspace:^",
     "@next/eslint-plugin-next": "catalog:",
@@ -24,7 +23,6 @@
     "@types/eslint-config-prettier": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
-    "eslint-config-next": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-react": "catalog:",
