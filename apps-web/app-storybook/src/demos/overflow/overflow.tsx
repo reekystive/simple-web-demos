@@ -34,8 +34,8 @@ export const OverflowWithMutationObserver: FC = () => {
     const overflowElement = overflowRef.current;
     if (!overflowElement) return;
     overflowElement.style.paddingRight = '0px'; // reset padding
-    const paddingRight = overflowElement.scrollWidth - overflowElement.clientWidth;
-    overflowElement.style.paddingRight = `${paddingRight}px`; // set padding
+    const paddingRight = overflowElement.scrollWidth - overflowElement.clientWidth; // trigger reflow
+    overflowElement.style.paddingRight = `${paddingRight}px`; // set new padding
   }, []);
 
   useLayoutEffect(() => {
