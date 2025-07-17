@@ -18,7 +18,16 @@ const getPreciseScrollTop = (container: Element, containerId: string): number =>
     console.warn('[ScrollAnchoring] container anchor not found, using scrollTop as fallback.');
     return container.scrollTop;
   }
+  const scrollTop = container.scrollTop;
   const preciseScrollTop = container.getBoundingClientRect().top - containerAnchor.getBoundingClientRect().top;
+  if (Math.abs(scrollTop - preciseScrollTop) > 1) {
+    console.warn(
+      `[ScrollAnchoring] getPreciseScrollTop returned wrong value, preciseScrollTop: %fpx, scrollTop: %fpx, diff: %fpx.`,
+      preciseScrollTop,
+      scrollTop,
+      preciseScrollTop - scrollTop
+    );
+  }
   return preciseScrollTop;
 };
 
