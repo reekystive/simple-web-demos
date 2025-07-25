@@ -33,6 +33,7 @@
     "react-dom": "catalog:",
     "react-scan": "catalog:",
     "react-usestateref": "catalog:",
+    "sonner": "catalog:",
     "usehooks-ts": "catalog:"
   },
   "devDependencies": {

@@ -48,6 +48,7 @@ catalog:
   react-dom: ^19.1.0
   react-scan: ^0.3.4
   react-usestateref: ^1.0.9
+  sonner: ^2.0.6
   storybook: ^9.0.15
   tailwind-merge: ^3.3.1
   tailwindcss: ^4.1.8

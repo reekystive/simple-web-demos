@@ -17,11 +17,13 @@ type ComponentPropsValue<
   TComponent extends ComponentType<Record<string, unknown>>,
   TMatrix extends Record<string, readonly unknown[]>,
   TSections extends Record<string, readonly unknown[]>,
-> = {
-  [K in keyof InferComponentProps<TComponent>]?:
-    | InferComponentProps<TComponent>[K]
-    | ((context: ComponentPropsContext<TMatrix, TSections>) => InferComponentProps<TComponent>[K]);
-};
+> =
+  | {
+      [K in keyof InferComponentProps<TComponent>]?:
+        | InferComponentProps<TComponent>[K]
+        | ((context: ComponentPropsContext<TMatrix, TSections>) => InferComponentProps<TComponent>[K]);
+    }
+  | ((context: ComponentPropsContext<TMatrix, TSections>) => Partial<InferComponentProps<TComponent>>);
 
 type MatrixDefinition<TComponent extends ComponentType<Record<string, unknown>>> = {
   [K in keyof InferComponentProps<TComponent>]?: readonly InferComponentProps<TComponent>[K][];
@@ -173,7 +175,7 @@ export function Matrix<
 
             <div
               className={cn(
-                'grid place-items-center gap-2 self-center rounded-sm border-[0.5px] border-neutral-500/40 p-2',
+                'self-center-safe grid place-items-center gap-2 rounded-sm border-[0.5px] border-neutral-500/40 p-2',
                 '[background-image:repeating-linear-gradient(45deg,rgba(127,127,127,0.03)_0,rgba(127,127,127,0.03)_10px,transparent_10px,transparent_20px)]',
                 classNames?.matrix
               )}
@@ -197,28 +199,38 @@ export function Matrix<
                     [secondKey]: secondValue,
                   } as CartesianProduct<TMatrix>;
 
-                  // Resolve component props (values or functions)
-                  const resolvedComponentProps = Object.entries(componentProps).reduce<
-                    Partial<InferComponentProps<TComponent>>
-                  >((acc, [key, value]) => {
-                    if (typeof value === 'function') {
-                      const resolvedValue = (
-                        value as (
-                          context: ComponentPropsContext<TMatrix, TSections>
-                        ) => InferComponentProps<TComponent>[keyof InferComponentProps<TComponent>]
-                      )({
-                        matrixProps,
-                        sectionProps: sectionProps,
-                        cellIndex,
-                        sectionIndex,
-                      });
-                      acc[key as keyof InferComponentProps<TComponent>] = resolvedValue;
-                    } else {
-                      acc[key as keyof InferComponentProps<TComponent>] =
-                        value as InferComponentProps<TComponent>[keyof InferComponentProps<TComponent>];
-                    }
-                    return acc;
-                  }, {});
+                  // Resolve component props (support both object and function modes)
+                  const context = {
+                    matrixProps,
+                    sectionProps: sectionProps,
+                    cellIndex,
+                    sectionIndex,
+                  };
+
+                  let resolvedComponentProps: Partial<InferComponentProps<TComponent>>;
+
+                  if (typeof componentProps === 'function') {
+                    // Function mode: componentProps is a function that returns the entire props object
+                    resolvedComponentProps = componentProps(context);
+                  } else {
+                    // Object mode: componentProps is an object with individual prop values or functions
+                    resolvedComponentProps = Object.entries(componentProps).reduce<
+                      Partial<InferComponentProps<TComponent>>
+                    >((acc, [key, value]) => {
+                      if (typeof value === 'function') {
+                        const resolvedValue = (
+                          value as (
+                            context: ComponentPropsContext<TMatrix, TSections>
+                          ) => InferComponentProps<TComponent>[keyof InferComponentProps<TComponent>]
+                        )(context);
+                        acc[key as keyof InferComponentProps<TComponent>] = resolvedValue;
+                      } else {
+                        acc[key as keyof InferComponentProps<TComponent>] =
+                          value as InferComponentProps<TComponent>[keyof InferComponentProps<TComponent>];
+                      }
+                      return acc;
+                    }, {});
+                  }
 
                   const cellProps = {
                     ...matrixProps,

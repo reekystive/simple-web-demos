@@ -2,7 +2,20 @@
 
 ## Overview
 
-A comprehensive utility component for displaying all possible prop combinations of UI components in a structured matrix layout. Features full TypeScript type inference and is designed specifically for Storybook integration to showcase component variants systematically.
+A comprehensive utility component for displaying all possible prop combinations of UI components in a structured matrix layout. Features **automatic TypeScript type inference with zero manual annotations** and is designed specifically for Storybook integration to showcase component variants systematically.
+
+### 🚀 Breakthrough Feature: Function Mode
+
+The Matrix component now supports a function mode for `componentProps` that achieves **complete automatic type inference**:
+
+```typescript
+componentProps={(context) => ({
+  // ✨ No type annotations needed!
+  // ✨ Full IntelliSense support!
+  children: `${context.matrixProps.color} ${context.matrixProps.size}`,
+  onClick: (event) => console.log([event, context]),
+})}
+```
 
 ## Core Functionality
 
@@ -13,11 +26,12 @@ The Matrix component renders all possible combinations of component props using 
 
 ## Key Features
 
-### 🔧 Full Type Safety
+### 🔧 Automatic Type Inference ✨
 
+- **Zero manual type annotations**: `componentProps` function mode provides automatic type inference
 - **Automatic prop name inference**: Matrix fields are constrained to actual component props
 - **Value type validation**: Array values must match the component's prop types
-- **Context type inference**: `componentProps` callbacks receive fully typed context objects
+- **Smart context typing**: Context parameters automatically typed based on matrix and sections
 
 ### 🎨 Flexible Layout System
 
@@ -107,7 +121,38 @@ const ButtonMatrix = createMatrixFor(Button);
 />
 ```
 
-### Dynamic Component Props
+### ComponentProps Modes
+
+The Matrix component supports two modes for `componentProps` with different type inference capabilities:
+
+#### 🚀 Function Mode (Recommended - Automatic Type Inference)
+
+```typescript
+<ButtonMatrix
+  matrix={{
+    color: ['blue', 'red', 'yellow'],
+    size: ['sm', 'md'],
+  }}
+  sections={{
+    disabled: [false, true],
+  }}
+  componentProps={(context) => ({
+    // ✨ context is automatically typed!
+    // ✨ No manual type annotations needed!
+    children: `${context.matrixProps.color} ${context.matrixProps.size}`,
+    onClick: (event) => console.log([event, context]),
+    'aria-label': `${context.matrixProps.color} button`,
+  })}
+/>
+```
+
+**Benefits:**
+
+- 🎯 **Zero type annotations** - TypeScript automatically infers all types
+- 🚀 **Better IntelliSense** - Full autocompletion for context properties
+- 🛡️ **Type safety** - Compile-time errors for invalid props or values
+
+#### 📝 Object Mode (Legacy - Manual Type Annotations)
 
 Support both static values and context-aware functions:
 
@@ -218,7 +263,7 @@ Override default component rendering with custom JSX:
 Primary use case for comprehensive component galleries:
 
 ```typescript
-// Replace manual AllVariants stories
+// Replace manual AllVariants stories with automatic type inference
 export const AllVariants: StoryObj<typeof Button> = {
   parameters: { layout: 'fullscreen' },
   render: () => (
@@ -231,9 +276,11 @@ export const AllVariants: StoryObj<typeof Button> = {
         sections={{
           disabled: [false, true],
         }}
-        componentProps={{
-          children: (ctx) => `${ctx.matrixProps.variant}`,
-        }}
+        componentProps={(context) => ({
+          // ✨ Automatic type inference!
+          children: `${context.matrixProps.variant}`,
+          onClick: (event) => console.log(context.matrixProps),
+        })}
       />
     </div>
   ),

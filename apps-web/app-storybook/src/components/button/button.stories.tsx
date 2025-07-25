@@ -1,11 +1,11 @@
 import { createMatrixFor } from '#src/ui-utils/matrix/matrix.js';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CSSProperties, useMemo } from 'react';
+import { toast } from 'sonner';
 import { Button, ButtonVariants } from './button.js';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
-  component: Button,
   parameters: {
     layout: 'centered',
   },
@@ -72,8 +72,12 @@ export const Matrix: StoryObj<typeof Button> = {
           sections={{
             disabled: [false, true],
           }}
-          componentProps={{
-            children: (context) => `${context.matrixProps.color} ${context.matrixProps.size}`,
+          componentProps={(context) => {
+            const variant = `${context.matrixProps.color} ${context.matrixProps.size}`;
+            return {
+              children: variant,
+              onClick: () => toast.info(`Clicked ${variant}`),
+            };
           }}
           sectionsLayout="vertical"
         />
