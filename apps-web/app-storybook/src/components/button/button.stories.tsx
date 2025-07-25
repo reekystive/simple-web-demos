@@ -75,6 +75,7 @@ export const Matrix: StoryObj<typeof Button> = {
           componentProps={{
             children: (context) => `${context.matrixProps.color} ${context.matrixProps.size}`,
           }}
+          sectionsLayout="vertical"
         />
       </div>
     );

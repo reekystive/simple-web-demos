@@ -47,10 +47,11 @@ interface MatrixProps<
     matrix?: string;
     section?: string;
   };
-  gridSize?: {
+  matrixGridSize?: {
     column?: 'identical' | 'fit';
     row?: 'identical' | 'fit';
   };
+  sectionsLayout?: 'vertical' | 'horizontal';
 }
 
 type CartesianProduct<T extends Record<string, readonly unknown[]>> = {
@@ -108,10 +109,11 @@ export function Matrix<
   render,
   className,
   classNames,
-  gridSize = {
+  matrixGridSize = {
     column: 'identical',
     row: 'fit',
   },
+  sectionsLayout = 'vertical',
 }: MatrixProps<TComponent, TMatrix, TSections>) {
   const matrixKeys = Object.keys(matrix);
   const [firstKey, secondKey, ...otherKeys] = matrixKeys;
@@ -144,14 +146,29 @@ export function Matrix<
   }
 
   return (
-    <div className={cn('flex w-full flex-col items-stretch gap-4 contain-inline-size', className)}>
+    <div
+      className={cn(
+        'w-full contain-inline-size',
+        sectionsLayout === 'vertical' && 'flex flex-col items-stretch justify-start gap-4',
+        sectionsLayout === 'horizontal' && 'justify-center-safe flex flex-row items-center gap-4',
+        className
+      )}
+    >
       {sectionCombinations.map((sectionProps, sectionIndex) => {
         const sectionTitle = Object.entries(sectionProps)
           .map(([key, value]) => `${key}: ${String(value)}`)
           .join(', ');
 
         return (
-          <div key={sectionIndex} className={cn('flex flex-col items-stretch gap-2', classNames?.section)}>
+          <div
+            key={sectionIndex}
+            className={cn(
+              'flex flex-col items-stretch gap-2',
+              sectionsLayout === 'horizontal' && 'min-w-max',
+              sectionsLayout === 'vertical' && 'min-w-0',
+              classNames?.section
+            )}
+          >
             {sectionTitle && <h3 className="self-center font-mono text-xs">{sectionTitle}</h3>}
 
             <div
@@ -162,11 +179,11 @@ export function Matrix<
               )}
               style={{
                 gridTemplateColumns:
-                  gridSize.column === 'identical'
+                  matrixGridSize.column === 'identical'
                     ? `repeat(${secondValues?.length ?? 0}, 1fr)`
                     : `repeat(${secondValues?.length ?? 0}, auto)`,
                 gridTemplateRows:
-                  gridSize.row === 'identical'
+                  matrixGridSize.row === 'identical'
                     ? `repeat(${firstValues?.length ?? 0}, 1fr)`
                     : `repeat(${firstValues?.length ?? 0}, auto)`,
               }}
