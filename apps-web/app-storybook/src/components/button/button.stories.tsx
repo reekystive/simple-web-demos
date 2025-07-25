@@ -1,9 +1,11 @@
+import { createMatrixFor } from '#src/ui-utils/matrix/matrix.js';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CSSProperties, useMemo } from 'react';
 import { Button, ButtonVariants } from './button.js';
 
-const meta: Meta = {
+const meta: Meta<typeof Button> = {
   title: 'Components/Button',
+  component: Button,
   parameters: {
     layout: 'centered',
   },
@@ -11,7 +13,7 @@ const meta: Meta = {
 
 export default meta;
 
-export const Default: StoryObj = {
+export const Default: StoryObj<typeof Button> = {
   render: () => {
     const colors: ButtonVariants['color'][] = useMemo(() => ['blue', 'red', 'yellow', 'green'], []);
     const sizes: ButtonVariants['size'][] = useMemo(() => ['sm', 'md'], []);
@@ -48,6 +50,32 @@ export const Default: StoryObj = {
             </div>
           </div>
         ))}
+      </div>
+    );
+  },
+};
+
+const ButtonMatrix = createMatrixFor(Button);
+
+export const Matrix: StoryObj<typeof Button> = {
+  parameters: {
+    layout: 'fullscreen',
+  },
+  render: () => {
+    return (
+      <div className="w-full p-2 md:p-4">
+        <ButtonMatrix
+          matrix={{
+            size: ['sm', 'md'],
+            color: ['blue', 'red', 'yellow', 'green'],
+          }}
+          sections={{
+            disabled: [false, true],
+          }}
+          componentProps={{
+            children: (context) => `${context.matrixProps.color} ${context.matrixProps.size}`,
+          }}
+        />
       </div>
     );
   },
