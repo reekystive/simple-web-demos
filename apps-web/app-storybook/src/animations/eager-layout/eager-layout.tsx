@@ -11,7 +11,7 @@ export const EagerLayout: FC = () => {
   const [images, setImages] = useState(() =>
     Array.from({ length: 50 }, () => {
       const id = fakerWithSeed.string.uuid();
-      const imageUrl = fakerWithSeed.image.personPortrait({ size: 256 });
+      const imageUrl = fakerWithSeed.image.urlPicsumPhotos({ width: 512, height: 512 });
       return { id, imageUrl };
     })
   );
@@ -62,7 +62,12 @@ const Landscape: FC<{
     <div className={cn('relative size-full overflow-clip rounded-md', className)}>
       {imageUrl && (
         <>
-          <img src={imageUrl} alt="A fake image" draggable={false} className="size-full select-none object-cover" />
+          <img
+            src={imageUrl}
+            alt="A fake image"
+            draggable={false}
+            className="size-full select-none object-cover object-center"
+          />
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-black/50 to-black/0" />
         </>
       )}
