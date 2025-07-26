@@ -118,7 +118,10 @@ const Landscape: FC<{
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-black/50 to-black/0" />
         </>
       )}
-      <button className="absolute left-2 top-2 size-6 touch-manipulation" onClick={onClickClose}>
+      <button
+        className="absolute right-2 top-2 size-6 touch-manipulation rounded-full bg-neutral-700/20 p-1 backdrop-blur-md"
+        onClick={onClickClose}
+      >
         <X className="size-full" />
         <div className="absolute -inset-2 cursor-pointer" />
       </button>
