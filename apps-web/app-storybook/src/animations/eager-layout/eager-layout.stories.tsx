@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { EagerLayout } from './eager-layout.js';
+import { EagerLayout, EagerLayoutWithoutAnimation, EagerLayoutWithoutEager } from './eager-layout.js';
 
 const meta: Meta = {
   title: 'Animations/EagerLayout',
@@ -12,4 +12,12 @@ export const Default: StoryObj = {
     layout: 'fullscreen',
   },
   render: () => <EagerLayout />,
+};
+
+export const WithoutAnimation: StoryObj = {
+  render: () => <EagerLayoutWithoutAnimation />,
+};
+
+export const WithoutEager: StoryObj = {
+  render: () => <EagerLayoutWithoutEager />,
 };
