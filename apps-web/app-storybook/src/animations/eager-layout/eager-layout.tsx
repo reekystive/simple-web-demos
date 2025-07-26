@@ -30,10 +30,10 @@ const useImages = () => {
   return { images, setImages };
 };
 
-export const EagerLayout: FC = () => {
+export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout>
+    <Layout className={cn(className)}>
       <AnimatePresence mode="popLayout">
         {images.map((image) => (
           <LayeredLandscape
@@ -50,10 +50,10 @@ export const EagerLayout: FC = () => {
   );
 };
 
-export const EagerLayoutWithoutAnimation: FC = () => {
+export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout>
+    <Layout className={cn(className)}>
       {images.map((image) => (
         <Landscape
           key={image.id}
@@ -67,10 +67,10 @@ export const EagerLayoutWithoutAnimation: FC = () => {
   );
 };
 
-export const EagerLayoutWithoutEager = () => {
+export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout className="touch-manipulation">
+    <Layout className={cn('touch-manipulation', className)}>
       {images.map((image) => (
         <motion.div key={image.id} layoutId={`without-eager-${image.id}`}>
           <Landscape
@@ -82,6 +82,16 @@ export const EagerLayoutWithoutEager = () => {
         </motion.div>
       ))}
     </Layout>
+  );
+};
+
+export const EagerLayoutSideBySide: FC = () => {
+  return (
+    <div className="mx-auto flex w-screen max-w-7xl flex-row items-start gap-2 px-2 md:px-6">
+      <EagerLayout className="min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0" />
+      <div className="mx-0 w-px self-stretch bg-neutral-500/30 md:mx-2" />
+      <EagerLayoutWithoutEager className="min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0" />
+    </div>
   );
 };
 
