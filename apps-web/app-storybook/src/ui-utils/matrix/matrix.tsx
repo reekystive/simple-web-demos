@@ -41,7 +41,7 @@ interface MatrixProps<
 > {
   component: TComponent;
   matrix: TMatrix;
-  sections: TSections;
+  sections?: TSections;
   componentProps?: ComponentPropsValue<TComponent, TMatrix, TSections>;
   render?: (props: Expand<CartesianProduct<TMatrix> & CartesianProduct<TSections>>) => ReactNode;
   className?: string;
@@ -120,22 +120,23 @@ export function Matrix<
   const matrixKeys = Object.keys(matrix);
   const [firstKey, secondKey, ...otherKeys] = matrixKeys;
 
-  if (matrixKeys.length < 2) {
-    throw new Error('Matrix requires exactly 2 prop dimensions');
+  if (matrixKeys.length < 1) {
+    throw new Error('Matrix requires at least 1 prop dimension');
   }
 
   if (otherKeys.length > 0) {
+    const dimensionCount = matrixKeys.length === 1 ? 1 : 2;
     console.warn(
-      `Matrix only uses first 2 props for grid layout. Additional props [${otherKeys.join(', ')}] will be applied to all cells.`
+      `Matrix only uses first ${dimensionCount} props for grid layout. Additional props [${otherKeys.join(', ')}] will be applied to all cells.`
     );
   }
 
-  if (!firstKey || !secondKey) {
-    throw new Error('Matrix requires at least 2 prop dimensions');
+  if (!firstKey) {
+    throw new Error('Matrix requires at least 1 prop dimension');
   }
 
   const firstValues = matrix[firstKey];
-  const secondValues = matrix[secondKey];
+  const secondValues = secondKey ? matrix[secondKey] : [null]; // Single dimension case
   const baseProps = otherKeys.reduce<Partial<CartesianProduct<TMatrix>>>(
     (acc, key) => ({ ...acc, [key]: matrix[key]?.[0] }),
     {}
@@ -171,7 +172,9 @@ export function Matrix<
               classNames?.section
             )}
           >
-            {sectionTitle && <h3 className="self-center font-mono text-xs">{sectionTitle}</h3>}
+            {Object.keys(sectionProps).length > 0 && sectionTitle && (
+              <h3 className="self-center font-mono text-xs">{sectionTitle}</h3>
+            )}
 
             <div
               className={cn(
@@ -182,12 +185,12 @@ export function Matrix<
               style={{
                 gridTemplateColumns:
                   matrixGridSize.column === 'identical'
-                    ? `repeat(${secondValues?.length ?? 0}, 1fr)`
-                    : `repeat(${secondValues?.length ?? 0}, auto)`,
+                    ? `repeat(${secondKey ? (secondValues?.length ?? 0) : (firstValues?.length ?? 0)}, 1fr)`
+                    : `repeat(${secondKey ? (secondValues?.length ?? 0) : (firstValues?.length ?? 0)}, auto)`,
                 gridTemplateRows:
                   matrixGridSize.row === 'identical'
-                    ? `repeat(${firstValues?.length ?? 0}, 1fr)`
-                    : `repeat(${firstValues?.length ?? 0}, auto)`,
+                    ? `repeat(${secondKey ? (firstValues?.length ?? 0) : 1}, 1fr)`
+                    : `repeat(${secondKey ? (firstValues?.length ?? 0) : 1}, auto)`,
               }}
             >
               {firstValues?.map((firstValue, firstIndex: number) =>
@@ -196,7 +199,7 @@ export function Matrix<
                   const matrixProps = {
                     ...baseProps,
                     [firstKey]: firstValue,
-                    [secondKey]: secondValue,
+                    ...(secondKey && { [secondKey]: secondValue }),
                   } as CartesianProduct<TMatrix>;
 
                   // Resolve component props (support both object and function modes)
@@ -239,14 +242,14 @@ export function Matrix<
                   } as InferComponentProps<TComponent> &
                     Expand<CartesianProduct<TMatrix> & CartesianProduct<TSections>>;
 
+                  const cellKey = secondKey ? `${String(firstValue)}-${String(secondValue)}` : String(firstValue);
+
                   if (render) {
-                    return (
-                      <Fragment key={`${String(firstValue)}-${String(secondValue)}`}>{render(cellProps)}</Fragment>
-                    );
+                    return <Fragment key={cellKey}>{render(cellProps)}</Fragment>;
                   }
 
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  return <Component key={`${String(firstValue)}-${String(secondValue)}`} {...(cellProps as any)} />;
+                  return <Component key={cellKey} {...(cellProps as any)} />;
                 })
               )}
             </div>

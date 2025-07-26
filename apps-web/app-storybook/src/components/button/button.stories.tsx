@@ -57,13 +57,13 @@ export const Default: StoryObj<typeof Button> = {
 
 const ButtonMatrix = createMatrixFor(Button);
 
-export const Matrix: StoryObj<typeof Button> = {
+export const MatrixVertical: StoryObj<typeof Button> = {
   parameters: {
     layout: 'fullscreen',
   },
   render: () => {
     return (
-      <div className="w-full p-2 md:p-4">
+      <div className="min-h-screen w-screen place-content-center border-red-50 p-2 md:p-4">
         <ButtonMatrix
           matrix={{
             size: ['sm', 'md'],
@@ -80,6 +80,30 @@ export const Matrix: StoryObj<typeof Button> = {
             };
           }}
           sectionsLayout="vertical"
+        />
+      </div>
+    );
+  },
+};
+
+export const MatrixHorizontal: StoryObj<typeof Button> = {
+  parameters: {
+    layout: 'fullscreen',
+  },
+  render: () => {
+    return (
+      <div className="min-h-screen w-screen place-content-center border-red-50 p-2 md:p-4">
+        <ButtonMatrix
+          matrix={{ color: ['blue', 'red', 'yellow', 'green'] }}
+          sections={{ size: ['sm', 'md'] }}
+          sectionsLayout="horizontal"
+          componentProps={(context) => {
+            const variant = `a ${context.sectionProps.size} button`;
+            return {
+              children: variant,
+              onClick: () => toast.info(`Clicked ${variant}`),
+            };
+          }}
         />
       </div>
     );
