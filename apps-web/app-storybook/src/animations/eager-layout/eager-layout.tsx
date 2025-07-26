@@ -17,12 +17,7 @@ export const EagerLayout: FC = () => {
   );
 
   return (
-    <div
-      className="mx-auto grid min-h-screen w-screen max-w-4xl grid-cols-2 content-start justify-center gap-2 px-6 py-4"
-      style={{
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 200px))',
-      }}
-    >
+    <div className="mx-auto grid min-h-screen w-screen max-w-4xl grid-cols-[repeat(auto-fill,minmax(150px,1fr))] content-start justify-center gap-2 px-2 py-2 md:grid-cols-[repeat(auto-fill,minmax(150px,200px))] md:px-6 md:py-4">
       <AnimatePresence mode="popLayout">
         {images.map((image) => (
           <LandscapeWithAnimation
@@ -71,7 +66,7 @@ const Landscape: FC<{
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-black/50 to-black/0" />
         </>
       )}
-      <button className="absolute left-2 top-2 size-6" onClick={onClickClose}>
+      <button className="absolute left-2 top-2 size-6 touch-manipulation" onClick={onClickClose}>
         <X className="size-full" />
         <div className="absolute -inset-2 cursor-pointer" />
       </button>
