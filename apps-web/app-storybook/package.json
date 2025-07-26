@@ -28,6 +28,7 @@
     "@react-hookz/web": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
+    "lucide-react": "catalog:",
     "motion": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
