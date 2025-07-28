@@ -1,6 +1,7 @@
 words:
   - avenir
   - clsx
+  - dedupe
   - esbuild
   - grayscale
   - hookz
