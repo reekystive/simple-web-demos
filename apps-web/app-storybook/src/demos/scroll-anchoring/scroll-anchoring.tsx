@@ -499,7 +499,10 @@ export const ScrollAnchoring: FC = () => {
           key={count}
           ref={scrollContainerRef}
           className={cn(
-            'h-[25rem] w-[20rem] resize overflow-y-auto overflow-x-clip rounded-sm bg-neutral-500/10 ring-1 ring-neutral-500/50',
+            `
+              h-[25rem] w-[20rem] resize overflow-x-clip overflow-y-auto rounded-sm bg-neutral-500/10 ring-1
+              ring-neutral-500/50
+            `,
             width === 'large' && 'w-[30rem]',
             isCSSAnchoringEnabled && '[overflow-anchor:auto]'
           )}
@@ -554,7 +557,13 @@ export const ScrollAnchoring: FC = () => {
           })}
         </ScrollContainer>
 
-        <div className="pointer-events-none fixed left-0 right-0 top-0 flex flex-col border-b border-neutral-400/50 bg-neutral-200/70 px-3 py-2 font-mono text-xs text-black opacity-70 dark:border-neutral-500/30 dark:bg-neutral-900 dark:text-white">
+        <div
+          className={`
+            pointer-events-none fixed top-0 right-0 left-0 flex flex-col border-b border-neutral-400/50
+            bg-neutral-200/70 px-3 py-2 font-mono text-xs text-black opacity-70
+            dark:border-neutral-500/30 dark:bg-neutral-900 dark:text-white
+          `}
+        >
           <div>Potential anchors: {potentialAnchorsCount}</div>
           <div>Anchors in view: {anchorsInViewCount}</div>
           <div>Active anchor: {activeAnchorString}</div>
@@ -679,9 +688,15 @@ export const ScrollContainer = forwardRef<ScrollContainerControls, ScrollContain
       <div
         data-scroll-container-id={id}
         ref={containerRef}
-        className={cn('relative [overflow-anchor:none]', className)}
+        className={cn(
+          `
+            relative
+            [overflow-anchor:none]
+          `,
+          className
+        )}
       >
-        <div data-scroll-container-anchor-id={id} className="invisible absolute left-0 top-0 h-0 w-0 overflow-clip" />
+        <div data-scroll-container-anchor-id={id} className="invisible absolute top-0 left-0 h-0 w-0 overflow-clip" />
         <div
           data-scroll-container-content-id={id}
           className={cn('will-change-transform', props.contentProps?.className)}
@@ -731,7 +746,13 @@ export const Profile: FC<{
 export const Item: FC<{ children?: ReactNode; className?: string }> = ({ children, className }) => {
   return (
     <div
-      className={cn('border-b-[0.5px] border-t-[0.5px] border-neutral-500/50 bg-white/50 dark:bg-black/50', className)}
+      className={cn(
+        `
+          border-t-[0.5px] border-b-[0.5px] border-neutral-500/50 bg-white/50
+          dark:bg-black/50
+        `,
+        className
+      )}
     >
       {children}
     </div>

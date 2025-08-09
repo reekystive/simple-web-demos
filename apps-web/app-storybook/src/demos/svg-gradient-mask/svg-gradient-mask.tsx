@@ -26,8 +26,13 @@ export const SvgGradientMask: FC = () => {
     <div className="flex min-h-screen flex-col items-stretch justify-center gap-6 py-6">
       {/* static svg mask */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
-        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
+      <div
+        className={`
+          relative flex flex-row items-center justify-center-safe gap-4 overflow-x-auto bg-neutral-200 p-8
+          dark:bg-neutral-950
+        `}
+      >
+        <svg className="absolute top-0 left-0 size-0" viewBox="0 0 10 10">
           <defs>
             <linearGradient
               gradientUnits="objectBoundingBox"
@@ -61,11 +66,22 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
-          <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
+          <rect
+            width="100%"
+            height="100%"
+            className={`
+              fill-amber-400
+              dark:fill-amber-600
+            `}
+            mask={`url(#${maskId})`}
+          />
         </svg>
 
         <div
-          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className={`
+            h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2
+            dark:bg-red-900
+          `}
           style={{ maskImage: `url(#${maskId})` }}
         >
           {LOREM_IPSUM}
@@ -74,8 +90,13 @@ export const SvgGradientMask: FC = () => {
 
       {/* static svg mask with invert filter */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Static Svg Mask with Invert Filter</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
-        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
+      <div
+        className={`
+          relative flex flex-row items-center justify-center-safe gap-4 overflow-x-auto bg-neutral-200 p-8
+          dark:bg-neutral-950
+        `}
+      >
+        <svg className="absolute top-0 left-0 size-0" viewBox="0 0 10 10">
           <defs>
             <filter id={invertFilterId} colorInterpolationFilters="sRGB">
               <feColorMatrix
@@ -95,20 +116,34 @@ export const SvgGradientMask: FC = () => {
         </svg>
 
         <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
-          <rect width="100%" height="100%" className="fill-amber-400 dark:fill-amber-600" mask={`url(#${maskId})`} />
+          <rect
+            width="100%"
+            height="100%"
+            className={`
+              fill-amber-400
+              dark:fill-amber-600
+            `}
+            mask={`url(#${maskId})`}
+          />
         </svg>
 
         <svg className="h-[300px] w-[200px] shrink-0" viewBox="0 0 100 150">
           <rect
             width="100%"
             height="100%"
-            className="fill-amber-400 dark:fill-amber-600"
+            className={`
+              fill-amber-400
+              dark:fill-amber-600
+            `}
             mask={`url(#${invertMaskId})`}
           />
         </svg>
 
         <div
-          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className={`
+            h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2
+            dark:bg-red-900
+          `}
           style={{ maskImage: `url(#${invertMaskId})` }}
         >
           {LOREM_IPSUM}
@@ -117,8 +152,13 @@ export const SvgGradientMask: FC = () => {
 
       {/* animated svg mask (animate stops) */}
       <h2 className="-mb-4 self-center text-lg font-bold uppercase">Animated Svg Mask (Animate stops)</h2>
-      <div className="justify-center-safe relative flex flex-row items-center gap-4 overflow-x-auto bg-neutral-200 p-8 dark:bg-neutral-950">
-        <svg className="absolute left-0 top-0 size-0" viewBox="0 0 10 10">
+      <div
+        className={`
+          relative flex flex-row items-center justify-center-safe gap-4 overflow-x-auto bg-neutral-200 p-8
+          dark:bg-neutral-950
+        `}
+      >
+        <svg className="absolute top-0 left-0 size-0" viewBox="0 0 10 10">
           <defs>
             <linearGradient
               gradientUnits="objectBoundingBox"
@@ -157,20 +197,29 @@ export const SvgGradientMask: FC = () => {
           <rect
             width="100%"
             height="100%"
-            className="fill-amber-400 dark:fill-amber-600"
+            className={`
+              fill-amber-400
+              dark:fill-amber-600
+            `}
             mask={`url(#${animatedMaskId})`}
           />
         </svg>
 
         <div
-          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className={`
+            h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2
+            dark:bg-red-900
+          `}
           style={{ maskImage: `url(#${animatedMaskId})` }}
         >
           {LOREM_IPSUM}
         </div>
 
         <div
-          className="h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2 dark:bg-red-900"
+          className={`
+            h-[300px] w-[200px] shrink-0 overflow-hidden bg-red-200 p-2
+            dark:bg-red-900
+          `}
           style={{ maskImage: `url(#${invertAnimatedMaskId})` }}
         >
           {LOREM_IPSUM}
@@ -185,7 +234,10 @@ export const SvgGradientMask: FC = () => {
             {LOREM_IPSUM}
           </div>
           <div
-            className="absolute inset-0 bg-red-200 p-2 dark:bg-red-900"
+            className={`
+              absolute inset-0 bg-red-200 p-2
+              dark:bg-red-900
+            `}
             style={{ maskImage: `url(#${invertAnimatedMaskId})` }}
           />
         </div>

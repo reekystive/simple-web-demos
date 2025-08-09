@@ -8,7 +8,11 @@ const Layout: FC<{ className?: string; children: React.ReactNode }> = ({ childre
   return (
     <div
       className={cn(
-        'mx-auto grid min-h-screen w-screen max-w-4xl grid-cols-[repeat(auto-fill,minmax(150px,1fr))] content-start justify-center gap-2 px-2 py-2 md:grid-cols-[repeat(auto-fill,minmax(150px,200px))] md:px-6 md:py-4',
+        `
+          mx-auto grid min-h-screen w-screen max-w-4xl grid-cols-[repeat(auto-fill,minmax(150px,1fr))] content-start
+          justify-center gap-2 px-2 py-2
+          md:grid-cols-[repeat(auto-fill,minmax(150px,200px))] md:px-6 md:py-4
+        `,
         className
       )}
     >
@@ -87,10 +91,30 @@ export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className 
 
 export const EagerLayoutSideBySide: FC = () => {
   return (
-    <div className="mx-auto flex w-screen max-w-7xl flex-row items-start gap-2 px-2 md:px-6">
-      <EagerLayout className="min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0" />
-      <div className="mx-0 w-px self-stretch bg-neutral-500/30 md:mx-2" />
-      <EagerLayoutWithoutEager className="min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0" />
+    <div
+      className={`
+        mx-auto flex w-screen max-w-7xl flex-row items-start gap-2 px-2
+        md:px-6
+      `}
+    >
+      <EagerLayout
+        className={`
+          min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0
+          md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0
+        `}
+      />
+      <div
+        className={`
+          mx-0 w-px self-stretch bg-neutral-500/30
+          md:mx-2
+        `}
+      />
+      <EagerLayoutWithoutEager
+        className={`
+          min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0
+          md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0
+        `}
+      />
     </div>
   );
 };
@@ -123,13 +147,17 @@ const Landscape: FC<{
             src={imageUrl}
             alt="A fake image"
             draggable={false}
-            className="size-full select-none object-cover object-center"
+            className="size-full object-cover object-center select-none"
           />
-          <div className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-black/50 to-black/0" />
+          <div
+            className={`
+              pointer-events-none absolute top-0 right-0 left-0 h-10 bg-gradient-to-b from-black/50 to-black/0
+            `}
+          />
         </>
       )}
       <button
-        className="absolute right-2 top-2 size-6 touch-manipulation rounded-full bg-neutral-700/20 p-1 backdrop-blur-md"
+        className="absolute top-2 right-2 size-6 touch-manipulation rounded-full bg-neutral-700/20 p-1 backdrop-blur-md"
         onClick={onClickClose}
       >
         <X className="size-full" />

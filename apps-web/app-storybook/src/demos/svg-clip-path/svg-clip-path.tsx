@@ -42,11 +42,21 @@ export const SvgClipPath: FC = () => {
       </svg>
 
       <div className="size-20 border">
-        <div className="size-full bg-red-200 [clip-path:url(#clip-path-object)]"></div>
+        <div
+          className={`
+            size-full bg-red-200
+            [clip-path:url(#clip-path-object)]
+          `}
+        ></div>
       </div>
 
       <div className="size-20 border">
-        <div className="size-full bg-red-200 [clip-path:url(#clip-path-user)]"></div>
+        <div
+          className={`
+            size-full bg-red-200
+            [clip-path:url(#clip-path-user)]
+          `}
+        ></div>
       </div>
     </div>
   );

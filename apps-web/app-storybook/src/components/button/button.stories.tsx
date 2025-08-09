@@ -63,7 +63,12 @@ export const MatrixVertical: StoryObj<typeof Button> = {
   },
   render: () => {
     return (
-      <div className="min-h-screen w-screen place-content-center border-red-50 p-2 md:p-4">
+      <div
+        className={`
+          min-h-screen w-screen place-content-center border-red-50 p-2
+          md:p-4
+        `}
+      >
         <ButtonMatrix
           matrix={{
             size: ['sm', 'md'],
@@ -92,7 +97,12 @@ export const MatrixHorizontal: StoryObj<typeof Button> = {
   },
   render: () => {
     return (
-      <div className="min-h-screen w-screen place-content-center border-red-50 p-2 md:p-4">
+      <div
+        className={`
+          min-h-screen w-screen place-content-center border-red-50 p-2
+          md:p-4
+        `}
+      >
         <ButtonMatrix
           matrix={{ color: ['blue', 'red', 'yellow', 'green'] }}
           sections={{ size: ['sm', 'md'] }}

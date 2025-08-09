@@ -153,7 +153,7 @@ export function Matrix<
       className={cn(
         'w-full contain-inline-size',
         sectionsLayout === 'vertical' && 'flex flex-col items-stretch justify-start gap-4',
-        sectionsLayout === 'horizontal' && 'justify-center-safe flex flex-row items-center gap-4',
+        sectionsLayout === 'horizontal' && 'flex flex-row items-center justify-center-safe gap-4',
         className
       )}
     >
@@ -178,8 +178,10 @@ export function Matrix<
 
             <div
               className={cn(
-                'self-center-safe grid place-items-center gap-2 rounded-sm border-[0.5px] border-neutral-500/40 p-2',
-                '[background-image:repeating-linear-gradient(45deg,rgba(127,127,127,0.03)_0,rgba(127,127,127,0.03)_10px,transparent_10px,transparent_20px)]',
+                'grid place-items-center gap-2 self-center-safe rounded-sm border-[0.5px] border-neutral-500/40 p-2',
+                `
+                  [background-image:repeating-linear-gradient(45deg,rgba(127,127,127,0.03)_0,rgba(127,127,127,0.03)_10px,transparent_10px,transparent_20px)]
+                `,
                 classNames?.matrix
               )}
               style={{

@@ -20,7 +20,10 @@ export const AnimationIndicator: FC<{ className?: string }> = ({ className }) =>
   return (
     <div
       className={cn(
-        'flex h-fit w-fit flex-col items-stretch gap-3 bg-red-500/50 p-2 font-mono text-xs text-black dark:text-white',
+        `
+          flex h-fit w-fit flex-col items-stretch gap-3 bg-red-500/50 p-2 font-mono text-xs text-black
+          dark:text-white
+        `,
         className
       )}
       onClick={() => setShowAnimation((v) => !v)}
@@ -42,20 +45,37 @@ export const AnimationIndicator: FC<{ className?: string }> = ({ className }) =>
               <motion.div
                 animate={{ left: ['0', '4.25rem', '0'] }}
                 transition={{ duration: 1, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
-                className="absolute top-0 aspect-square h-full rounded-full bg-black dark:bg-white"
+                className={`
+                  absolute top-0 aspect-square h-full rounded-full bg-black
+                  dark:bg-white
+                `}
               />
             </div>
             <div>JS rAF</div>
           </div>
           <div className="flex flex-row items-center gap-2">
             <div className="relative h-3 w-[5rem]">
-              <div className="absolute top-0 aspect-square h-full rounded-full bg-black [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-position] dark:bg-white" />
+              <div
+                className={`
+                  absolute top-0 aspect-square h-full
+                  [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-position]
+                  rounded-full bg-black
+                  dark:bg-white
+                `}
+              />
             </div>
             <div>CSS Layout</div>
           </div>
           <div className="flex flex-row items-center gap-2">
             <div className="relative h-3 w-[5rem]">
-              <div className="absolute top-0 aspect-square h-full rounded-full bg-black [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-transform] dark:bg-white" />
+              <div
+                className={`
+                  absolute top-0 aspect-square h-full
+                  [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-transform]
+                  rounded-full bg-black
+                  dark:bg-white
+                `}
+              />
             </div>
             <div>CSS Transform</div>
           </div>
