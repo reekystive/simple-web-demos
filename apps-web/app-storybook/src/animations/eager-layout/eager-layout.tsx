@@ -164,12 +164,12 @@ const Landscape: FC<{
             src={imageUrl}
             alt="A fake image"
             draggable={false}
-            className={`
+            className={cn(`
               size-full scale-125 object-cover object-center opacity-0 blur-sm transition-all duration-500 ease-out
               select-none
               [&[data-state='error']]:hidden
               [&[data-state='loaded']]:scale-100 [&[data-state='loaded']]:opacity-100 [&[data-state='loaded']]:blur-none
-            `}
+            `)}
           />
           <div
             className={cn(`
