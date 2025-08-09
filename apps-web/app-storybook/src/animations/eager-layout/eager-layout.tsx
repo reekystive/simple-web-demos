@@ -3,7 +3,7 @@ import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
 import { X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useIsPresent } from 'motion/react';
 import { nanoid } from 'nanoid';
 import { FC, forwardRef, useMemo, useState } from 'react';
 import { ImageWithState } from './image-with-state.js';
@@ -35,10 +35,11 @@ const useImages = () => {
   const seed = useMemo(() => new Date().getDay(), []);
   const fakerWithSeed = useMemo(() => new Faker({ seed, locale: en }), [seed]);
   const [images, setImages] = useState(() =>
-    Array.from({ length: 20 }, () => {
+    Array.from({ length: 20 }, (_, index) => {
       const id = fakerWithSeed.string.uuid();
+      const seq = index;
       const imageUrl = createRandomAvatar();
-      return { id, imageUrl };
+      return { id, seq, imageUrl };
     })
   );
   return { images, setImages };
@@ -47,7 +48,7 @@ const useImages = () => {
 export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout className={cn(className)}>
+    <Layout className={cn('isolate', className)}>
       <AnimatePresence mode="popLayout">
         {images.map((image) => (
           <LayeredLandscape
@@ -57,6 +58,7 @@ export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
             onClickClose={() => {
               setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
             }}
+            style={{ zIndex: -image.seq }}
           />
         ))}
       </AnimatePresence>
@@ -84,9 +86,14 @@ export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ classN
 export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout className={cn('touch-manipulation', className)}>
+    <Layout className={cn('isolate touch-manipulation', className)}>
       {images.map((image) => (
-        <motion.div key={image.id} layoutId={`without-eager-${image.id}`}>
+        <motion.div
+          key={image.id}
+          transition={{ type: 'spring', visualDuration: 0.4, bounce: 0 }}
+          layoutId={`without-eager-${image.id}`}
+          style={{ zIndex: -image.seq }}
+        >
           <Landscape
             imageUrl={image.imageUrl}
             onClickClose={() => {
@@ -131,12 +138,29 @@ export const EagerLayoutSideBySide: FC = () => {
 
 const LayeredLandscape = forwardRef<
   HTMLDivElement,
-  { id: string; imageUrl: string; onClickClose?: React.MouseEventHandler<HTMLButtonElement> }
+  {
+    id: string;
+    imageUrl: string;
+    className?: string;
+    style?: React.CSSProperties;
+    onClickClose?: React.MouseEventHandler<HTMLButtonElement>;
+  }
 >(function LandscapeWithAnimation(props, ref) {
+  const isPresent = useIsPresent();
   return (
-    <motion.div className="relative h-fit w-full" ref={ref} exit={{ opacity: 0 }}>
+    <motion.div
+      style={props.style}
+      className={cn('relative h-fit w-full', !isPresent && 'pointer-events-none', props.className)}
+      ref={ref}
+      transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+      exit={{ opacity: 0 }}
+    >
       <Landscape {...props} className="opacity-0" layoutOnly />
-      <motion.div layoutId={`layered-${props.id}`} className="pointer-events-none absolute inset-0">
+      <motion.div
+        layoutId={`layered-${props.id}`}
+        transition={{ type: 'spring', visualDuration: 0.4, bounce: 0 }}
+        className="pointer-events-none absolute inset-0"
+      >
         <Landscape {...props} />
       </motion.div>
     </motion.div>
