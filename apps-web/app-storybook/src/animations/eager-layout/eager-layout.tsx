@@ -3,6 +3,7 @@ import { cn } from '@monorepo/utils';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { FC, forwardRef, useMemo, useState } from 'react';
+import { ImageWithState } from './image-with-state.js';
 
 const Layout: FC<{ className?: string; children: React.ReactNode }> = ({ children, className }) => {
   return (
@@ -140,19 +141,33 @@ const Landscape: FC<{
   onClickClose?: React.MouseEventHandler<HTMLButtonElement>;
 }> = ({ className, imageUrl, layoutOnly, onClickClose }) => {
   return (
-    <div className={cn('relative aspect-square w-full overflow-clip rounded-md', className)}>
+    <div data-name="tile-root" className={cn('relative aspect-square w-full overflow-clip rounded-md', className)}>
       {!layoutOnly && (
         <>
-          <img
+          <ImageWithState
             src={imageUrl}
             alt="A fake image"
             draggable={false}
-            className="size-full object-cover object-center select-none"
+            className={`
+              size-full object-cover object-center opacity-0 transition-all select-none
+              [&[data-state='error']]:hidden
+              [&[data-state='loaded']]:opacity-100
+            `}
           />
           <div
-            className={`
-              pointer-events-none absolute top-0 right-0 left-0 h-10 bg-gradient-to-b from-black/50 to-black/0
-            `}
+            className={cn(`
+              pointer-events-none absolute inset-0 hidden items-center justify-center text-xs opacity-70
+              [&:where([data-name='tile-root']:has(>_img[data-state='error'])_*)]:flex
+            `)}
+          >
+            Failed to load image
+          </div>
+          {/* image overlay */}
+          <div
+            className={cn(`
+              pointer-events-none absolute top-0 right-0 left-0 hidden h-10 bg-gradient-to-b from-black/50 to-black/0
+              [&:where([data-name='tile-root']:has(>_img[data-state='loaded'])_*)]:block
+            `)}
           />
         </>
       )}
