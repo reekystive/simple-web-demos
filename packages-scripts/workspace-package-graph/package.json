@@ -31,6 +31,7 @@
     "@pnpm/workspace.pkgs-graph": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zx": "catalog:"
   }
 }

@@ -1,25 +1,14 @@
-import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { $ } from 'zx';
 
-const GIT_DIR_OR_FILE = '.git';
-
-const existsFileOrDir = async (path: string): Promise<boolean> => {
-  try {
-    const stat = await fs.stat(path);
-    return stat.isDirectory() || stat.isFile();
-  } catch {
-    return false;
-  }
+export const getGitRepoRoot = async (from?: URL): Promise<URL> => {
+  const cwd = path.dirname(fileURLToPath(from ?? new URL(import.meta.url)));
+  const { stdout } = await $({ cwd })`git rev-parse --show-toplevel`;
+  return pathToFileURL(stdout.trim());
 };
 
-export const getGitRepoRoot = async (from?: URL): Promise<URL | null> => {
-  const resolve = async (dir: URL): Promise<URL | null> => {
-    const git = new URL(GIT_DIR_OR_FILE, dir);
-    if (await existsFileOrDir(git.pathname)) {
-      return dir;
-    }
-    const parent = new URL('../', dir);
-    return parent.href === dir.href ? null : resolve(parent);
-  };
-  const fromUrl = from ?? new URL(import.meta.url);
-  return await resolve(fromUrl);
-};
+if (pathToFileURL(process.argv[1] ?? '').href === new URL(import.meta.url).href) {
+  const root = await getGitRepoRoot();
+  console.log(root.href);
+}
