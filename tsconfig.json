@@ -11,9 +11,6 @@
       "path": "./packages/app-types/tsconfig.json"
     },
     {
-      "path": "./packages/components/tsconfig.json"
-    },
-    {
       "path": "./apps-web/app-template-vite/tsconfig.json"
     },
     {

@@ -4,16 +4,6 @@ import { UserConfig } from 'vite';
 const viteFinal = (config: UserConfig): UserConfig => {
   return {
     ...config,
-    server: {
-      ...config.server,
-      proxy: {
-        '/trpc': {
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/trpc/, ''),
-        },
-      },
-    },
     build: {
       ...config.build,
       chunkSizeWarningLimit: 1500,

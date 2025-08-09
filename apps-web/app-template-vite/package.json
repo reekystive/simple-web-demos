@@ -19,7 +19,6 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@monorepo/components": "workspace:^",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
     "react": "catalog:",

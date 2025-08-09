@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "catalog:",
-    "@monorepo/components": "workspace:^",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
     "@react-hookz/web": "catalog:",

@@ -15,9 +15,6 @@
     },
     {
       "path": "../../packages/app-types/tsconfig.json"
-    },
-    {
-      "path": "../../packages/components/tsconfig.json"
     }
   ]
 }
