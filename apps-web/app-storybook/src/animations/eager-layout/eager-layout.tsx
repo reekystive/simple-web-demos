@@ -1,3 +1,4 @@
+import { FancyTimer, FancyTimerRef } from '#src/demos/fancy-timer/fancy-timer.js';
 import { adventurerNeutral } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
@@ -5,7 +6,7 @@ import { cn } from '@monorepo/utils';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion, useIsPresent } from 'motion/react';
 import { nanoid } from 'nanoid';
-import { FC, forwardRef, useMemo, useState } from 'react';
+import { FC, forwardRef, useMemo, useRef, useState } from 'react';
 import { ImageWithState } from './image-with-state.js';
 
 const createRandomAvatar = () => {
@@ -45,8 +46,14 @@ const useImages = () => {
   return { images, setImages };
 };
 
-export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
+export const EagerLayout: FC<{ className?: string; onFirstClose?: () => void; onLastClose?: () => void }> = ({
+  className,
+  onFirstClose,
+  onLastClose,
+}) => {
   const { images, setImages } = useImages();
+  const clickedRef = useRef(false);
+
   return (
     <Layout className={cn('isolate touch-manipulation', className)}>
       <AnimatePresence mode="popLayout">
@@ -56,7 +63,17 @@ export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
             id={image.id}
             imageUrl={image.imageUrl}
             onClickClose={() => {
-              setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
+              if (!clickedRef.current) {
+                clickedRef.current = true;
+                onFirstClose?.();
+              }
+              setImages((prev) => {
+                const filtered = prev.filter((prevImage) => prevImage.id !== image.id);
+                if (filtered.length === 0) {
+                  onLastClose?.();
+                }
+                return filtered;
+              });
             }}
             style={{ zIndex: -image.seq }}
           />
@@ -66,8 +83,14 @@ export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className }) => {
+export const EagerLayoutWithoutEager: FC<{
+  className?: string;
+  onFirstClose?: () => void;
+  onLastClose?: () => void;
+}> = ({ className, onFirstClose, onLastClose }) => {
   const { images, setImages } = useImages();
+  const clickedRef = useRef(false);
+
   return (
     <Layout className={cn('isolate touch-manipulation', className)}>
       <AnimatePresence mode="popLayout">
@@ -77,7 +100,17 @@ export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className 
             id={image.id}
             imageUrl={image.imageUrl}
             onClickClose={() => {
-              setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
+              if (!clickedRef.current) {
+                clickedRef.current = true;
+                onFirstClose?.();
+              }
+              setImages((prev) => {
+                const filtered = prev.filter((prevImage) => prevImage.id !== image.id);
+                if (filtered.length === 0) {
+                  onLastClose?.();
+                }
+                return filtered;
+              });
             }}
             style={{ zIndex: -image.seq }}
           />
@@ -105,31 +138,50 @@ export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ classN
 };
 
 export const EagerLayoutSideBySide: FC = () => {
+  const withEagerTimerRef = useRef<FancyTimerRef>(null);
+  const withoutEagerTimerRef = useRef<FancyTimerRef>(null);
+
   return (
     <div
-      className={`
-        mx-auto flex w-screen max-w-7xl flex-row items-start gap-2 px-2
-        md:px-6
-      `}
+      className={cn(`
+        mx-auto flex w-screen max-w-7xl flex-row items-start gap-2 px-2 py-4
+        md:px-6 md:py-8
+      `)}
     >
-      <EagerLayout
-        className={`
-          min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0
-          md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0
-        `}
-      />
+      <div className="min-w-0 shrink grow basis-1">
+        <div className="flex flex-col items-center gap-2 pb-4">
+          <div className="text-sm">Remove all tiles as fast as possible</div>
+          <FancyTimer className="font-mono text-xl" ref={withEagerTimerRef} />
+        </div>
+        <EagerLayout
+          className={cn(`
+            w-full grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 py-0
+            md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0 md:py-0
+          `)}
+          onFirstClose={() => withEagerTimerRef.current?.start()}
+          onLastClose={() => withEagerTimerRef.current?.pause()}
+        />
+      </div>
       <div
-        className={`
+        className={cn(`
           mx-0 w-px self-stretch bg-neutral-500/30
           md:mx-2
-        `}
+        `)}
       />
-      <EagerLayoutWithoutEager
-        className={`
-          min-w-0 shrink grow basis-1 grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0
-          md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0
-        `}
-      />
+      <div className="min-w-0 shrink grow basis-1">
+        <div className="flex flex-col items-center gap-2 pb-4">
+          <div className="text-sm">Remove all tiles as fast as possible</div>
+          <FancyTimer className="font-mono text-xl" ref={withoutEagerTimerRef} />
+        </div>
+        <EagerLayoutWithoutEager
+          className={cn(`
+            w-full grid-cols-[repeat(auto-fill,minmax(100px,1fr))] px-0 py-0
+            md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))] md:px-0 md:py-0
+          `)}
+          onFirstClose={() => withoutEagerTimerRef.current?.start()}
+          onLastClose={() => withoutEagerTimerRef.current?.pause()}
+        />
+      </div>
     </div>
   );
 };
