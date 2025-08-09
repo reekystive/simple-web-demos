@@ -1,6 +1,7 @@
 import eslintJsPlugin from '@eslint/js';
 import next from '@next/eslint-plugin-next';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import * as mdx from 'eslint-plugin-mdx';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
@@ -30,6 +31,7 @@ const NEXTJS_FILES = ['apps/app-template-nextjs/src/**/{,.}*.{,c,m}{j,t}s{,x}'];
 
 const nextjsTemplateAppPath = new URL('./apps/app-template-nextjs/', import.meta.url);
 const storybookAppPath = new URL('./apps-web/app-storybook/', import.meta.url);
+const tailwindCssStylesheetPath = new URL('./packages/tailwindcss/tailwindcss.css', import.meta.url);
 
 /**
  * @type {import('eslint').Linter.Config[]}
@@ -76,6 +78,7 @@ const eslintConfig = [
       'react-hooks': reactHooksPlugin,
       'react-refresh': reactRefreshPlugin,
       react: reactPlugin,
+      'better-tailwindcss': eslintPluginBetterTailwindcss,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
@@ -85,6 +88,9 @@ const eslintConfig = [
     },
     settings: {
       react: { version: '19.1.0' },
+      'better-tailwindcss': {
+        entryPoint: fileURLToPath(tailwindCssStylesheetPath),
+      },
     },
     ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,

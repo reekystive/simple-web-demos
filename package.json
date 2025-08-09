@@ -25,6 +25,7 @@
     "@typescript-eslint/types": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
+    "eslint-plugin-better-tailwindcss": "catalog:",
     "eslint-plugin-mdx": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-react": "catalog:",
@@ -34,7 +35,7 @@
     "globals": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-organize-imports": "catalog:",
-    "prettier-plugin-tailwindcss": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "wrangler": "catalog:"
