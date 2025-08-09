@@ -1,15 +1,19 @@
-import cspellPlugin from '@cspell/eslint-plugin';
 import eslintJsPlugin from '@eslint/js';
 import next from '@next/eslint-plugin-next';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import * as mdx from 'eslint-plugin-mdx';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
 import storybook from 'eslint-plugin-storybook';
-import globals from 'globals';
-import { fileURLToPath } from 'node:url';
 import tsEslint from 'typescript-eslint';
+
+/** @type {string[]} */
+const MDX_FILES = ['**/{,.}*.mdx'];
+
+/** @type {string[]} */
+const MDX_VIRTUAL_TS_FILES = ['**/{,.}*.mdx/**/{,.}*.{,c,m}{j,t}s{,x}'];
 
 /** @type {string[]} */
 const TS_FILES = ['**/{,.}*.{,c,m}{j,t}s{,x}'];
@@ -23,23 +27,6 @@ const STORYBOOK_MAIN_FILES = ['**/.storybook/main.{,c,m}{j,t}s'];
 /** @type {string[]} */
 const NEXTJS_FILES = ['apps/app-template-nextjs/src/**/{,.}*.{,c,m}{j,t}s{,x}'];
 
-const typescriptConfigs = /** @type {import('eslint').Linter.Config[]} */ (
-  tsEslint.config({
-    plugins: {
-      '@typescript-eslint': tsEslint.plugin,
-    },
-    languageOptions: {
-      parser: tsEslint.parser,
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-      globals: { ...globals.browser, ...globals.es2025 },
-    },
-    extends: [tsEslint.configs.strictTypeChecked, tsEslint.configs.stylisticTypeChecked],
-  })
-);
-
 const nextjsTemplateAppPath = new URL('./apps/app-template-nextjs', import.meta.url);
 
 /**
@@ -50,15 +37,35 @@ const eslintConfig = [
   { ignores: ['**/node_modules/', '**/dist/', '**/storybook-static/', '**/.next/'] },
   { linterOptions: { reportUnusedDisableDirectives: true } },
 
-  // config for javascript/typescript code
+  // parser for javascript/typescript code
   {
-    ...eslintJsPlugin.configs.recommended,
+    languageOptions: {
+      parser: /** @type {any} */ (tsEslint.parser),
+      parserOptions: /** @satisfies {import('@typescript-eslint/types').ParserOptions} */ ({
+        projectService: true,
+      }),
+    },
     files: TS_FILES,
   },
-  ...typescriptConfigs.map((config) => ({
-    ...config,
+
+  // config for javascript/typescript code
+  {
+    rules: {
+      ...eslintJsPlugin.configs.recommended.rules,
+      'no-undef': 'off',
+    },
     files: TS_FILES,
-  })),
+  },
+  {
+    plugins: {
+      '@typescript-eslint': /** @type {any} */ (tsEslint.plugin),
+    },
+    rules: {
+      ...tsEslint.configs.strictTypeChecked[2]?.rules,
+      ...tsEslint.configs.stylisticTypeChecked[2]?.rules,
+    },
+    files: TS_FILES,
+  },
   {
     plugins: {
       'react-hooks': reactHooksPlugin,
@@ -77,20 +84,24 @@ const eslintConfig = [
     files: TS_FILES,
   },
 
-  // config for storybook
+  // config for storybook files
   {
     plugins: {
       storybook: /** @type {any} */ (storybook),
     },
-    ...storybook.configs['flat/recommended'][2],
-    files: STORYBOOK_MAIN_FILES,
+    files: [STORYBOOK_FILES, STORYBOOK_MAIN_FILES],
   },
   {
-    plugins: {
-      storybook: /** @type {any} */ (storybook),
+    rules: {
+      ...storybook.configs['flat/recommended'][1]?.rules,
     },
-    ...storybook.configs['flat/recommended'][1],
     files: STORYBOOK_FILES,
+  },
+  {
+    rules: {
+      ...storybook.configs['flat/recommended'][2]?.rules,
+    },
+    files: STORYBOOK_MAIN_FILES,
   },
 
   // config for nextjs
@@ -113,11 +124,15 @@ const eslintConfig = [
 
   // config for javascript/typescript code
   {
-    ...eslintConfigPrettier,
+    // disable internal eslint rules that might conflict with prettier
+    rules: eslintConfigPrettier.rules,
     files: TS_FILES,
   },
   {
     plugins: { prettier: prettierPlugin },
+    files: TS_FILES,
+  },
+  {
     rules: { 'prettier/prettier': 'error' },
     files: TS_FILES,
   },
@@ -130,20 +145,28 @@ const eslintConfig = [
     files: TS_FILES,
   },
 
-  // config for all
+  // config for mdx
   {
-    plugins: { '@cspell': cspellPlugin },
+    plugins: { mdx: mdx },
+    languageOptions: mdx.flat.languageOptions,
+    processor: mdx.createRemarkProcessor({ lintCodeBlocks: false }),
     rules: {
-      '@cspell/spellchecker': [
-        'warn',
-        /** @type {import('@cspell/eslint-plugin').Options} */ ({
-          autoFix: true,
-          generateSuggestions: true,
-          numSuggestions: 3,
-          configFile: fileURLToPath(new URL('./cspell.config.yaml', import.meta.url)),
-        }),
-      ],
+      ...mdx.flat.rules,
     },
+    files: MDX_FILES,
+  },
+
+  // config for mdx code blocks (disabled for now)
+  {
+    languageOptions: {
+      parserOptions: {
+        ...mdx.flatCodeBlocks.languageOptions?.parserOptions,
+      },
+    },
+    rules: {
+      ...mdx.flatCodeBlocks.rules,
+    },
+    files: MDX_VIRTUAL_TS_FILES,
   },
 ];
 
