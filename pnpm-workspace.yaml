@@ -5,6 +5,8 @@ packages:
   - apps-server/*
 
 catalog:
+  '@dicebear/collection': ^9.2.3
+  '@dicebear/core': ^9.2.3
   '@eslint/css': ^0.8.1
   '@eslint/js': ^9.33.0
   '@faker-js/faker': 9.9.0
@@ -43,6 +45,7 @@ catalog:
   globals: ^16.3.0
   lucide-react: ^0.525.0
   motion: ^12.23.12
+  nanoid: ^5.1.5
   next: ^15.4.6
   prettier: ^3.6.2
   prettier-plugin-organize-imports: ^4.2.0

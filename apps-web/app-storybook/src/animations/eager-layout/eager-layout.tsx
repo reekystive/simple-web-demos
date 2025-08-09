@@ -1,9 +1,18 @@
+import { notionistsNeutral } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { nanoid } from 'nanoid';
 import { FC, forwardRef, useMemo, useState } from 'react';
 import { ImageWithState } from './image-with-state.js';
+
+const createRandomAvatar = () => {
+  const randomSeed = nanoid();
+  const avatar = createAvatar(notionistsNeutral, { seed: randomSeed });
+  return avatar.toDataUri();
+};
 
 const Layout: FC<{ className?: string; children: React.ReactNode }> = ({ children, className }) => {
   return (
@@ -26,9 +35,9 @@ const useImages = () => {
   const seed = useMemo(() => new Date().getDay(), []);
   const fakerWithSeed = useMemo(() => new Faker({ seed, locale: en }), [seed]);
   const [images, setImages] = useState(() =>
-    Array.from({ length: 50 }, () => {
+    Array.from({ length: 20 }, () => {
       const id = fakerWithSeed.string.uuid();
-      const imageUrl = fakerWithSeed.image.urlPicsumPhotos({ width: 512, height: 512 });
+      const imageUrl = createRandomAvatar();
       return { id, imageUrl };
     })
   );
@@ -141,7 +150,14 @@ const Landscape: FC<{
   onClickClose?: React.MouseEventHandler<HTMLButtonElement>;
 }> = ({ className, imageUrl, layoutOnly, onClickClose }) => {
   return (
-    <div data-name="tile-root" className={cn('relative aspect-square w-full overflow-clip rounded-md', className)}>
+    <div
+      data-name="tile-root"
+      className={cn(
+        'relative aspect-square w-full overflow-clip rounded-md',
+        !layoutOnly && 'bg-neutral-500/10',
+        className
+      )}
+    >
       {!layoutOnly && (
         <>
           <ImageWithState
@@ -149,9 +165,10 @@ const Landscape: FC<{
             alt="A fake image"
             draggable={false}
             className={`
-              size-full object-cover object-center opacity-0 transition-all select-none
+              size-full scale-125 object-cover object-center opacity-0 blur-sm transition-all duration-500 ease-out
+              select-none
               [&[data-state='error']]:hidden
-              [&[data-state='loaded']]:opacity-100
+              [&[data-state='loaded']]:scale-100 [&[data-state='loaded']]:opacity-100 [&[data-state='loaded']]:blur-none
             `}
           />
           <div

@@ -21,12 +21,15 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@dicebear/collection": "catalog:",
+    "@dicebear/core": "catalog:",
     "@faker-js/faker": "catalog:",
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
     "@react-hookz/web": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
+    "nanoid": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-scan": "catalog:",
