@@ -85,6 +85,8 @@ const eslintConfig = [
       ...reactPlugin.configs['jsx-runtime'].rules,
       ...reactHooksPlugin.configs['recommended-latest'].rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      ...eslintPluginBetterTailwindcss.configs['recommended-warn']?.rules,
+      ...eslintPluginBetterTailwindcss.configs['recommended-error']?.rules,
     },
     settings: {
       react: { version: '19.1.0' },
@@ -149,6 +151,7 @@ const eslintConfig = [
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-confusing-void-expression': 'off',
+      'better-tailwindcss/enforce-consistent-line-wrapping': ['warn', { printWidth: 120 }],
     },
     ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
