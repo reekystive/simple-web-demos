@@ -19,7 +19,6 @@
     "./*.cjs",
     "./.*.cjs",
     "./.storybook/main.ts",
-    "./.storybook/manager.ts",
     "./types/node-env.ts"
   ],
   "exclude": []

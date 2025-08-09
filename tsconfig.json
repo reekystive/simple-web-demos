@@ -20,9 +20,6 @@
       "path": "./apps-web/app-storybook/tsconfig.json"
     },
     {
-      "path": "./apps-server/trpc-server/tsconfig.json"
-    },
-    {
       "path": "./packages-scripts/tsserver-benchmark/tsconfig.json"
     },
     {

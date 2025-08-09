@@ -28,7 +28,8 @@ const STORYBOOK_MAIN_FILES = ['**/.storybook/main.{,c,m}{j,t}s'];
 /** @type {string[]} */
 const NEXTJS_FILES = ['apps/app-template-nextjs/src/**/{,.}*.{,c,m}{j,t}s{,x}'];
 
-const nextjsTemplateAppPath = new URL('./apps/app-template-nextjs', import.meta.url);
+const nextjsTemplateAppPath = new URL('./apps/app-template-nextjs/', import.meta.url);
+const storybookAppPath = new URL('./apps-web/app-storybook/', import.meta.url);
 
 /**
  * @type {import('eslint').Linter.Config[]}
@@ -107,6 +108,10 @@ const eslintConfig = [
   {
     rules: {
       ...storybook.configs['flat/recommended'][2]?.rules,
+      'storybook/no-uninstalled-addons': [
+        'error',
+        { packageJsonLocation: fileURLToPath(new URL('package.json', storybookAppPath)) },
+      ],
     },
     ignores: MDX_VIRTUAL_TS_FILES,
     files: STORYBOOK_MAIN_FILES,

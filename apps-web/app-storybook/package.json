@@ -25,8 +25,6 @@
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
     "@react-hookz/web": "catalog:",
-    "@tanstack/react-query": "catalog:",
-    "@trpc/client": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "react": "catalog:",
@@ -37,12 +35,13 @@
     "usehooks-ts": "catalog:"
   },
   "devDependencies": {
-    "@monorepo/app-trpc-server": "workspace:*",
     "@monorepo/app-types": "workspace:^",
     "@monorepo/tsconfig": "workspace:^",
+    "@storybook/addon-docs": "catalog:",
     "@storybook/builder-vite": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@tailwindcss/vite": "catalog:",
+    "@types/mdx": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

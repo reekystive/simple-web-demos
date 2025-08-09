@@ -2,9 +2,6 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.web.json"
-    },
-    {
       "path": "./tsconfig.node.json"
     },
     {
@@ -18,9 +15,6 @@
     },
     {
       "path": "../../packages/app-types/tsconfig.json"
-    },
-    {
-      "path": "../../apps-server/trpc-server/tsconfig.json"
     }
   ]
 }

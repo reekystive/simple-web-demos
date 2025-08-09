@@ -1,16 +1,20 @@
 import '#src/global.css';
-import { createQueryClient } from '#src/providers/tanstack-query.js';
 import type { Preview } from '@storybook/react-vite';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { scan } from 'react-scan';
 import { Toaster } from 'sonner';
+import { themes } from 'storybook/theming';
+import { CustomDocsContainer } from './preview-docs/docs-container.js';
 import { ThemeProvider, useTheme } from './preview-utils/theme-context.js';
 import { resolveTheme, THEME_STORAGE_KEY } from './preview-utils/theme.js';
 
 const preview: Preview = {
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      container: CustomDocsContainer,
+      theme: themes.dark,
+    },
   },
   globalTypes: {
     theme: {
@@ -67,15 +71,6 @@ const preview: Preview = {
         <ThemeProvider value={resolvedTheme}>
           <Story />
         </ThemeProvider>
-      );
-    },
-    // Tanstack Query decorator. create a new query client for each story.
-    function Decorator(Story) {
-      const queryClient = createQueryClient();
-      return (
-        <QueryClientProvider client={queryClient}>
-          <Story />
-        </QueryClientProvider>
       );
     },
   ],
