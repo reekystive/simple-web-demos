@@ -1,4 +1,4 @@
-import { notionistsNeutral } from '@dicebear/collection';
+import { adventurerNeutral } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
@@ -10,7 +10,7 @@ import { ImageWithState } from './image-with-state.js';
 
 const createRandomAvatar = () => {
   const randomSeed = nanoid();
-  const avatar = createAvatar(notionistsNeutral, { seed: randomSeed });
+  const avatar = createAvatar(adventurerNeutral, { seed: randomSeed });
   return avatar.toDataUri();
 };
 
