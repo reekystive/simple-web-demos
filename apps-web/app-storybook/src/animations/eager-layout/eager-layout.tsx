@@ -48,7 +48,7 @@ const useImages = () => {
 export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout className={cn('isolate', className)}>
+    <Layout className={cn('isolate touch-manipulation', className)}>
       <AnimatePresence mode="popLayout">
         {images.map((image) => (
           <LayeredLandscape
@@ -66,10 +66,31 @@ export const EagerLayout: FC<{ className?: string }> = ({ className }) => {
   );
 };
 
+export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className }) => {
+  const { images, setImages } = useImages();
+  return (
+    <Layout className={cn('isolate touch-manipulation', className)}>
+      <AnimatePresence mode="popLayout">
+        {images.map((image) => (
+          <UnLayeredLandscape
+            key={image.id}
+            id={image.id}
+            imageUrl={image.imageUrl}
+            onClickClose={() => {
+              setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
+            }}
+            style={{ zIndex: -image.seq }}
+          />
+        ))}
+      </AnimatePresence>
+    </Layout>
+  );
+};
+
 export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ className }) => {
   const { images, setImages } = useImages();
   return (
-    <Layout className={cn(className)}>
+    <Layout className={cn('isolate touch-manipulation', className)}>
       {images.map((image) => (
         <Landscape
           key={image.id}
@@ -78,29 +99,6 @@ export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ classN
             setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
           }}
         />
-      ))}
-    </Layout>
-  );
-};
-
-export const EagerLayoutWithoutEager: FC<{ className?: string }> = ({ className }) => {
-  const { images, setImages } = useImages();
-  return (
-    <Layout className={cn('isolate touch-manipulation', className)}>
-      {images.map((image) => (
-        <motion.div
-          key={image.id}
-          transition={{ type: 'spring', visualDuration: 0.4, bounce: 0 }}
-          layoutId={`without-eager-${image.id}`}
-          style={{ zIndex: -image.seq }}
-        >
-          <Landscape
-            imageUrl={image.imageUrl}
-            onClickClose={() => {
-              setImages((prev) => prev.filter((prevImage) => prevImage.id !== image.id));
-            }}
-          />
-        </motion.div>
       ))}
     </Layout>
   );
@@ -136,6 +134,33 @@ export const EagerLayoutSideBySide: FC = () => {
   );
 };
 
+const UnLayeredLandscape = forwardRef<
+  HTMLDivElement,
+  {
+    id: string;
+    imageUrl: string;
+    className?: string;
+    style?: React.CSSProperties;
+    onClickClose?: React.MouseEventHandler<HTMLButtonElement>;
+  }
+>(function UnLayeredLandscape(props, ref) {
+  const { id, imageUrl, className, style, onClickClose } = props;
+  const isPresent = useIsPresent();
+  return (
+    <motion.div
+      ref={ref}
+      style={style}
+      className={cn('h-fit w-full', !isPresent && 'pointer-events-none', className)}
+      transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div layoutId={`un-layered-${id}`} transition={{ type: 'spring', visualDuration: 0.4, bounce: 0 }}>
+        <Landscape imageUrl={imageUrl} onClickClose={onClickClose} />
+      </motion.div>
+    </motion.div>
+  );
+});
+
 const LayeredLandscape = forwardRef<
   HTMLDivElement,
   {
@@ -145,23 +170,26 @@ const LayeredLandscape = forwardRef<
     style?: React.CSSProperties;
     onClickClose?: React.MouseEventHandler<HTMLButtonElement>;
   }
->(function LandscapeWithAnimation(props, ref) {
+>(function LayeredLandscape(props, ref) {
+  const { id, imageUrl, className, style, onClickClose } = props;
   const isPresent = useIsPresent();
   return (
     <motion.div
-      style={props.style}
-      className={cn('relative h-fit w-full', !isPresent && 'pointer-events-none', props.className)}
       ref={ref}
+      style={style}
+      className={cn('relative h-fit w-full', !isPresent && 'pointer-events-none', className)}
       transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
       exit={{ opacity: 0 }}
     >
-      <Landscape {...props} className="opacity-0" layoutOnly />
+      {/* respond to user inputs */}
+      <Landscape imageUrl={imageUrl} onClickClose={onClickClose} layoutOnly className="opacity-0" />
+      {/* presentation only layer */}
       <motion.div
-        layoutId={`layered-${props.id}`}
+        layoutId={`layered-${id}`}
         transition={{ type: 'spring', visualDuration: 0.4, bounce: 0 }}
         className="pointer-events-none absolute inset-0"
       >
-        <Landscape {...props} />
+        <Landscape imageUrl={imageUrl} />
       </motion.div>
     </motion.div>
   );

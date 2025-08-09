@@ -12,19 +12,19 @@ const meta: Meta = {
 
 export default meta;
 
-export const Default: StoryObj = {
+export const Eager: StoryObj = {
   parameters: {
     layout: 'fullscreen',
   },
   render: () => <EagerLayout />,
 };
 
-export const WithoutAnimation: StoryObj = {
-  render: () => <EagerLayoutWithoutAnimation />,
-};
-
 export const WithoutEager: StoryObj = {
   render: () => <EagerLayoutWithoutEager />,
+};
+
+export const WithoutAnimation: StoryObj = {
+  render: () => <EagerLayoutWithoutAnimation />,
 };
 
 export const SideBySide: StoryObj = {
