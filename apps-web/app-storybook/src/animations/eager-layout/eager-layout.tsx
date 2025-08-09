@@ -182,7 +182,7 @@ const Landscape: FC<{
           {/* image overlay */}
           <div
             className={cn(`
-              pointer-events-none absolute top-0 right-0 left-0 hidden h-10 bg-gradient-to-b from-black/50 to-black/0
+              pointer-events-none absolute top-0 right-0 left-0 hidden h-15 bg-gradient-to-b from-black/30 to-black/0
               [&:where([data-name='tile-root']:has(>_img[data-state='loaded'])_*)]:block
             `)}
           />
