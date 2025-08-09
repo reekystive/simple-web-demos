@@ -46,6 +46,7 @@ const eslintConfig = [
         projectService: true,
       }),
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
   },
 
@@ -55,6 +56,7 @@ const eslintConfig = [
       ...eslintJsPlugin.configs.recommended.rules,
       'no-undef': 'off',
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
   },
   {
@@ -65,6 +67,7 @@ const eslintConfig = [
       ...tsEslint.configs.strictTypeChecked[2]?.rules,
       ...tsEslint.configs.stylisticTypeChecked[2]?.rules,
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
   },
   {
@@ -82,6 +85,7 @@ const eslintConfig = [
     settings: {
       react: { version: '19.1.0' },
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
   },
 
@@ -90,18 +94,21 @@ const eslintConfig = [
     plugins: {
       storybook: /** @type {any} */ (storybook),
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: [STORYBOOK_FILES, STORYBOOK_MAIN_FILES],
   },
   {
     rules: {
       ...storybook.configs['flat/recommended'][1]?.rules,
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: STORYBOOK_FILES,
   },
   {
     rules: {
       ...storybook.configs['flat/recommended'][2]?.rules,
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: STORYBOOK_MAIN_FILES,
   },
 
@@ -114,43 +121,49 @@ const eslintConfig = [
       .../** @type {Record<string, import('eslint').Linter.RuleEntry>} */ (next.flatConfig.recommended.rules),
       .../** @type {Record<string, import('eslint').Linter.RuleEntry>} */ (next.flatConfig.coreWebVitals.rules),
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: NEXTJS_FILES,
   },
   {
     rules: {
       '@next/next/no-html-link-for-pages': ['error', fileURLToPath(nextjsTemplateAppPath)],
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: NEXTJS_FILES,
   },
 
   // config for javascript/typescript code
-  {
-    // disable internal eslint rules that might conflict with prettier
-    rules: eslintConfigPrettier.rules,
-    files: TS_FILES,
-  },
-  {
-    plugins: { prettier: prettierPlugin },
-    files: TS_FILES,
-  },
-  {
-    rules: { 'prettier/prettier': 'error' },
-    files: TS_FILES,
-  },
   {
     rules: {
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-confusing-void-expression': 'off',
     },
+    ignores: MDX_VIRTUAL_TS_FILES,
     files: TS_FILES,
+  },
+
+  // prettier config
+  {
+    // disable internal eslint rules that might conflict with prettier
+    rules: eslintConfigPrettier.rules,
+    ignores: MDX_VIRTUAL_TS_FILES,
+    files: TS_FILES,
+  },
+  {
+    plugins: { prettier: prettierPlugin },
+    files: [...TS_FILES, ...MDX_FILES, ...MDX_VIRTUAL_TS_FILES],
+  },
+  {
+    rules: { 'prettier/prettier': 'error' },
+    files: [...TS_FILES, ...MDX_FILES, ...MDX_VIRTUAL_TS_FILES],
   },
 
   // config for mdx
   {
     plugins: { mdx: mdx },
     languageOptions: mdx.flat.languageOptions,
-    processor: mdx.createRemarkProcessor({ lintCodeBlocks: false }),
+    processor: mdx.createRemarkProcessor({ lintCodeBlocks: true }),
     rules: {
       ...mdx.flat.rules,
     },
