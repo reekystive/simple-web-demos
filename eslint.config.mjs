@@ -8,6 +8,7 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
 import storybook from 'eslint-plugin-storybook';
 import tsEslint from 'typescript-eslint';
+import { fileURLToPath } from 'url';
 
 /** @type {string[]} */
 const MDX_FILES = ['**/{,.}*.mdx'];
@@ -117,7 +118,7 @@ const eslintConfig = [
   },
   {
     rules: {
-      '@next/next/no-html-link-for-pages': ['error', nextjsTemplateAppPath.pathname],
+      '@next/next/no-html-link-for-pages': ['error', fileURLToPath(nextjsTemplateAppPath)],
     },
     files: NEXTJS_FILES,
   },

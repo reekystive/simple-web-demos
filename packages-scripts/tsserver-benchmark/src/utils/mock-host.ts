@@ -1,9 +1,10 @@
 import fsSync from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
 export const createMockHost = (sourceFiles: URL[]) => {
   const host: ts.LanguageServiceHost = {
-    getScriptFileNames: () => sourceFiles.map((f) => f.pathname),
+    getScriptFileNames: () => sourceFiles.map((f) => fileURLToPath(f)),
     getScriptSnapshot: (f) => ts.ScriptSnapshot.fromString(fsSync.readFileSync(f, 'utf8')),
     getScriptVersion: () => '1',
     getCurrentDirectory: () => process.cwd(),

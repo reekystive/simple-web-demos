@@ -1,6 +1,7 @@
 import { BaseManifest, type ProjectRootDir } from '@pnpm/types';
 import { createPkgGraph, Package } from '@pnpm/workspace.pkgs-graph';
 import { readFile } from 'fs/promises';
+import { fileURLToPath } from 'url';
 import { workspaceRootPath } from './constants.js';
 import { resolveWorkspaceProjectPaths } from './project-paths.js';
 
@@ -18,7 +19,7 @@ export const resolveWorkspacePackagesGraph: () => Promise<WorkspacePackageGraph>
   const pkgs: Package[] = await Promise.all(
     projectPaths.map(async (p) => ({
       manifest: await getPackageManifest(p),
-      rootDir: toProjectRootDir(p.pathname),
+      rootDir: toProjectRootDir(fileURLToPath(p)),
     }))
   );
   return createPkgGraph(pkgs);
