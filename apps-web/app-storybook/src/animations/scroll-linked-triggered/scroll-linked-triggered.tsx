@@ -1,15 +1,53 @@
-import { cubicBezier, motion, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
+import { animate } from 'motion';
+import { cubicBezier, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
 import { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
 export const ScrollLinkedTriggered: FC = () => {
   const debugInfoRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress: containerProgress } = useScroll();
 
-  const targetRegionProgress = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 0, 1, 1], { clamp: true });
-  const scale = useTransform(targetRegionProgress, [0, 1], [1, 2], { clamp: true });
-  const scaleEased = useTransform(scale, [1, 2], [1, 2], {
-    ease: cubicBezier(0.7, 0, 0.7, 1),
+  const progress = useTransform(containerProgress, [0, 0.25, 0.75, 1], [0, 0, 1, 1], { clamp: true });
+
+  const linkedPart = useTransform(progress, [0, 1], [0, 1], {
+    clamp: true,
+    ease: cubicBezier(0.2, 0, 0.8, 1),
   });
+
+  const triggeredPart = useMotionValue(0);
+
+  useMotionValueEvent(progress, 'change', (latestValue) => {
+    const previousValue = progress.getPrevious();
+    if (previousValue === undefined) {
+      return;
+    }
+    if (latestValue > 0.55 && previousValue <= 0.55) {
+      animate(triggeredPart, 1, {
+        type: 'spring',
+        stiffness: 500,
+        damping: 50,
+        mass: 0.1,
+      });
+    }
+    if (latestValue < 0.45 && previousValue >= 0.45) {
+      animate(triggeredPart, 0, {
+        type: 'spring',
+        stiffness: 500,
+        damping: 50,
+        mass: 0.1,
+      });
+    }
+  });
+
+  const combinedProgress = useTransform(() => {
+    const finalValue = linkedPart.get() * 0.3 + triggeredPart.get() * 0.7;
+    return finalValue;
+  });
+
+  const scaleValue = useTransform(combinedProgress, [0, 1], [1, 2], {
+    clamp: true,
+  });
+
+  const rotationValue = useTransform(combinedProgress, [0, 1], [0, 225]);
 
   const updateDebugInfo = useCallback((latestValue: number) => {
     if (debugInfoRef.current) {
@@ -18,10 +56,10 @@ export const ScrollLinkedTriggered: FC = () => {
   }, []);
 
   useLayoutEffect(() => {
-    updateDebugInfo(scrollYProgress.get());
-  }, [scrollYProgress, updateDebugInfo]);
+    updateDebugInfo(containerProgress.get());
+  }, [containerProgress, updateDebugInfo]);
 
-  useMotionValueEvent(scrollYProgress, 'change', updateDebugInfo);
+  useMotionValueEvent(containerProgress, 'change', updateDebugInfo);
 
   return (
     <>
@@ -30,7 +68,10 @@ export const ScrollLinkedTriggered: FC = () => {
 
         <div className="h-[300vh] w-full bg-red-500/10">
           <div className="sticky top-0 flex h-[100vh] w-full flex-row items-center justify-center bg-amber-500/10">
-            <motion.div className="size-[200px] bg-neutral-500" style={{ scale: scaleEased }}></motion.div>
+            <motion.div
+              className="size-[200px] border-2 border-neutral-500 bg-neutral-500/10"
+              style={{ scale: scaleValue, rotate: rotationValue }}
+            ></motion.div>
           </div>
         </div>
 
