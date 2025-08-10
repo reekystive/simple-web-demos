@@ -13,7 +13,7 @@
   "include": [
     "./src/",
     "./.storybook/preview.tsx",
-    "./.storybook/manager.ts",
+    "./.storybook/manager.tsx",
     "./.storybook/preview-utils/",
     "./.storybook/preview-docs/"
   ],
