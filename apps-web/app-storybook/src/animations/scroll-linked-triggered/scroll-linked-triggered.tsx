@@ -1,11 +1,16 @@
 import { animate } from 'motion';
 import { cubicBezier, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
-import { FC } from 'react';
+import { FC, useRef } from 'react';
 
 export const ScrollLinkedTriggered: FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress: containerProgress } = useScroll();
 
-  const progress = useTransform(containerProgress, [0, 0.25, 0.75, 1], [0, 0, 1, 1], { clamp: true });
+  const { scrollYProgress: progress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  });
 
   const linkedPart = useTransform(progress, [0, 1], [0, 1], {
     clamp: true,
@@ -58,7 +63,7 @@ export const ScrollLinkedTriggered: FC = () => {
       <div className="relative h-[500vh] w-full">
         <div className="flex h-[100vh] w-full items-center justify-center bg-green-500/10">Scroll down</div>
 
-        <div className="h-[300vh] w-full bg-red-500/10">
+        <div className="h-[300vh] w-full bg-red-500/10" ref={sectionRef}>
           <div className="sticky top-0 flex h-[100vh] w-full flex-row items-center justify-center bg-amber-500/10">
             <motion.div
               className="size-[200px] border-2 border-neutral-500 bg-neutral-500/10"
