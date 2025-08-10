@@ -1,9 +1,8 @@
 import { animate } from 'motion';
 import { cubicBezier, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
-import { FC, useCallback, useLayoutEffect, useRef } from 'react';
+import { FC } from 'react';
 
 export const ScrollLinkedTriggered: FC = () => {
-  const debugInfoRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: containerProgress } = useScroll();
 
   const progress = useTransform(containerProgress, [0, 0.25, 0.75, 1], [0, 0, 1, 1], { clamp: true });
@@ -49,17 +48,10 @@ export const ScrollLinkedTriggered: FC = () => {
 
   const rotationValue = useTransform(combinedProgress, [0, 1], [0, 225]);
 
-  const updateDebugInfo = useCallback((latestValue: number) => {
-    if (debugInfoRef.current) {
-      debugInfoRef.current.textContent = `Scroll Y Progress: ${latestValue.toFixed(2)}`;
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    updateDebugInfo(containerProgress.get());
-  }, [containerProgress, updateDebugInfo]);
-
-  useMotionValueEvent(containerProgress, 'change', updateDebugInfo);
+  const containerProgressFixed2 = useTransform(containerProgress, (v) => v.toFixed(2));
+  const linkedPartFixed2 = useTransform(linkedPart, (v) => v.toFixed(2));
+  const triggeredPartFixed2 = useTransform(triggeredPart, (v) => v.toFixed(2));
+  const combinedProgressFixed2 = useTransform(combinedProgress, (v) => v.toFixed(2));
 
   return (
     <>
@@ -78,13 +70,27 @@ export const ScrollLinkedTriggered: FC = () => {
         <div className="flex h-[100vh] w-full items-center justify-center bg-blue-500/10">The end</div>
       </div>
       <div
-        ref={debugInfoRef}
         className={`
-          pointer-events-none fixed right-0 bottom-0 left-0 flex flex-col items-center p-2 font-mono text-xs opacity-50
-          select-none
+          pointer-events-none fixed right-0 bottom-0 left-0 flex flex-row justify-center gap-6 p-2 font-mono text-xs
+          opacity-50 select-none
         `}
       >
-        <p>Loading...</p>
+        <p>
+          <span>Container Linked: </span>
+          <motion.span>{containerProgressFixed2}</motion.span>
+        </p>
+        <p>
+          <span>Linked: </span>
+          <motion.span>{linkedPartFixed2}</motion.span>
+        </p>
+        <p>
+          <span>Triggered: </span>
+          <motion.span>{triggeredPartFixed2}</motion.span>
+        </p>
+        <p>
+          <span>Combined: </span>
+          <motion.span>{combinedProgressFixed2}</motion.span>
+        </p>
       </div>
     </>
   );
