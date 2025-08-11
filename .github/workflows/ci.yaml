@@ -44,7 +44,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    name: Test
+    name: Run tests
 
     steps:
       - name: Checkout repository
