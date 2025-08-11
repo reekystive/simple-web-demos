@@ -86,7 +86,7 @@ export const ScrollLinkedTriggered: FC = () => {
       </div>
       <div
         className={cn(`
-          fixed right-0 bottom-2 left-0 grid
+          fixed right-0 bottom-[4px] left-0 grid
           [grid-template-columns:repeat(2,180px)]
           justify-center justify-items-center gap-2 p-2 font-mono text-xs opacity-50 select-none
           md:[grid-template-columns:repeat(4,180px)]
