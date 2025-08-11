@@ -71,3 +71,40 @@ jobs:
 
       - name: Run tests
         run: pnpm -w run test:packages
+
+  build-storybook:
+    runs-on: ubuntu-latest
+    name: Build storybook
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js with corepack
+        uses: ./.github/actions/setup-node
+
+      - name: Setup cache
+        uses: ./.github/actions/setup-cache
+        with:
+          restore-key-prefix: 'build-storybook'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pre-build dependencies
+        run: pnpm -w --workspace-concurrency -1 --filter "@monorepo/app-storybook..." run build:tsc
+
+      - name: Build storybook
+        run: pnpm run build
+        working-directory: apps/app-storybook
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: |
+            apps/app-storybook/storybook-static/
+          if-no-files-found: error
+          include-hidden-files: true
