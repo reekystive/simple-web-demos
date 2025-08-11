@@ -73,7 +73,10 @@ export const ScrollLinkedTriggered: FC = () => {
             `}
           >
             <motion.div
-              className="size-[200px] border-2 border-neutral-500 bg-neutral-500/10"
+              className={`
+                size-[100px] border-2 border-neutral-500 bg-neutral-500/10
+                md:size-[200px]
+              `}
               style={{ scale: scaleValue, rotate: rotationValue }}
             ></motion.div>
           </div>
