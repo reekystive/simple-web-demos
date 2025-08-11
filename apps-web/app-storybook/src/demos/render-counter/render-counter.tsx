@@ -15,7 +15,22 @@ export const RenderCounterDemo: FC = () => {
   );
 };
 
-const RenderCounter: FC<ComponentProps<'div'>> = (props) => {
+export const RenderCounterPointerDemo: FC = () => {
+  const [_, setCount] = useState(0);
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3">
+      <div>Move mouse or drag over the box</div>
+      <div
+        className="size-[300px] touch-none border bg-neutral-500/20"
+        onPointerMove={() => setCount((c) => c + 1)}
+      ></div>
+      <RenderCounter className="font-mono text-sm" />
+    </div>
+  );
+};
+
+export const RenderCounter: FC<ComponentProps<'div'>> = (props) => {
   const count = useRef(0);
   count.current++;
   return <div {...props}>Renders: {count.current}</div>;
