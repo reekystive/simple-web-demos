@@ -19,13 +19,15 @@ export const ScrollLinkedTriggered: FC = () => {
   });
 
   const triggeredPart = useMotionValue(0);
+  const nominalThreshold = 0.5;
+  const hysteresisBand = 0.1;
 
   useMotionValueEvent(progress, 'change', (latestValue) => {
     const previousValue = progress.getPrevious();
     if (previousValue === undefined) {
       return;
     }
-    if (latestValue > 0.55 && previousValue <= 0.55) {
+    if (latestValue > nominalThreshold + hysteresisBand / 2 && previousValue <= nominalThreshold + hysteresisBand / 2) {
       animate(triggeredPart, 1, {
         type: 'spring',
         stiffness: 500,
@@ -33,7 +35,7 @@ export const ScrollLinkedTriggered: FC = () => {
         mass: 0.1,
       });
     }
-    if (latestValue < 0.45 && previousValue >= 0.45) {
+    if (latestValue < nominalThreshold - hysteresisBand / 2 && previousValue >= nominalThreshold - hysteresisBand / 2) {
       animate(triggeredPart, 0, {
         type: 'spring',
         stiffness: 500,
@@ -52,7 +54,7 @@ export const ScrollLinkedTriggered: FC = () => {
     clamp: true,
   });
 
-  const rotationValue = useTransform(combinedProgress, [0, 1], [0, 225]);
+  const rotationValue = useTransform(combinedProgress, [0, 1], [0, 180]);
 
   const containerProgressFixed2 = useTransform(containerProgress, (v) => v.toFixed(2));
   const linkedPartFixed2 = useTransform(linkedPart, (v) => v.toFixed(2));
@@ -61,10 +63,10 @@ export const ScrollLinkedTriggered: FC = () => {
 
   return (
     <>
-      <div className="relative h-[500vh] w-full">
+      <div className="relative w-full">
         <div className="flex h-[100vh] w-full items-center justify-center bg-green-500/10">Scroll down</div>
 
-        <div className="h-[300vh] w-full bg-red-500/10" ref={sectionRef}>
+        <div className="h-[500vh] w-full bg-red-500/10" ref={sectionRef}>
           <div
             className={`
               sticky top-0 flex h-[100vh] w-full flex-row items-center justify-center overflow-clip bg-amber-500/10
