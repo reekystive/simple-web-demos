@@ -1,3 +1,4 @@
+import { cn } from '@monorepo/utils';
 import { animate } from 'motion';
 import { cubicBezier, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
 import { FC, useRef } from 'react';
@@ -64,7 +65,11 @@ export const ScrollLinkedTriggered: FC = () => {
         <div className="flex h-[100vh] w-full items-center justify-center bg-green-500/10">Scroll down</div>
 
         <div className="h-[300vh] w-full bg-red-500/10" ref={sectionRef}>
-          <div className="sticky top-0 flex h-[100vh] w-full flex-row items-center justify-center bg-amber-500/10">
+          <div
+            className={`
+              sticky top-0 flex h-[100vh] w-full flex-row items-center justify-center overflow-clip bg-amber-500/10
+            `}
+          >
             <motion.div
               className="size-[200px] border-2 border-neutral-500 bg-neutral-500/10"
               style={{ scale: scaleValue, rotate: rotationValue }}
@@ -75,10 +80,12 @@ export const ScrollLinkedTriggered: FC = () => {
         <div className="flex h-[100vh] w-full items-center justify-center bg-blue-500/10">The end</div>
       </div>
       <div
-        className={`
-          pointer-events-none fixed right-0 bottom-0 left-0 flex flex-row justify-center gap-6 p-2 font-mono text-xs
-          opacity-50 select-none
-        `}
+        className={cn(`
+          fixed right-0 bottom-2 left-0 grid
+          [grid-template-columns:repeat(2,180px)]
+          justify-center justify-items-center gap-2 p-2 font-mono text-xs opacity-50 select-none
+          md:[grid-template-columns:repeat(4,180px)]
+        `)}
       >
         <p>
           <span>Container Linked: </span>
