@@ -1,6 +1,5 @@
 import { cn } from '@monorepo/utils';
-import { animate } from 'motion';
-import { cubicBezier, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
+import { cubicBezier, motion, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { FC, useRef } from 'react';
 
 export const ScrollLinkedTriggered: FC = () => {
@@ -18,9 +17,13 @@ export const ScrollLinkedTriggered: FC = () => {
     ease: cubicBezier(0.2, 0, 0.8, 1),
   });
 
-  const triggeredPart = useMotionValue(0);
+  const triggeredPart = useSpring(0, {
+    stiffness: 500,
+    damping: 50,
+    mass: 0.1,
+  });
   const nominalThreshold = 0.5;
-  const hysteresisBand = 0.1;
+  const hysteresisBand = 0.05;
 
   useMotionValueEvent(progress, 'change', (latestValue) => {
     const previousValue = progress.getPrevious();
@@ -28,20 +31,10 @@ export const ScrollLinkedTriggered: FC = () => {
       return;
     }
     if (latestValue > nominalThreshold + hysteresisBand / 2 && previousValue <= nominalThreshold + hysteresisBand / 2) {
-      animate(triggeredPart, 1, {
-        type: 'spring',
-        stiffness: 500,
-        damping: 50,
-        mass: 0.1,
-      });
+      triggeredPart.set(1);
     }
     if (latestValue < nominalThreshold - hysteresisBand / 2 && previousValue >= nominalThreshold - hysteresisBand / 2) {
-      animate(triggeredPart, 0, {
-        type: 'spring',
-        stiffness: 500,
-        damping: 50,
-        mass: 0.1,
-      });
+      triggeredPart.set(0);
     }
   });
 
