@@ -28,7 +28,7 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: 'cache'
+          restore-key-prefix: 'lint'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -58,7 +58,7 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: 'cache'
+          restore-key-prefix: 'test'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
