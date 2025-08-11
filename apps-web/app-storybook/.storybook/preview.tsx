@@ -3,7 +3,6 @@ import type { Preview } from '@storybook/react-vite';
 import { useEffect, useRef, useState } from 'react';
 import { scan } from 'react-scan';
 import { Toaster } from 'sonner';
-import { themes } from 'storybook/theming';
 import { CustomDocsContainer } from './preview-docs/docs-container.js';
 import { ThemeProvider, useTheme } from './preview-utils/theme-context.js';
 import { resolveTheme, THEME_STORAGE_KEY } from './preview-utils/theme.js';
@@ -13,7 +12,6 @@ const preview: Preview = {
     layout: 'fullscreen',
     docs: {
       container: CustomDocsContainer,
-      theme: themes.dark,
     },
   },
   globalTypes: {
