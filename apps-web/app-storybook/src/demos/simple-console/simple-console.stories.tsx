@@ -1,4 +1,4 @@
-import { buttonVariants } from '#src/components/button/button-variants.js';
+import { buttonVariants } from '#src/components/button/index.js';
 import { faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
 import type { Meta, StoryObj } from '@storybook/react-vite';

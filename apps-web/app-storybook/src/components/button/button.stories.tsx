@@ -2,7 +2,7 @@ import { createMatrixFor } from '#src/ui-utils/matrix/matrix.js';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CSSProperties, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Button, ButtonVariants } from './button.js';
+import { Button, ButtonVariants } from './index.js';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
