@@ -16,7 +16,7 @@ export const Default: StoryObj = {
   render: () => {
     const simpleConsole = useSimpleConsoleLogger();
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
+      <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-4 p-4">
         <SimpleConsoleRender className="h-[20lh] self-stretch" console={simpleConsole} />
         <ReactRenderTiming logger={simpleConsole} />
       </div>
