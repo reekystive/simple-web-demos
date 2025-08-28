@@ -2,8 +2,7 @@ import { buttonVariants } from '#src/components/button/button-variants.js';
 import { faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useMemo } from 'react';
-import { createSimpleConsoleLogger } from './simple-console-logger.js';
+import { useSimpleConsoleLogger } from './simple-console-logger.js';
 import { SimpleConsoleRender } from './simple-console.js';
 
 const meta: Meta = {
@@ -14,7 +13,7 @@ export default meta;
 
 export const Default: StoryObj = {
   render: () => {
-    const simpleConsole = useMemo(() => createSimpleConsoleLogger(), []);
+    const simpleConsole = useSimpleConsoleLogger();
 
     return (
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-4 p-4">

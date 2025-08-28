@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 export const createSimpleConsoleLogger = () => {
   let subscriptions: (() => void)[] = [];
   let logs: { message: string; timestamp: number }[] = [];
@@ -18,3 +20,8 @@ export const createSimpleConsoleLogger = () => {
 };
 
 export type SimpleConsoleLogger = ReturnType<typeof createSimpleConsoleLogger>;
+
+export const useSimpleConsoleLogger = () => {
+  const simpleLogger = useMemo(() => createSimpleConsoleLogger(), []);
+  return simpleLogger;
+};
