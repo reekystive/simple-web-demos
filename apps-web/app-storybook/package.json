@@ -27,6 +27,7 @@
     "@monorepo/tailwindcss": "workspace:^",
     "@monorepo/utils": "workspace:^",
     "@react-hookz/web": "catalog:",
+    "es-toolkit": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "nanoid": "catalog:",
