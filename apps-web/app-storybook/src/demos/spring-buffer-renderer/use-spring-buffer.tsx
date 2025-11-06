@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { SPRING_PARAMS } from './constants.js';
 import { segmentGraphemes } from './segmenter.js';
 import { SpringBufferContextValue } from './spring-buffer-provider-interface.js';
+import { useQuantizedVelocityRaf } from './use-quantized-velocity.js';
 
 export const useSpringBuffer = (): SpringBufferContextValue => {
   const [visualDuration, setVisualDurationInternal] = useState<number>(SPRING_PARAMS.VISUAL_DURATION.DEFAULT);
@@ -40,22 +41,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
   });
 
   const cursorVelocityMVRaw = useVelocity(cursorGraphemeIndexSpringMVRaw);
-  const cursorVelocityMV = useTransform(() => {
-    const prev = cursorVelocityMVRaw.getPrevious();
-    const cur = cursorVelocityMVRaw.get();
-
-    // initial frame
-    if (prev === undefined) return Math.round(cur);
-
-    const rising = cur - prev > 0;
-    const frac = cur - Math.floor(cur); // in range [0, 1)
-
-    if (frac > 0.3 && frac < 0.7) {
-      return rising ? Math.floor(cur) : Math.ceil(cur);
-    }
-
-    return Math.round(cur);
-  });
+  const cursorVelocityMV = useQuantizedVelocityRaf(cursorVelocityMVRaw);
 
   // MARK: ACTIONS
 
@@ -113,6 +99,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
     cursorUTF16IndexSpringMV.jump(0);
     renderedValueSpringMV.jump('');
     bufferValueSpringMV.jump('');
+    cursorVelocityMVRaw.jump(0);
     cursorVelocityMV.jump(0);
   }, [
     contentMV,
@@ -123,6 +110,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
     cursorUTF16IndexSpringMV,
     renderedValueSpringMV,
     bufferValueSpringMV,
+    cursorVelocityMVRaw,
     cursorVelocityMV,
   ]);
 
