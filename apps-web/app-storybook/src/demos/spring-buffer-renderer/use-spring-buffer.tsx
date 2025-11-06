@@ -81,7 +81,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
       velocity: vel,
       restDelta: 0.1,
       restSpeed: 0.01,
-      timeConstant: 150,
+      timeConstant: 80,
       modifyTarget: () => contentGraphemeLengthMV.get(),
     });
   }, [contentGraphemeLengthMV, cursorGraphemeIndexSpringMVRaw, retune]);
