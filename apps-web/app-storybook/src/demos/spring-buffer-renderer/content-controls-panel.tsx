@@ -41,12 +41,12 @@ export const ContentControlsPanel: FC = () => {
     if (!['\n'].includes(currentContent.at(-1) ?? 'NULL') && currentContent.length > 0) {
       suffix = '\n\n';
     }
-    const paragraph = faker.lorem.paragraph(1);
+    const paragraph = faker.lorem.paragraph({ min: 5, max: 10 });
     append(suffix + paragraph);
   }, [append, contentMV, faker.lorem]);
 
   return (
-    <div className="flex max-w-xl flex-row flex-wrap justify-center gap-2 self-center">
+    <div className="flex max-w-2xl flex-row flex-wrap justify-center gap-2 self-center">
       <Button size="sm" color="blue" onClick={appendParagraph}>
         Append paragraph
       </Button>
@@ -57,7 +57,7 @@ export const ContentControlsPanel: FC = () => {
         </Button>
       ))}
 
-      {[1, 20].map((count, i) => (
+      {[20, 100].map((count, i) => (
         <Button key={i} size="sm" color="blue" onClick={() => appendEmojis(count)}>
           Append {count} emojis
         </Button>
