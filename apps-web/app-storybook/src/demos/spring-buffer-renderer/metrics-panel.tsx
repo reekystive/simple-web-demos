@@ -4,8 +4,13 @@ import { FC } from 'react';
 import { useSpringBufferContext } from './spring-buffer-provider.js';
 
 export const MetricsPanel: FC<{ className?: string }> = ({ className }) => {
-  const { contentMV, contentGraphemeSegmentsMV, cursorUTF16IndexSpringMV, cursorGraphemeIndexSpringMV } =
-    useSpringBufferContext();
+  const {
+    contentMV,
+    contentGraphemeSegmentsMV,
+    cursorUTF16IndexSpringMV,
+    cursorGraphemeIndexSpringMV,
+    cursorVelocityMV,
+  } = useSpringBufferContext();
 
   const contentGraphemeLength = useTransform(() => {
     return contentGraphemeSegmentsMV.get().length;
@@ -43,6 +48,10 @@ export const MetricsPanel: FC<{ className?: string }> = ({ className }) => {
       <div>
         <span className="opacity-60">buffer length (in utf-16 / graphemes): </span>
         <motion.span>{bufferUTF16Length}</motion.span> / <motion.span>{bufferGraphemeLength}</motion.span>
+      </div>
+      <div>
+        <span className="opacity-60">cursor velocity: (in graphemes per second): </span>
+        <motion.span>{cursorVelocityMV}</motion.span>
       </div>
     </div>
   );

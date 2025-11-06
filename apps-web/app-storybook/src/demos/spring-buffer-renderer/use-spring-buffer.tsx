@@ -1,5 +1,5 @@
 import { animate, ValueTransition } from 'motion';
-import { useMotionValue, useTransform } from 'motion/react';
+import { useMotionValue, useTransform, useVelocity } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SPRING_PARAMS } from './constants.js';
 import { segmentGraphemes } from './segmenter.js';
@@ -24,7 +24,6 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
   );
 
   const cursorGraphemeIndexSpringMV = useTransform(() => {
-    // Math.min(Math.round(cursorGraphemeIndexSpringMVRaw.get()), contentGraphemeLengthMV.get())
     return Math.round(cursorGraphemeIndexSpringMVRaw.get());
   });
 
@@ -38,6 +37,24 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
 
   const bufferValueSpringMV = useTransform(() => {
     return contentMV.get().slice(cursorUTF16IndexSpringMV.get());
+  });
+
+  const cursorVelocityMVRaw = useVelocity(cursorGraphemeIndexSpringMVRaw);
+  const cursorVelocityMV = useTransform(() => {
+    const prev = cursorVelocityMVRaw.getPrevious();
+    const cur = cursorVelocityMVRaw.get();
+
+    // initial frame
+    if (prev === undefined) return Math.round(cur);
+
+    const rising = cur - prev > 0;
+    const frac = cur - Math.floor(cur); // in range [0, 1)
+
+    if (frac > 0.3 && frac < 0.7) {
+      return rising ? Math.floor(cur) : Math.ceil(cur);
+    }
+
+    return Math.round(cur);
   });
 
   // MARK: ACTIONS
@@ -87,6 +104,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
   }, [contentGraphemeLengthMV, cursorGraphemeIndexSpringMVRaw, retune]);
 
   const clear = useCallback(() => {
+    controlsRef.current?.stop();
     contentMV.jump('');
     contentGraphemeSegmentsMV.jump([]);
     contentGraphemeLengthMV.jump(0);
@@ -95,15 +113,17 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
     cursorUTF16IndexSpringMV.jump(0);
     renderedValueSpringMV.jump('');
     bufferValueSpringMV.jump('');
+    cursorVelocityMV.jump(0);
   }, [
     contentMV,
     contentGraphemeSegmentsMV,
     contentGraphemeLengthMV,
+    cursorGraphemeIndexSpringMVRaw,
     cursorGraphemeIndexSpringMV,
     cursorUTF16IndexSpringMV,
     renderedValueSpringMV,
     bufferValueSpringMV,
-    cursorGraphemeIndexSpringMVRaw,
+    cursorVelocityMV,
   ]);
 
   const value: SpringBufferContextValue = {
@@ -117,6 +137,7 @@ export const useSpringBuffer = (): SpringBufferContextValue => {
     cursorUTF16IndexSpringMV,
     renderedValueSpringMV,
     bufferValueSpringMV,
+    cursorVelocityMV,
 
     append,
     flush,

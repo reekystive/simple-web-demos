@@ -13,6 +13,7 @@ export interface SpringBufferContextValue {
   cursorUTF16IndexSpringMV: MotionValue<number>;
   renderedValueSpringMV: MotionValue<string>;
   bufferValueSpringMV: MotionValue<string>;
+  cursorVelocityMV: MotionValue<number>;
 
   // actions
   append: (suffix: string) => void;
