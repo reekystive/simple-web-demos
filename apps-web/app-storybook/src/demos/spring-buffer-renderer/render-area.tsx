@@ -1,10 +1,12 @@
 import { cn } from '@monorepo/utils';
 import { motion } from 'motion/react';
 import { FC } from 'react';
+import { useAnimationControlsContext } from './animation-controls-provider.js';
 import { useSpringBufferContext } from './spring-buffer-provider.js';
 
 export const RenderArea: FC = () => {
   const { renderedValueSpringMV, bufferValueSpringMV } = useSpringBufferContext();
+  const { showBuffer } = useAnimationControlsContext();
 
   return (
     <div
@@ -21,7 +23,7 @@ export const RenderArea: FC = () => {
         <motion.span className="opacity-0 select-none">{bufferValueSpringMV}</motion.span>
 
         {/* layer 2: buffer value */}
-        <div className="pointer-events-none absolute inset-0 min-h-lh">
+        <div className={cn('pointer-events-none absolute inset-0 min-h-lh', !showBuffer && 'opacity-0')}>
           <motion.span className="opacity-0 select-none">{renderedValueSpringMV}</motion.span>
           <motion.span className="opacity-40">{bufferValueSpringMV}</motion.span>
         </div>

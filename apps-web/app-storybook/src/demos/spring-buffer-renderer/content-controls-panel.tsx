@@ -1,10 +1,12 @@
 import { Button } from '#src/components/button/button.js';
 import { base, en, Faker } from '@faker-js/faker';
 import { FC, useCallback, useMemo } from 'react';
+import { useAnimationControlsContext } from './animation-controls-provider.js';
 import { useSpringBufferContext } from './spring-buffer-provider.js';
 
 export const ContentControlsPanel: FC = () => {
   const { append, clear, flush, contentMV } = useSpringBufferContext();
+  const { showBuffer, setShowBuffer } = useAnimationControlsContext();
 
   const faker = useMemo(() => new Faker({ locale: [base, en] }), []);
 
@@ -44,7 +46,7 @@ export const ContentControlsPanel: FC = () => {
   }, [append, contentMV, faker.lorem]);
 
   return (
-    <div className="flex flex-row flex-wrap justify-center gap-2">
+    <div className="flex max-w-xl flex-row flex-wrap justify-center gap-2 self-center">
       <Button size="sm" color="blue" onClick={appendParagraph}>
         Append paragraph
       </Button>
@@ -67,6 +69,15 @@ export const ContentControlsPanel: FC = () => {
 
       <Button size="sm" color="red" onClick={clear}>
         Clear
+      </Button>
+
+      <Button
+        size="sm"
+        color={showBuffer ? 'yellow' : 'blue'}
+        onClick={() => setShowBuffer(!showBuffer)}
+        allPossibleContents={['Hide buffer', 'Show buffer']}
+      >
+        {showBuffer ? 'Hide buffer' : 'Show buffer'}
       </Button>
     </div>
   );

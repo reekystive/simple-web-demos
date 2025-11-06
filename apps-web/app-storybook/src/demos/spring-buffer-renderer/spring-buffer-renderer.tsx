@@ -1,5 +1,6 @@
 import { cn } from '@monorepo/utils';
 import { FC } from 'react';
+import { AnimationControlsProvider } from './animation-controls-provider.js';
 import { ContentControlsPanel } from './content-controls-panel.js';
 import { MetricsPanel } from './metrics-panel.js';
 import { ParamsPanel } from './params-panel.js';
@@ -8,13 +9,20 @@ import { SpringBufferProvider } from './spring-buffer-provider.js';
 
 export const SpringBufferRenderer: FC = () => {
   return (
-    <SpringBufferProvider>
-      <div className={cn('mx-auto flex max-w-5xl flex-col items-stretch gap-4 px-3 py-6')}>
-        <ParamsPanel />
-        <ContentControlsPanel />
-        <MetricsPanel />
-        <RenderArea />
-      </div>
-    </SpringBufferProvider>
+    <AnimationControlsProvider>
+      <SpringBufferProvider>
+        <div
+          className={cn(`
+            mx-auto flex max-w-5xl flex-col items-stretch gap-4 px-2 py-3
+            md:px-3 md:py-6
+          `)}
+        >
+          <ParamsPanel />
+          <ContentControlsPanel />
+          <MetricsPanel />
+          <RenderArea />
+        </div>
+      </SpringBufferProvider>
+    </AnimationControlsProvider>
   );
 };
