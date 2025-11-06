@@ -8,6 +8,7 @@ import {
 
 const meta: Meta = {
   title: 'Animations/EagerLayout',
+  id: 'eager-layout',
 };
 
 export default meta;

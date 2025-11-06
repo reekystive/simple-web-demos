@@ -3,6 +3,7 @@ import { ScrollAnchoring } from './scroll-anchoring.js';
 
 const meta: Meta = {
   title: 'Demos/ScrollAnchoring',
+  id: 'scroll-anchoring',
 };
 
 export default meta;

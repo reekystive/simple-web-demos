@@ -271,8 +271,8 @@ const Landscape: FC<{
             className={cn(`
               size-full scale-125 object-cover object-center opacity-0 blur-sm transition-all duration-500 ease-out
               select-none
-              [&[data-state='error']]:hidden
-              [&[data-state='loaded']]:scale-100 [&[data-state='loaded']]:opacity-100 [&[data-state='loaded']]:blur-none
+              data-[state='error']:hidden
+              data-[state='loaded']:scale-100 data-[state='loaded']:opacity-100 data-[state='loaded']:blur-none
             `)}
           />
           <div
@@ -286,7 +286,7 @@ const Landscape: FC<{
           {/* image overlay */}
           <div
             className={cn(`
-              pointer-events-none absolute top-0 right-0 left-0 hidden h-15 bg-gradient-to-b from-black/30 to-black/0
+              pointer-events-none absolute top-0 right-0 left-0 hidden h-15 bg-linear-to-b from-black/30 to-black/0
               [&:where([data-name='tile-root']:has(>_img[data-state='loaded'])_*)]:block
             `)}
           />
