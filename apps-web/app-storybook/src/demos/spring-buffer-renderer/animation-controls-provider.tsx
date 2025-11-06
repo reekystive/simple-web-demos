@@ -5,6 +5,9 @@ import { createContext, FC, PropsWithChildren, useContext, useState } from 'reac
 interface AnimationControlsContextValue {
   showBuffer: boolean;
   setShowBuffer: (showBuffer: boolean) => void;
+
+  showTrailing: boolean;
+  setShowTrailing: (showTrailing: boolean) => void;
 }
 
 const AnimationControlsContext = createContext<AnimationControlsContextValue | null>(null);
@@ -17,7 +20,8 @@ export const useAnimationControlsContext = (): AnimationControlsContextValue => 
 
 const useAnimationControlsValue = (): AnimationControlsContextValue => {
   const [showBuffer, setShowBuffer] = useState(false);
-  return { showBuffer, setShowBuffer };
+  const [showTrailing, setShowTrailing] = useState(false);
+  return { showBuffer, setShowBuffer, showTrailing, setShowTrailing };
 };
 
 export const AnimationControlsProvider: FC<PropsWithChildren<{ value?: AnimationControlsContextValue }>> = ({

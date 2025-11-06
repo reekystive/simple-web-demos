@@ -6,7 +6,7 @@ import { useSpringBufferContext } from './spring-buffer-provider.js';
 
 export const ContentControlsPanel: FC = () => {
   const { append, clear, flush, contentMV } = useSpringBufferContext();
-  const { showBuffer, setShowBuffer } = useAnimationControlsContext();
+  const { showBuffer, setShowBuffer, showTrailing, setShowTrailing } = useAnimationControlsContext();
 
   const faker = useMemo(() => new Faker({ locale: [base, en] }), []);
 
@@ -78,6 +78,16 @@ export const ContentControlsPanel: FC = () => {
         allPossibleContents={['Hide buffer', 'Show buffer']}
       >
         {showBuffer ? 'Hide buffer' : 'Show buffer'}
+      </Button>
+
+      <Button
+        size="sm"
+        color={showTrailing ? 'yellow' : 'blue'}
+        onClick={() => setShowTrailing(!showTrailing)}
+        allPossibleContents={['Hide trailing', 'Show trailing']}
+        disabled={showBuffer}
+      >
+        {showTrailing ? 'Hide trailing' : 'Show trailing'}
       </Button>
     </div>
   );
