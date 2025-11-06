@@ -75,7 +75,7 @@ const eslintConfig = [
   },
   {
     plugins: {
-      'react-hooks': reactHooksPlugin,
+      'react-hooks': /** @type {any} */ (reactHooksPlugin),
       'react-refresh': reactRefreshPlugin,
       react: reactPlugin,
       'better-tailwindcss': eslintPluginBetterTailwindcss,
@@ -128,11 +128,11 @@ const eslintConfig = [
   // config for nextjs
   {
     plugins: {
-      '@next/next': /** @type {any} */ (next.flatConfig.recommended.plugins['@next/next']),
+      '@next/next': next,
     },
     rules: {
-      .../** @type {Record<string, import('eslint').Linter.RuleEntry>} */ (next.flatConfig.recommended.rules),
-      .../** @type {Record<string, import('eslint').Linter.RuleEntry>} */ (next.flatConfig.coreWebVitals.rules),
+      ...next.configs.recommended.rules,
+      ...next.configs['core-web-vitals'].rules,
     },
     ignores: MDX_VIRTUAL_TS_FILES,
     files: NEXTJS_FILES,
@@ -187,9 +187,7 @@ const eslintConfig = [
   // config for mdx code blocks (disabled for now)
   {
     languageOptions: {
-      parserOptions: {
-        ...mdx.flatCodeBlocks.languageOptions?.parserOptions,
-      },
+      ...mdx.flatCodeBlocks.languageOptions,
     },
     rules: {
       ...mdx.flatCodeBlocks.rules,
