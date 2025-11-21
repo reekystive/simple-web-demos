@@ -30,6 +30,7 @@
     "@radix-ui/react-slider": "catalog:",
     "@react-hookz/web": "catalog:",
     "es-toolkit": "catalog:",
+    "figma-squircle": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "nanoid": "catalog:",

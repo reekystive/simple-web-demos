@@ -1,8 +1,10 @@
 words:
   - autodocs
   - avenir
+  - beziers
   - centi
   - clsx
+  - cosθ
   - deadband
   - dedupe
   - dicebear
@@ -22,7 +24,9 @@ words:
   - Picsum
   - pkgs
   - reekystive
+  - sinθ
   - sonner
+  - squircle
   - tanstack
   - trpc
   - turbopack
