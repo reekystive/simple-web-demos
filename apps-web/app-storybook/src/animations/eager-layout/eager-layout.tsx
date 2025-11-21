@@ -1,5 +1,5 @@
 import { FancyTimer, FancyTimerRef } from '#src/demos/fancy-timer/fancy-timer.js';
-import { adventurerNeutral } from '@dicebear/collection';
+import { dylan } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
 import { cn } from '@monorepo/utils';
@@ -11,7 +11,7 @@ import { ImageWithState } from './image-with-state.js';
 
 const createRandomAvatar = () => {
   const randomSeed = nanoid();
-  const avatar = createAvatar(adventurerNeutral, { seed: randomSeed });
+  const avatar = createAvatar(dylan, { seed: randomSeed });
   return avatar.toDataUri();
 };
 
@@ -32,7 +32,7 @@ const Layout: FC<{ className?: string; children: React.ReactNode }> = ({ childre
   );
 };
 
-const useImages = () => {
+const useRandomImages = () => {
   const seed = useMemo(() => new Date().getDay(), []);
   const fakerWithSeed = useMemo(() => new Faker({ seed, locale: en }), [seed]);
   const [images, setImages] = useState(() =>
@@ -51,7 +51,7 @@ export const EagerLayout: FC<{ className?: string; onFirstClose?: () => void; on
   onFirstClose,
   onLastClose,
 }) => {
-  const { images, setImages } = useImages();
+  const { images, setImages } = useRandomImages();
   const clickedRef = useRef(false);
 
   return (
@@ -88,7 +88,7 @@ export const EagerLayoutWithoutEager: FC<{
   onFirstClose?: () => void;
   onLastClose?: () => void;
 }> = ({ className, onFirstClose, onLastClose }) => {
-  const { images, setImages } = useImages();
+  const { images, setImages } = useRandomImages();
   const clickedRef = useRef(false);
 
   return (
@@ -121,7 +121,7 @@ export const EagerLayoutWithoutEager: FC<{
 };
 
 export const EagerLayoutWithoutAnimation: FC<{ className?: string }> = ({ className }) => {
-  const { images, setImages } = useImages();
+  const { images, setImages } = useRandomImages();
   return (
     <Layout className={cn('isolate touch-manipulation', className)}>
       {images.map((image) => (
@@ -269,8 +269,8 @@ const Landscape: FC<{
             alt="A fake image"
             draggable={false}
             className={cn(`
-              size-full scale-125 object-cover object-center opacity-0 blur-sm transition-all duration-500 ease-out
-              select-none
+              size-full scale-110 object-cover object-center opacity-0 blur-sm brightness-75 contrast-125 saturate-150
+              sepia-100 transition-all duration-500 ease-out select-none
               data-[state='error']:hidden
               data-[state='loaded']:scale-100 data-[state='loaded']:opacity-100 data-[state='loaded']:blur-none
             `)}
@@ -286,14 +286,17 @@ const Landscape: FC<{
           {/* image overlay */}
           <div
             className={cn(`
-              pointer-events-none absolute top-0 right-0 left-0 hidden h-15 bg-linear-to-b from-black/30 to-black/0
+              pointer-events-none absolute top-0 right-0 left-0 hidden h-15 bg-linear-to-b from-black/10 to-black/0
               [&:where([data-name='tile-root']:has(>_img[data-state='loaded'])_*)]:block
             `)}
           />
         </>
       )}
       <button
-        className="absolute top-2 right-2 size-6 touch-manipulation rounded-full bg-neutral-700/20 p-1 backdrop-blur-md"
+        className={`
+          absolute top-2 right-2 size-6 touch-manipulation rounded-full bg-neutral-700/25 p-1 text-white
+          backdrop-blur-md
+        `}
         onClick={onClickClose}
       >
         <X className="size-full" />
