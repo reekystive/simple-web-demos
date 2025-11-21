@@ -39,7 +39,7 @@ export const LiquidSquare: FC<{ className?: string }> = ({ className }) => {
   const handlePan = useCallback(
     (_: PointerEvent, info: PanInfo) => {
       const dx = Math.abs(info.offset.x);
-      setPanX(dx);
+      setPanX(dx / baseWidth);
     },
     [setPanX]
   );
@@ -66,6 +66,7 @@ export const LiquidSquare: FC<{ className?: string }> = ({ className }) => {
           active:cursor-grabbing
         `)}
       >
+        <div className="pointer-events-none absolute -inset-2 border-4 border-dashed border-neutral-400/50"></div>
         <motion.svg
           width={baseWidth}
           height={baseHeight}

@@ -41,8 +41,7 @@ export function useLiquidDrag(config: UseLiquidDragConfig): UseLiquidDragResult 
   // Dominant-axis stretch amount in [1, maxStretch).
   const stretch = useTransform(() => {
     const inputAbs = Math.abs(input.get());
-    const exponentialStretch = expo((1 + inputAbs * 0.02) / maxStretch, 2.5) * maxStretch;
-    console.log('AAA', inputAbs, exponentialStretch);
+    const exponentialStretch = expo((1 + inputAbs) / maxStretch) * maxStretch;
     return exponentialStretch; // 1 → maxStretch (asymptotic)
   });
 
