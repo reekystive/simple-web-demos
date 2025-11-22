@@ -2,6 +2,7 @@ import { Button } from '#src/components/button/button.js';
 import { base, en, Faker } from '@faker-js/faker';
 import { FC, useCallback, useMemo } from 'react';
 import { useAnimationControlsContext } from './animation-controls-provider.js';
+import { HelpTrigger } from './help.js';
 import { useSpringBufferContext } from './spring-buffer-provider.js';
 
 export const ContentControlsPanel: FC = () => {
@@ -89,6 +90,8 @@ export const ContentControlsPanel: FC = () => {
       >
         {showTrailing ? 'Hide trailing' : 'Show trailing'}
       </Button>
+
+      <HelpTrigger />
     </div>
   );
 };
