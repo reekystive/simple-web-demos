@@ -21,7 +21,7 @@ export const HelpTrigger: FC = () => {
         <div
           className={cn(`
             fixed inset-0 flex flex-col items-center justify-end
-            sm:justify-center sm:px-4 sm:py-4
+            sm:justify-center sm:px-6 sm:py-4
           `)}
         >
           <HelpContent />
@@ -35,7 +35,7 @@ export const HelpContent: FC = () => {
   return (
     <Drawer.Content
       className={cn(`
-        flex h-fit max-h-[90vh] max-w-2xl flex-col rounded-lg rounded-t-lg bg-neutral-100 outline-none
+        flex h-fit max-h-[85vh] max-w-2xl flex-col rounded-t-lg rounded-b-none bg-neutral-100 outline-none
         sm:max-h-[80vh] sm:rounded-xl
         dark:bg-neutral-950
       `)}
