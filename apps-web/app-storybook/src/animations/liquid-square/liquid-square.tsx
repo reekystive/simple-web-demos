@@ -3,7 +3,7 @@ import { getSvgPath, type FigmaSquircleParams } from 'figma-squircle';
 import { motion, PanInfo, useTransform } from 'motion/react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useGrabbingCursor } from './use-grabbing-cursor.js';
-import { useLiquidDrag } from './use-liquid-drag.js';
+import { useLiquidStretch } from './use-liquid-stretch.js';
 
 const baseWidth = 200;
 const baseHeight = 200;
@@ -19,14 +19,26 @@ export const LiquidSquare: FC<{ className?: string }> = ({ className }) => {
   const d = useMemo(() => getSvgPath(defaultFigmaSquircleParams), []);
 
   const {
-    scale: scaleX,
-    setPan: setPanX,
-    release: releaseX,
-  } = useLiquidDrag({
-    maxStretch: 1.25,
+    scaleX,
+    scaleY,
+    translateX: translateXMV,
+    translateY: translateYMV,
+    updatePanOffset,
+    release,
+  } = useLiquidStretch({
+    maxStretchX: 1.25,
+    maxStretchY: 1.25,
+    maxTranslateX: 0.05,
+    maxTranslateY: 0.05,
   });
 
-  const scaleYMV = useTransform(scaleX, (scale) => 1 / scale);
+  const translateX = useTransform(() => {
+    return translateXMV.get() * baseWidth;
+  });
+
+  const translateY = useTransform(() => {
+    return translateYMV.get() * baseHeight;
+  });
 
   const [grabbing, setGrabbing] = useState(false);
 
@@ -38,16 +50,17 @@ export const LiquidSquare: FC<{ className?: string }> = ({ className }) => {
 
   const handlePan = useCallback(
     (_: PointerEvent, info: PanInfo) => {
-      const dx = Math.abs(info.offset.x);
-      setPanX(dx / baseWidth);
+      const dx = info.offset.x;
+      const dy = info.offset.y;
+      updatePanOffset(dx / baseWidth, dy / baseHeight);
     },
-    [setPanX]
+    [updatePanOffset]
   );
 
   const handlePanEnd = useCallback(() => {
     setGrabbing(false);
-    releaseX();
-  }, [releaseX]);
+    release();
+  }, [release]);
 
   return (
     <div
@@ -74,11 +87,33 @@ export const LiquidSquare: FC<{ className?: string }> = ({ className }) => {
           role="none"
           aria-hidden="true"
           className={cn('absolute inset-0 block')}
-          style={{ scaleX, scaleY: scaleYMV }}
+          style={{ scaleX, scaleY, translateX, translateY }}
         >
           <path d={d} fill="currentColor" />
         </motion.svg>
       </motion.div>
+      <div className="pointer-events-none fixed right-0 bottom-4 left-0 flex flex-col items-stretch gap-2">
+        <div
+          id="value-red"
+          className="relative left-[50%] h-2 w-[0.5%] origin-left bg-red-500"
+          style={{ transform: 'scaleX(0)' }}
+        ></div>
+        <div
+          id="value-green"
+          className="relative left-[50%] h-2 w-[0.5%] origin-left bg-green-500"
+          style={{ transform: 'scaleX(0)' }}
+        ></div>
+        <div
+          id="value-blue"
+          className="relative left-[50%] h-2 w-[0.5%] origin-left bg-blue-500"
+          style={{ transform: 'scaleX(0)' }}
+        ></div>
+        <div
+          id="value-yellow"
+          className="relative left-[50%] h-2 w-[0.5%] origin-left bg-yellow-500"
+          style={{ transform: 'scaleX(0)' }}
+        ></div>
+      </div>
     </div>
   );
 };
