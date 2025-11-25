@@ -1,175 +1,206 @@
-import {
-  animate,
-  AnimationPlaybackControls,
-  MotionValue,
-  useMotionValue,
-  useMotionValueEvent,
-  useTransform,
-} from 'motion/react';
-import { useCallback, useMemo, useRef } from 'react';
+import { MotionValue, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { useCallback } from 'react';
+import { expDecayGaussian } from './decay.js';
+import { toTranslateThenScale } from './transform-utils.js';
 
 export interface UseLiquidStretchConfig {
+  maxMoveX?: number;
+  maxMoveY?: number;
   maxStretchX?: number;
   maxStretchY?: number;
-  maxTranslateX?: number;
-  maxTranslateY?: number;
 }
 
 export interface UseLiquidStretchResult {
+  normalizedTranslateX: MotionValue<number>;
+  normalizedTranslateY: MotionValue<number>;
+  translateX: MotionValue<string>;
+  translateY: MotionValue<string>;
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
-  translateX: MotionValue<number>;
-  translateY: MotionValue<number>;
-  updatePanOffset: (offsetX: number, offsetY: number) => void;
+  updateNormalizedPanOffset: (normalizedOffsetX: number, normalizedOffsetY: number) => void;
   release: () => void;
 }
 
-export const expoDecay = (t: number, k = 1.5, A = 1, C = 0): number => {
-  return A * Math.exp(-k * t) + C;
-};
+/**
+ * Hook for creating a liquid stretch effect.
+ *
+ * **Important**: When using the returned values, you must apply transforms in this order:
+ *
+ * 1. First apply `translate` (translateX, translateY)
+ * 2. Then apply `scale` (scaleX, scaleY)
+ *
+ * Internally, the calculations are based on the assumption that scale is applied first,
+ * then translate. However, the returned values are converted to work with the
+ * translate-first, scale-second transform order.
+ */
+export const useLiquidStretch = (config: UseLiquidStretchConfig = {}): UseLiquidStretchResult => {
+  const { maxStretchX = 0.25, maxStretchY = 0.25, maxMoveX = 0.1, maxMoveY = 0.1 } = config;
 
-export const useLiquidStretch = (config: UseLiquidStretchConfig): UseLiquidStretchResult => {
-  const { maxStretchX = 1.25, maxStretchY = 1.25, maxTranslateX = 0.1, maxTranslateY = 0.1 } = config;
-
-  if (maxStretchX < 1 || maxStretchY < 1) {
-    throw new Error('maxStretchX and maxStretchY must not be less than 1');
+  if (maxStretchX < 0 || maxStretchY < 0) {
+    throw new Error('maxStretchX and maxStretchY must not be less than 0');
   }
 
-  if (maxTranslateX < 0 || maxTranslateY < 0) {
-    throw new Error('maxTranslateX and maxTranslateY must not be less than 0');
+  if (maxMoveX < 0 || maxMoveY < 0) {
+    throw new Error('maxMoveX and maxMoveY must not be less than 0');
   }
 
-  const maxAreaGrowth = useMemo(() => {
-    return maxStretchX * maxStretchY;
-  }, [maxStretchX, maxStretchY]);
+  const inputOffsetX = useMotionValue(0);
+  const inputOffsetY = useMotionValue(0);
 
-  const animatedInputOffsetX = useMotionValue(0);
-  const animatedInputOffsetY = useMotionValue(0);
-
-  useMotionValueEvent(animatedInputOffsetX, 'change', (value) => {
-    document.getElementById('value-red')?.style.setProperty('transform', `scaleX(${value * 20})`);
-  });
-  useMotionValueEvent(animatedInputOffsetY, 'change', (value) => {
-    document.getElementById('value-green')?.style.setProperty('transform', `scaleX(${value * 20})`);
-  });
-
-  const animationControlsXRef = useRef<AnimationPlaybackControls | null>(null);
-  const animationControlsYRef = useRef<AnimationPlaybackControls | null>(null);
+  // const animationControlsXRef = useRef<AnimationPlaybackControls | null>(null);
+  // const animationControlsYRef = useRef<AnimationPlaybackControls | null>(null);
 
   const updatePanOffset = useCallback(
     (newOffsetX: number, newOffsetY: number) => {
-      const currentXVelocity = animatedInputOffsetX.getVelocity() || 0;
-      const currentYVelocity = animatedInputOffsetY.getVelocity() || 0;
-      animationControlsXRef.current?.stop();
-      animationControlsYRef.current?.stop();
-      // https://reekystive.github.io/popmotion-spring-animation/?stiffness=200&mass=0.6&damping=15
-      animationControlsXRef.current = animate(animatedInputOffsetX, newOffsetX, {
-        type: 'spring',
-        stiffness: 200,
-        damping: 15,
-        mass: 0.6,
-        velocity: currentXVelocity,
-        restDelta: 0.001,
-        restSpeed: 0.01,
-      });
-      animationControlsYRef.current = animate(animatedInputOffsetY, newOffsetY, {
-        type: 'spring',
-        stiffness: 200,
-        damping: 15,
-        mass: 0.6,
-        velocity: currentYVelocity,
-        restDelta: 0.001,
-        restSpeed: 0.01,
-      });
+      inputOffsetX.set(newOffsetX);
+      inputOffsetY.set(newOffsetY);
+      // const currentXVelocity = inputOffsetX.getVelocity() || 0;
+      // const currentYVelocity = inputOffsetY.getVelocity() || 0;
+      // animationControlsXRef.current?.stop();
+      // animationControlsYRef.current?.stop();
+      // animationControlsXRef.current = animate(inputOffsetX, newOffsetX, {
+      //   type: 'spring',
+      //   stiffness: 200,
+      //   damping: 15,
+      //   mass: 0.6,
+      //   velocity: currentXVelocity,
+      //   restDelta: 0.001,
+      //   restSpeed: 0.01,
+      // });
+      // animationControlsYRef.current = animate(inputOffsetY, newOffsetY, {
+      //   type: 'spring',
+      //   stiffness: 200,
+      //   damping: 15,
+      //   mass: 0.6,
+      //   velocity: currentYVelocity,
+      //   restDelta: 0.001,
+      //   restSpeed: 0.01,
+      // });
     },
-    [animatedInputOffsetX, animatedInputOffsetY]
+    [inputOffsetX, inputOffsetY]
   );
 
   const release = useCallback(() => {
-    const currentVelocityX = animatedInputOffsetX.getVelocity() || 0;
-    const currentVelocityY = animatedInputOffsetY.getVelocity() || 0;
-    const currentDirectionX = animatedInputOffsetX.get() > 0 ? 1 : -1;
-    const currentDirectionY = animatedInputOffsetY.get() > 0 ? 1 : -1;
-    const extraVelocityX = currentDirectionX * -5;
-    const extraVelocityY = currentDirectionY * -5;
-    animationControlsXRef.current?.stop();
-    animationControlsYRef.current?.stop();
-    // https://reekystive.github.io/popmotion-spring-animation/?stiffness=300&mass=1.5&damping=20
-    animationControlsXRef.current = animate(animatedInputOffsetX, 0, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
-      mass: 1.5,
-      velocity: currentVelocityX + extraVelocityX,
-      restDelta: 0.001,
-      restSpeed: 0.01,
-    });
-    animationControlsYRef.current = animate(animatedInputOffsetY, 0, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
-      mass: 1.5,
-      velocity: currentVelocityY + extraVelocityY,
-      restDelta: 0.001,
-      restSpeed: 0.01,
-    });
-  }, [animatedInputOffsetX, animatedInputOffsetY]);
+    inputOffsetX.set(0);
+    inputOffsetY.set(0);
+    // const currentVelocityX = inputOffsetX.getVelocity() || 0;
+    // const currentVelocityY = inputOffsetY.getVelocity() || 0;
+    // const currentDirectionX = inputOffsetX.get() > 0 ? 1 : -1;
+    // const currentDirectionY = inputOffsetY.get() > 0 ? 1 : -1;
+    // const extraVelocityX = currentDirectionX * -5;
+    // const extraVelocityY = currentDirectionY * -5;
+    // animationControlsXRef.current?.stop();
+    // animationControlsYRef.current?.stop();
+    // animationControlsXRef.current = animate(inputOffsetX, 0, {
+    //   type: 'spring',
+    //   stiffness: 500,
+    //   damping: 30,
+    //   mass: 1.5,
+    //   velocity: currentVelocityX + extraVelocityX,
+    //   restDelta: 0.001,
+    //   restSpeed: 0.01,
+    // });
+    // animationControlsYRef.current = animate(inputOffsetY, 0, {
+    //   type: 'spring',
+    //   stiffness: 500,
+    //   damping: 30,
+    //   mass: 1.5,
+    //   velocity: currentVelocityY + extraVelocityY,
+    //   restDelta: 0.001,
+    //   restSpeed: 0.01,
+    // });
+  }, [inputOffsetX, inputOffsetY]);
 
-  const rawDistance = useTransform(() => {
-    return Math.sqrt(animatedInputOffsetX.get() ** 2 + animatedInputOffsetY.get() ** 2);
+  const distance = useTransform(() => {
+    return Math.sqrt(inputOffsetX.get() ** 2 + inputOffsetY.get() ** 2);
   });
 
   const decayedDistance = useTransform(() => {
-    return 1 - expoDecay(rawDistance.get(), 2);
+    // return 1 - expoDecay(distance.get(), 0.3);
+    return 1 - expDecayGaussian(distance.get(), 0.1);
   });
 
-  const area = useTransform(() => {
-    return 1 + decayedDistance.get() * (maxAreaGrowth - 1);
+  const decayRatio = useTransform(() => {
+    if (Math.abs(distance.get()) < 0.001) {
+      return 0;
+    }
+    return decayedDistance.get() / distance.get();
   });
 
-  const inputArea = useTransform(() => {
-    return (Math.abs(animatedInputOffsetX.get()) + 1) * (Math.abs(animatedInputOffsetY.get()) + 1);
+  const decayedOffsetX = useTransform(() => {
+    return inputOffsetX.get() * decayRatio.get();
+  });
+  const decayedOffsetY = useTransform(() => {
+    return inputOffsetY.get() * decayRatio.get();
   });
 
-  const areaFactor = useTransform(() => {
-    return inputArea.get() / area.get();
+  const animatedDecayedOffsetX = useSpring(decayedOffsetX, {
+    stiffness: 300,
+    damping: 15,
+    mass: 0.6,
+    restDelta: 0.001,
+    restSpeed: 0.01,
+  });
+  const animatedDecayedOffsetY = useSpring(decayedOffsetY, {
+    stiffness: 300,
+    damping: 15,
+    mass: 0.6,
+    restDelta: 0.001,
+    restSpeed: 0.01,
   });
 
-  const squareRootAreaFactor = useTransform(() => {
-    return Math.pow(areaFactor.get(), 0.5);
+  const deltaScaleX = useTransform(() => {
+    return animatedDecayedOffsetX.get() * maxStretchX;
+  });
+  const deltaScaleY = useTransform(() => {
+    return animatedDecayedOffsetY.get() * maxStretchY;
   });
 
   const scaleX = useTransform(() => {
-    return (Math.abs(animatedInputOffsetX.get()) + 1) / squareRootAreaFactor.get();
+    return 1 + Math.abs(deltaScaleX.get());
   });
-
   const scaleY = useTransform(() => {
-    return area.get() / scaleX.get();
+    return 1 + Math.abs(deltaScaleY.get());
   });
 
-  const decayedInputOffsetX = useTransform(() => {
-    const direction = animatedInputOffsetX.get() > 0 ? 1 : -1;
-    return (1 - expoDecay(Math.abs(animatedInputOffsetX.get()), 2)) * direction;
+  const translateX = useTransform(() => {
+    return deltaScaleX.get() / 2;
+  });
+  const translateY = useTransform(() => {
+    return deltaScaleY.get() / 2;
   });
 
-  const decayedInputOffsetY = useTransform(() => {
-    const direction = animatedInputOffsetY.get() > 0 ? 1 : -1;
-    return (1 - expoDecay(Math.abs(animatedInputOffsetY.get()), 2)) * direction;
+  const extraTranslateX = useTransform(() => {
+    return maxMoveX * animatedDecayedOffsetX.get();
+  });
+  const extraTranslateY = useTransform(() => {
+    return maxMoveY * animatedDecayedOffsetY.get();
   });
 
-  const translateXMove = useTransform(() => {
-    return decayedInputOffsetX.get() * maxTranslateX + decayedInputOffsetX.get() * (scaleX.get() - 1);
+  const correctedTranslateX = useTransform(() => {
+    return toTranslateThenScale({ scale: scaleX.get(), translate: translateX.get() + extraTranslateX.get() })
+      .preTranslate;
   });
-  const translateYMove = useTransform(() => {
-    return decayedInputOffsetY.get() * maxTranslateY + decayedInputOffsetY.get() * (scaleY.get() - 1);
+  const correctedTranslateY = useTransform(() => {
+    return toTranslateThenScale({ scale: scaleY.get(), translate: translateY.get() + extraTranslateY.get() })
+      .preTranslate;
+  });
+
+  const correctedTranslateXPercent = useTransform(() => {
+    return `${correctedTranslateX.get() * 100}%`;
+  });
+  const correctedTranslateYPercent = useTransform(() => {
+    return `${correctedTranslateY.get() * 100}%`;
   });
 
   return {
-    scaleX: scaleX,
-    scaleY: scaleY,
-    translateX: translateXMove,
-    translateY: translateYMove,
-    updatePanOffset,
+    scaleX,
+    scaleY,
+    normalizedTranslateX: correctedTranslateX,
+    normalizedTranslateY: correctedTranslateY,
+    translateX: correctedTranslateXPercent,
+    translateY: correctedTranslateYPercent,
+    updateNormalizedPanOffset: updatePanOffset,
     release,
   };
 };
