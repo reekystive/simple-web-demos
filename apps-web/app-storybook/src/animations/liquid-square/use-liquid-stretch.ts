@@ -47,35 +47,10 @@ export const useLiquidStretch = (config: UseLiquidStretchConfig = {}): UseLiquid
   const inputOffsetX = useMotionValue(0);
   const inputOffsetY = useMotionValue(0);
 
-  // const animationControlsXRef = useRef<AnimationPlaybackControls | null>(null);
-  // const animationControlsYRef = useRef<AnimationPlaybackControls | null>(null);
-
   const updatePanOffset = useCallback(
     (newOffsetX: number, newOffsetY: number) => {
       inputOffsetX.set(newOffsetX);
       inputOffsetY.set(newOffsetY);
-      // const currentXVelocity = inputOffsetX.getVelocity() || 0;
-      // const currentYVelocity = inputOffsetY.getVelocity() || 0;
-      // animationControlsXRef.current?.stop();
-      // animationControlsYRef.current?.stop();
-      // animationControlsXRef.current = animate(inputOffsetX, newOffsetX, {
-      //   type: 'spring',
-      //   stiffness: 200,
-      //   damping: 15,
-      //   mass: 0.6,
-      //   velocity: currentXVelocity,
-      //   restDelta: 0.001,
-      //   restSpeed: 0.01,
-      // });
-      // animationControlsYRef.current = animate(inputOffsetY, newOffsetY, {
-      //   type: 'spring',
-      //   stiffness: 200,
-      //   damping: 15,
-      //   mass: 0.6,
-      //   velocity: currentYVelocity,
-      //   restDelta: 0.001,
-      //   restSpeed: 0.01,
-      // });
     },
     [inputOffsetX, inputOffsetY]
   );
@@ -83,32 +58,6 @@ export const useLiquidStretch = (config: UseLiquidStretchConfig = {}): UseLiquid
   const release = useCallback(() => {
     inputOffsetX.set(0);
     inputOffsetY.set(0);
-    // const currentVelocityX = inputOffsetX.getVelocity() || 0;
-    // const currentVelocityY = inputOffsetY.getVelocity() || 0;
-    // const currentDirectionX = inputOffsetX.get() > 0 ? 1 : -1;
-    // const currentDirectionY = inputOffsetY.get() > 0 ? 1 : -1;
-    // const extraVelocityX = currentDirectionX * -5;
-    // const extraVelocityY = currentDirectionY * -5;
-    // animationControlsXRef.current?.stop();
-    // animationControlsYRef.current?.stop();
-    // animationControlsXRef.current = animate(inputOffsetX, 0, {
-    //   type: 'spring',
-    //   stiffness: 500,
-    //   damping: 30,
-    //   mass: 1.5,
-    //   velocity: currentVelocityX + extraVelocityX,
-    //   restDelta: 0.001,
-    //   restSpeed: 0.01,
-    // });
-    // animationControlsYRef.current = animate(inputOffsetY, 0, {
-    //   type: 'spring',
-    //   stiffness: 500,
-    //   damping: 30,
-    //   mass: 1.5,
-    //   velocity: currentVelocityY + extraVelocityY,
-    //   restDelta: 0.001,
-    //   restSpeed: 0.01,
-    // });
   }, [inputOffsetX, inputOffsetY]);
 
   const distance = useTransform(() => {
