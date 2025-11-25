@@ -3,18 +3,24 @@ import { PanInfo } from 'motion';
 import { HTMLMotionProps, motion } from 'motion/react';
 import { FC, useCallback, useRef, useState } from 'react';
 import { useGrabbingCursor } from './use-grabbing-cursor.js';
-import { useLiquidStretch } from './use-liquid-stretch.js';
+import { useLiquidStretch, UseLiquidStretchConfig } from './use-liquid-stretch.js';
 
-interface LiquidDivProps extends HTMLMotionProps<'div'> {
+interface LiquidDivConfig extends UseLiquidStretchConfig {
   disableDraggingCursor?: boolean;
 }
 
+interface LiquidDivProps extends HTMLMotionProps<'div'> {
+  liquidConfig?: LiquidDivConfig;
+}
+
 export const LiquidDiv: FC<LiquidDivProps> = (props) => {
-  const { className, children, disableDraggingCursor = false, style, ...restProps } = props;
+  const { className, children, liquidConfig = {}, style, ...restProps } = props;
+  const { disableDraggingCursor = false, ...restLiquidConfig } = liquidConfig;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { translateX, translateY, scaleX, scaleY, updateNormalizedPanOffset, release } = useLiquidStretch();
+  const { translateX, translateY, scaleX, scaleY, updateNormalizedPanOffset, release } =
+    useLiquidStretch(restLiquidConfig);
 
   const [grabbing, setGrabbing] = useState(false);
 
