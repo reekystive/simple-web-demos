@@ -19,12 +19,16 @@ const initTitle = () => {
     subtree: true,
   });
 
-  requestIdleCallback(() => {
-    setTimeout(() => {
-      observer.disconnect();
-      setTitle(TITLE);
-    }, 2000);
-  });
+  window.addEventListener(
+    'load',
+    () => {
+      setTimeout(() => {
+        observer.disconnect();
+        setTitle(TITLE);
+      }, 2000);
+    },
+    { once: true }
+  );
 };
 
 const initFavicon = () => {
