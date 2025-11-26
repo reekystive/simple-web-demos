@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { scan } from 'react-scan';
 import { Toaster } from 'sonner';
 import { CustomDocsContainer } from './preview-docs/docs-container.js';
+import { initPreview } from './preview-utils/init-preview.js';
 import { ThemeProvider, useTheme } from './preview-utils/theme-context.js';
 import { resolveTheme, THEME_STORAGE_KEY } from './preview-utils/theme.js';
 
@@ -79,3 +80,5 @@ export default preview;
 if (import.meta.env.DEV) {
   scan({ enabled: true });
 }
+
+initPreview();
