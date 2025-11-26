@@ -4,11 +4,17 @@ const setTitle = (title: string) => {
 
 const initTitle = () => {
   setTitle("Lennon's Lab");
-  const handleLoad = () => {
-    setTitle("Lennon's Lab");
+  const handleTitleChange = () => {
+    const title = document.title;
+    if (title !== "Lennon's Lab") {
+      setTitle("Lennon's Lab");
+    }
   };
-  window.addEventListener('DOMContentLoaded', handleLoad, { once: true });
-  window.addEventListener('load', handleLoad, { once: true });
+  const observer = new MutationObserver(handleTitleChange);
+  observer.observe(document.head, {
+    childList: true,
+    subtree: true,
+  });
 };
 
 const initFavicon = () => {
