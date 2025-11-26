@@ -3,7 +3,7 @@ import { useIntervalEffect } from '@react-hookz/web';
 import { motion, useAnimationFrame } from 'motion/react';
 import { FC, useRef, useState } from 'react';
 
-export const AnimationIndicator: FC<{ className?: string }> = ({ className }) => {
+export const FpsIndicator: FC<{ className?: string }> = ({ className }) => {
   const framesRef = useRef<{ relativeTime: number }[]>([]);
   const [fps, setFps] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -41,7 +41,7 @@ export const AnimationIndicator: FC<{ className?: string }> = ({ className }) =>
             }
         `}</style>
           <div className="flex flex-row items-center gap-2">
-            <div className="relative h-3 w-[5rem]">
+            <div className="relative h-3 w-20">
               <motion.div
                 animate={{ left: ['0', '4.25rem', '0'] }}
                 transition={{ duration: 1, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
@@ -54,12 +54,11 @@ export const AnimationIndicator: FC<{ className?: string }> = ({ className }) =>
             <div>JS rAF</div>
           </div>
           <div className="flex flex-row items-center gap-2">
-            <div className="relative h-3 w-[5rem]">
+            <div className="relative h-3 w-20">
               <div
                 className={`
                   absolute top-0 aspect-square h-full
-                  [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-position]
-                  rounded-full bg-black
+                  animate-[0.5s_ease-in-out_infinite_alternate_left-to-right-position] rounded-full bg-black
                   dark:bg-white
                 `}
               />
@@ -67,12 +66,11 @@ export const AnimationIndicator: FC<{ className?: string }> = ({ className }) =>
             <div>CSS Layout</div>
           </div>
           <div className="flex flex-row items-center gap-2">
-            <div className="relative h-3 w-[5rem]">
+            <div className="relative h-3 w-20">
               <div
                 className={`
                   absolute top-0 aspect-square h-full
-                  [animation:0.5s_ease-in-out_infinite_alternate_left-to-right-transform]
-                  rounded-full bg-black
+                  animate-[0.5s_ease-in-out_infinite_alternate_left-to-right-transform] rounded-full bg-black
                   dark:bg-white
                 `}
               />

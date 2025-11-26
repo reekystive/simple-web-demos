@@ -1,4 +1,5 @@
 import { Button } from '#src/components/button/button.js';
+import { FpsIndicator } from '#src/components/fps-indicator/fps-indicator.js';
 import { cn } from '@monorepo/utils';
 import { useIntervalEffect } from '@react-hookz/web';
 import { motion, useAnimationFrame } from 'motion/react';
@@ -15,9 +16,9 @@ import {
   useState,
 } from 'react';
 import useStateRef from 'react-usestateref';
-import { AnimationIndicator } from './components/indicator.js';
 import { AnchoringMode, useAnchorInView } from './hooks/use-anchor-in-view.js';
 import { useFaker } from './hooks/use-faker.js';
+import { useRandomValue } from './hooks/use-random-value.js';
 import { useScrollAnchoring } from './hooks/use-scroll-anchoring.js';
 
 type Content =
@@ -144,7 +145,7 @@ export const ScrollAnchoring: FC = () => {
 
   return (
     <>
-      <AnimationIndicator className="fixed bottom-0 left-0" />
+      <FpsIndicator className="fixed bottom-0 left-0" />
 
       <div className="mx-auto flex h-dvh max-w-5xl flex-col items-center justify-center gap-4 p-2">
         <div className="flex flex-col gap-2">
@@ -500,10 +501,10 @@ export const ScrollAnchoring: FC = () => {
           ref={scrollContainerRef}
           className={cn(
             `
-              h-[25rem] w-[20rem] resize overflow-x-clip overflow-y-auto rounded-sm bg-neutral-500/10 ring-1
+              h-100 w-[20rem] resize overflow-x-clip overflow-y-auto rounded-sm bg-neutral-500/10 ring-1
               ring-neutral-500/50
             `,
-            width === 'large' && 'w-[30rem]',
+            width === 'large' && 'w-120',
             isCSSAnchoringEnabled && '[overflow-anchor:auto]'
           )}
           contentProps={{
@@ -715,7 +716,7 @@ export const Profile: FC<{
   className?: string;
   padding: 'integer' | 'float';
 }> = ({ name, avatar, introduction, className, padding }) => {
-  const randomValue = useMemo(() => Math.random(), []);
+  const randomValue = useRandomValue();
   const remInPx = useMemo(() => parseFloat(getComputedStyle(document.documentElement).fontSize), []);
 
   const paddingBlockStyle = useMemo<CSSProperties>(() => {
@@ -763,6 +764,7 @@ export const JankySmooth: FC = () => {
   const { fakerWithSeed } = useFaker();
   const title = useMemo(() => fakerWithSeed.person.fullName(), [fakerWithSeed]);
   const lorem = useMemo(() => fakerWithSeed.lorem.paragraph({ min: 8, max: 10 }), [fakerWithSeed]);
+  const randomValue = useRandomValue();
 
   return (
     <motion.div
@@ -778,7 +780,7 @@ export const JankySmooth: FC = () => {
         ease: 'circInOut',
         repeat: Infinity,
         repeatType: 'reverse',
-        delay: -1 * Math.random() * 0.5,
+        delay: -1 * randomValue * 0.5,
       }}
     >
       <div className="self-start text-sm" data-scroll-anchor>
