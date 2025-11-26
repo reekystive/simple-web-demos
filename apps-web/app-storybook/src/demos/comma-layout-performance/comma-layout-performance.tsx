@@ -6,6 +6,11 @@ import { FC, useCallback, useState } from 'react';
 const COMMA = '，';
 const HASH = '#';
 
+const numberFormatter = new Intl.NumberFormat(undefined, {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
 export const CommaLayoutPerformance: FC = () => {
   const [count, setCount] = useState(1000);
   const [type, setType] = useState<'comma' | 'hash'>('comma');
@@ -27,14 +32,15 @@ export const CommaLayoutPerformance: FC = () => {
           Switch to {type === 'comma' ? 'hash' : 'comma'}
         </Button>
         <Button size="sm" onClick={handleAdd} allPossibleContents={['Add 10,000 commas', 'Add 10,000 hashes']}>
-          Add 10,000 {type === 'comma' ? 'commas' : 'hashes'}
+          Add {numberFormatter.format(10000)} {type === 'comma' ? 'commas' : 'hashes'}
         </Button>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <div className="font-mono text-xs">Length: {count}</div>
+        <div className="font-mono text-xs">Length: {numberFormatter.format(count)}</div>
         <div className="font-mono text-xs">
-          Width: {measures?.width}, Height: {measures?.height}, Area ={' '}
-          {(measures?.width ?? 0) * (measures?.height ?? 0)}
+          Width: {numberFormatter.format(measures?.width ?? 0)} | Height:{' '}
+          {numberFormatter.format(measures?.height ?? 0)} | Area:{' '}
+          {numberFormatter.format((measures?.width ?? 0) * (measures?.height ?? 0))}
         </div>
         <div className="flex h-lh w-[1ch] flex-row justify-center text-xs contain-layout">
           <div ref={ref} className="h-fit w-[100ch] shrink-0 text-center wrap-break-word">
