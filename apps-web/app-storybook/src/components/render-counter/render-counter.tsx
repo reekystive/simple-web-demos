@@ -32,6 +32,8 @@ export const RenderCounterPointerDemo: FC = () => {
 
 export const RenderCounter: FC<ComponentProps<'div'>> = (props) => {
   const count = useRef(0);
+  // eslint-disable-next-line react-hooks/refs
   count.current++;
+  // eslint-disable-next-line react-hooks/refs
   return <div {...props}>Renders: {count.current}</div>;
 };

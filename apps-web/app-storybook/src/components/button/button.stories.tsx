@@ -1,4 +1,4 @@
-import { createMatrixFor } from '#src/ui-utils/matrix/matrix.js';
+import { createMatrixFor } from '#src/utils/ui/matrix/matrix.js';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CSSProperties, useMemo } from 'react';
 import { toast } from 'sonner';

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RenderCounterDemo, RenderCounterPointerDemo } from './render-counter.js';
 
 const meta: Meta = {
-  title: 'Demos/RenderCounter',
+  title: 'Components/RenderCounter',
 };
 
 export default meta;

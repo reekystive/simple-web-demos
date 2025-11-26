@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { FancyTimer, FancyTimerRef } from './fancy-timer.js';
 
 const meta: Meta = {
-  title: 'Demos/Timer',
+  title: 'Components/FancyTimer',
 };
 
 export default meta;

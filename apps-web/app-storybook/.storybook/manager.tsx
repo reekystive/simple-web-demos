@@ -1,9 +1,9 @@
 import { addons } from 'storybook/manager-api';
-import { themes } from 'storybook/theming';
+import { customThemeDark, customThemeLight } from './theme.js';
 
 const updateManagerTheme = (theme: 'light' | 'dark') => {
   addons.setConfig({
-    theme: theme === 'light' ? themes.light : themes.dark,
+    theme: theme === 'light' ? customThemeLight : customThemeDark,
   });
 };
 

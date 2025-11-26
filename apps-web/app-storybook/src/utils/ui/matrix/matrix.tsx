@@ -180,7 +180,7 @@ export function Matrix<
               className={cn(
                 'grid place-items-center gap-2 self-center-safe rounded-sm border-[0.5px] border-neutral-500/40 p-2',
                 `
-                  [background-image:repeating-linear-gradient(45deg,rgba(127,127,127,0.03)_0,rgba(127,127,127,0.03)_10px,transparent_10px,transparent_20px)]
+                  bg-[repeating-linear-gradient(45deg,rgba(127,127,127,0.03)_0,rgba(127,127,127,0.03)_10px,transparent_10px,transparent_20px)]
                 `,
                 classNames?.matrix
               )}

@@ -1,4 +1,4 @@
-import { FancyTimer, FancyTimerRef } from '#src/demos/fancy-timer/fancy-timer.js';
+import { FancyTimer, FancyTimerRef } from '#src/components/fancy-timer/fancy-timer.js';
 import { dylan } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { en, Faker } from '@faker-js/faker';
