@@ -7,7 +7,9 @@ export const HelpTrigger: FC = () => {
   return (
     <Drawer.Root dismissible container={document.body} modal>
       <Drawer.Trigger>
-        <Button>About this</Button>
+        <Button size="sm" color="blue">
+          About this
+        </Button>
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay
