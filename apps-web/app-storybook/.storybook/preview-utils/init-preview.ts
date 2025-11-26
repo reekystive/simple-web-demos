@@ -20,8 +20,10 @@ const initTitle = () => {
   });
 
   requestIdleCallback(() => {
-    setTitle(TITLE);
-    observer.disconnect();
+    setTimeout(() => {
+      observer.disconnect();
+      setTitle(TITLE);
+    }, 2000);
   });
 };
 
