@@ -3,10 +3,13 @@ import { useIntervalEffect } from '@react-hookz/web';
 import { motion, useAnimationFrame } from 'motion/react';
 import { FC, useRef, useState } from 'react';
 
-export const FpsIndicator: FC<{ className?: string }> = ({ className }) => {
+export const FpsIndicator: FC<{ className?: string; defaultShowAnimation?: boolean }> = ({
+  className,
+  defaultShowAnimation = false,
+}) => {
   const framesRef = useRef<{ relativeTime: number }[]>([]);
   const [fps, setFps] = useState(0);
-  const [showAnimation, setShowAnimation] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(defaultShowAnimation);
 
   useAnimationFrame(() => {
     framesRef.current = framesRef.current.filter((frame) => frame.relativeTime > performance.now() - 1000);

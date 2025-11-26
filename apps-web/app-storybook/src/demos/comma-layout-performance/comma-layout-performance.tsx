@@ -42,7 +42,7 @@ export const CommaLayoutPerformance: FC = () => {
           </div>
         </div>
       </div>
-      <FpsIndicator className="fixed bottom-0 left-0" />
+      <FpsIndicator className="fixed bottom-0 left-0" defaultShowAnimation />
     </div>
   );
 };
