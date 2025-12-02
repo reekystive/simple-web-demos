@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Search } from 'lucide-react';
+import { ImageWithState } from '../eager-layout/image-with-state.js';
+import memojiAvatarUrl from './assets/memoji-avatar.webp';
 import { LiquidDebugger } from './liquid-debugger.js';
 import { LiquidDiv } from './liquid-div.js';
 import { LiquidSquare } from './liquid-square.js';
+import { SpringTap } from './spring-tap.js';
 
 const meta: Meta = {
   title: 'Animations/LiquidSquare',
@@ -57,4 +60,31 @@ export const LiquidRoundButton: StoryObj = {
       </div>
     </LiquidDiv>
   ),
+};
+
+export const LiquidMemoji: StoryObj = {
+  parameters: {
+    layout: 'centered',
+  },
+  render: () => {
+    return (
+      <LiquidDiv className="group h-12 w-12">
+        <SpringTap className="relative h-full w-full overflow-clip rounded-full select-none">
+          <ImageWithState
+            draggable={false}
+            className="h-full w-full scale-105 object-cover"
+            src={memojiAvatarUrl}
+            alt="Memoji"
+          />
+          <div
+            className={`
+              absolute inset-0 bg-neutral-500 opacity-0 transition-all ease-out
+              group-active:opacity-20
+              dark:bg-neutral-200
+            `}
+          />
+        </SpringTap>
+      </LiquidDiv>
+    );
+  },
 };
