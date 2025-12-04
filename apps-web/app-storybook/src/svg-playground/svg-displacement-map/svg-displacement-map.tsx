@@ -1,4 +1,6 @@
 import { ImageWithState } from '#src/animations/eager-layout/image-with-state.js';
+import { LiquidDiv } from '#src/animations/liquid-square/liquid-div.js';
+import { SpringTap } from '#src/animations/liquid-square/spring-tap.js';
 import { Button } from '#src/components/button/button.js';
 import { cn } from '@monorepo/utils';
 import { motion, useMotionValue } from 'motion/react';
@@ -189,10 +191,6 @@ export const SvgDisplacementMap: FC = () => {
           />
           <motion.div
             className={cn('absolute z-10 size-30 rounded-full')}
-            drag
-            dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
-            dragTransition={{ restDelta: 0.01, restSpeed: 0.1 }}
-            dragElastic={1}
             style={{
               x,
               y,
@@ -202,47 +200,51 @@ export const SvgDisplacementMap: FC = () => {
               translateY: '-50%',
             }}
           >
-            {showBlurLayer && (
-              <div className={cn('pointer-events-none absolute inset-0 rounded-full backdrop-blur-[1px]')} />
-            )}
+            <LiquidDiv className="size-full rounded-full">
+              <SpringTap className="relative size-full rounded-full">
+                {showBlurLayer && (
+                  <div className={cn('pointer-events-none absolute inset-0 rounded-full backdrop-blur-[1px]')} />
+                )}
 
-            {showDarkenLayer && (
-              <div
-                className={cn('pointer-events-none absolute inset-0 rounded-full')}
-                style={{ backdropFilter: 'url(#darken)' }}
-              />
-            )}
+                {showDarkenLayer && (
+                  <div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{ backdropFilter: 'url(#darken)' }}
+                  />
+                )}
 
-            {showTintLayer && (
-              <div
-                className={cn('pointer-events-none absolute inset-0 rounded-full')}
-                style={{ backdropFilter: 'url(#tint)' }}
-              />
-            )}
+                {showTintLayer && (
+                  <div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{ backdropFilter: 'url(#tint)' }}
+                  />
+                )}
 
-            {showGlassLayer && (
-              <div
-                className={cn('pointer-events-none absolute inset-0 rounded-full')}
-                style={{ backdropFilter: 'url(#displacement-map-filter)' }}
-              />
-            )}
+                {showGlassLayer && (
+                  <div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{ backdropFilter: 'url(#displacement-map-filter)' }}
+                  />
+                )}
 
-            {showVibranceLayer && (
-              <div
-                className={cn('pointer-events-none absolute inset-0 rounded-full')}
-                style={{ backdropFilter: 'url(#vibrance)' }}
-              />
-            )}
+                {showVibranceLayer && (
+                  <div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{ backdropFilter: 'url(#vibrance)' }}
+                  />
+                )}
 
-            {showEdgeHighlightLayer && (
-              <div
-                className={cn('pointer-events-none absolute inset-0 rounded-full')}
-                style={{
-                  backdropFilter: 'url(#highlight)',
-                  mask: 'url(#edge-mask)',
-                }}
-              />
-            )}
+                {showEdgeHighlightLayer && (
+                  <div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{
+                      backdropFilter: 'url(#highlight)',
+                      maskImage: 'url(#edge-mask)',
+                    }}
+                  />
+                )}
+              </SpringTap>
+            </LiquidDiv>
           </motion.div>
         </div>
       </div>
@@ -322,9 +324,9 @@ const SvgDefs: FC<{ className?: string; displacementMapUrl?: string }> = ({ clas
           <feColorMatrix
             type="matrix"
             values={`
-              0.5 0 0 0 0
-              0 0.5 0 0 0
-              0 0 0.5 0 0
+              0.6 0 0 0 0
+              0 0.6 0 0 0
+              0 0 0.6 0 0
               0 0 0 1 0
             `}
           />

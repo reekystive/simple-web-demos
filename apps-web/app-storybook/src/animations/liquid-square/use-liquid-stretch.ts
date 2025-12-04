@@ -34,7 +34,7 @@ export interface UseLiquidStretchResult {
  * translate-first, scale-second transform order.
  */
 export const useLiquidStretch = (config: UseLiquidStretchConfig = {}): UseLiquidStretchResult => {
-  const { maxStretchX = 0.25, maxStretchY = 0.25, maxMoveX = 0.1, maxMoveY = 0.1 } = config;
+  const { maxStretchX = 0.25, maxStretchY = 0.25, maxMoveX = 0.15, maxMoveY = 0.15 } = config;
 
   if (maxStretchX < 0 || maxStretchY < 0) {
     throw new Error('maxStretchX and maxStretchY must not be less than 0');
