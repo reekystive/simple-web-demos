@@ -5,17 +5,18 @@ import { motion, useMotionValue } from 'motion/react';
 import { FC, useMemo, useState } from 'react';
 import landscapeImageUrl from './assets/landscape.webp';
 import { drawGridImage } from './draw-grid.js';
-import { drawDisplacementMap } from './draw-map.js';
+import { drawCircularGlassDisplacementMap } from './draw-map-circular-glass.js';
 
 export const SvgDisplacementMap: FC = () => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const displacementMap = useMemo(() => drawDisplacementMap(), []);
+  const displacementMap = useMemo(() => drawCircularGlassDisplacementMap(), []);
   const gridImage = useMemo(() => drawGridImage(), []);
 
   const [type, setType] = useState<'landscape' | 'grid'>('landscape');
-  const [showRedOverlay, setShowRedOverlay] = useState(false);
+  const [showOverlayLayer, setShowOverlayLayer] = useState(true);
+  const [showBlurLayer, setShowBlurLayer] = useState(true);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2">
@@ -37,12 +38,22 @@ export const SvgDisplacementMap: FC = () => {
 
         <Button
           size="sm"
-          color={showRedOverlay ? 'yellow' : 'green'}
-          allPossibleContents={['Show red overlay', 'Hide red overlay']}
-          onClick={() => setShowRedOverlay((prev) => !prev)}
+          color={showOverlayLayer ? 'yellow' : 'green'}
+          allPossibleContents={['Show overlay layer', 'Hide overlay layer']}
+          onClick={() => setShowOverlayLayer((prev) => !prev)}
           className="px-2"
         >
-          {showRedOverlay ? 'Hide red overlay' : 'Show red overlay'}
+          {showOverlayLayer ? 'Hide overlay layer' : 'Show overlay layer'}
+        </Button>
+
+        <Button
+          size="sm"
+          color={showBlurLayer ? 'yellow' : 'green'}
+          allPossibleContents={['Show blur layer', 'Hide blur layer']}
+          onClick={() => setShowBlurLayer((prev) => !prev)}
+          className="px-2"
+        >
+          {showBlurLayer ? 'Hide blur layer' : 'Show blur layer'}
         </Button>
       </div>
 
@@ -110,10 +121,24 @@ export const SvgDisplacementMap: FC = () => {
             draggable={false}
             className="aspect-square w-80 object-cover"
           />
+          {showBlurLayer && (
+            <motion.div
+              className={cn('pointer-events-none absolute size-30 rounded-full backdrop-blur-[0.5px]')}
+              style={{
+                x,
+                y,
+                top: '50%',
+                left: '50%',
+                translateX: '-50%',
+                translateY: '-50%',
+              }}
+            />
+          )}
           <motion.div
-            className={cn('absolute size-30 rounded-full', showRedOverlay && 'bg-red-600/10')}
+            className={cn('absolute size-30 rounded-full', showOverlayLayer && 'bg-black/10')}
             drag
             dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
+            dragTransition={{ restDelta: 0.01, restSpeed: 0.1 }}
             style={{
               x,
               y,
@@ -121,7 +146,7 @@ export const SvgDisplacementMap: FC = () => {
               left: '50%',
               translateX: '-50%',
               translateY: '-50%',
-              backdropFilter: 'url(#displacement-map-filter)',
+              backdropFilter: 'url(#displacement-map-filter) url(#vibrance)',
             }}
           />
         </div>
@@ -158,18 +183,6 @@ const SvgDefs: FC<{ className?: string; displacementMapUrl?: string }> = ({ clas
           />
         </filter>
 
-        <filter id="b-channel-only">
-          <feColorMatrix
-            type="matrix"
-            values={`
-            0 0 0 0 0
-            0 0 0 0 0
-            0 0 1 0 0
-            0 0 0 0 1
-          `}
-          />
-        </filter>
-
         <filter
           x="0"
           y="0"
@@ -177,15 +190,16 @@ const SvgDefs: FC<{ className?: string; displacementMapUrl?: string }> = ({ clas
           height="100"
           filterUnits="objectBoundingBox"
           primitiveUnits="objectBoundingBox"
+          colorInterpolationFilters="sRGB"
           id="displacement-map-filter"
         >
           {displacementMapUrl && (
             <feImage
               href={displacementMapUrl}
-              x="0"
-              y="0"
-              width="1"
-              height="1"
+              x="-0.02"
+              y="-0.02"
+              width="1.04"
+              height="1.04"
               preserveAspectRatio="none"
               result="map"
             />
@@ -197,10 +211,19 @@ const SvgDefs: FC<{ className?: string; displacementMapUrl?: string }> = ({ clas
             height="1"
             in="SourceGraphic"
             in2="map"
-            scale={0.2}
+            scale={0.6}
             xChannelSelector="R"
             yChannelSelector="G"
           />
+        </filter>
+
+        <filter id="vibrance" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="saturate" values="1.4" />
+          <feComponentTransfer>
+            <feFuncR type="gamma" amplitude="1" exponent="0.9" offset="0" />
+            <feFuncG type="gamma" amplitude="1" exponent="0.9" offset="0" />
+            <feFuncB type="gamma" amplitude="1" exponent="0.9" offset="0" />
+          </feComponentTransfer>
         </filter>
       </defs>
     </svg>
