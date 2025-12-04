@@ -37,7 +37,7 @@ export const SvgDisplacementMap: FC = () => {
       <SvgDefs className="absolute" displacementMapUrl={displacementMap?.dataUrl} />
 
       <h2 className="-mb-1 text-xl">SVG Displacement Map</h2>
-      <p className="pb-6 text-sm">Drag the square in second image to see the displacement effects.</p>
+      <p className="pb-6 text-sm">Drag the circle in the images to see the displacement effects.</p>
 
       {/* controls */}
       <div className={`flex flex-row gap-2 overflow-clip px-2 select-none`}>
