@@ -4,12 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "tsc:build:root": "tsc --build tsconfig.json",
-    "tsc:build:packages": "pnpm --filter '*' --workspace-concurrency=-2 run tsc:build",
-    "lint:eslint:root": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "lint:eslint:packages": "pnpm --filter '*' --workspace-concurrency=-2 run lint:eslint",
+    "lint:eslint:root": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
+    "sort-package-json:check": "sort-package-json '**/package.json' --ignore '**/node_modules/' --check",
+    "sort-package-json:sort": "sort-package-json '**/package.json' --ignore '**/node_modules/'",
     "test:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test",
-    "test:update:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test:update"
+    "test:update:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test:update",
+    "tsc:build:packages": "pnpm --filter '*' --workspace-concurrency=-2 run tsc:build",
+    "tsc:build:root": "tsc --build tsconfig.json"
   },
   "devDependencies": {
     "@eslint/css": "catalog:",
@@ -33,14 +35,15 @@
     "globals": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-organize-imports": "catalog:",
+    "sort-package-json": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "wrangler": "catalog:"
   },
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "engines": {
     "node": "24.11.0",
     "pnpm": "10.20.0"
-  },
-  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd"
+  }
 }

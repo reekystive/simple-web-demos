@@ -14,15 +14,15 @@
   },
   "scripts": {
     "build": "pnpm run tsc:build",
-    "tsc:build": "tsc --build tsconfig.json",
-    "tsc:build:watch": "tsc --build tsconfig.json --watch",
-    "tsc:build:clean": "tsc --build tsconfig.json --clean",
-    "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:update": "vitest run --update",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "tsc:build": "tsc --build tsconfig.json",
+    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
+    "tsc:build:watch": "tsc --build tsconfig.json --watch"
   },
   "dependencies": {
     "@faker-js/faker": "catalog:",
