@@ -124,11 +124,7 @@ export async function readTsConfig(tsconfigPath: string): Promise<TsConfig> {
  * Write tsconfig.json with proper formatting
  * Returns true if the file was actually changed
  */
-export async function writeTsConfig(
-  tsconfigPath: string,
-  config: TsConfig,
-  isSolutionStyle = false
-): Promise<boolean> {
+export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSolutionStyle = false): Promise<boolean> {
   let content = '';
 
   // Add comment for solution-style tsconfig
