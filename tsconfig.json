@@ -1,6 +1,7 @@
 // Solution-style tsconfig for TypeScript project references
 // This file orchestrates all workspace packages
 {
+  "extends": "@monorepo/tsconfig/tsconfig.base.json",
   "files": [],
   "references": [
     {

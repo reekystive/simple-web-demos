@@ -9,5 +9,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["./src/", "**/__tests__/"],
-  "exclude": []
+  "exclude": ["**/__fixtures__/"]
 }

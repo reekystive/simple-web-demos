@@ -9,5 +9,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["./*.ts", "./.*.ts", "./*.js", "./.*.js", "./*.mjs", "./.*.mjs", "./*.cjs", "./.*.cjs"],
-  "exclude": []
+  "exclude": ["**/__fixtures__/"]
 }

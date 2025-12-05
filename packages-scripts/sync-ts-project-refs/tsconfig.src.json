@@ -7,6 +7,6 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/tsconfig.src.tsbuildinfo"
   },
-  "include": ["./src"],
-  "exclude": []
+  "include": ["./src/"],
+  "exclude": ["**/__fixtures__/"]
 }
