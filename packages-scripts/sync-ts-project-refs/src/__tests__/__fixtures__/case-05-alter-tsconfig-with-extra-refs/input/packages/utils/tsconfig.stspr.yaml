@@ -1,0 +1,2 @@
+extra-refs:
+  - { path: '../app/tsconfig.json' }

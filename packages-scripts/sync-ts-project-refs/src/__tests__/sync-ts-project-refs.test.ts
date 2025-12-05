@@ -31,6 +31,10 @@ const TEST_CASES: TestCase[] = [
     name: 'extra-refs from tsconfig.stspr.yaml',
     dir: 'case-04-extra-refs',
   },
+  {
+    name: 'alter-tsconfig with extra-refs',
+    dir: 'case-05-alter-tsconfig-with-extra-refs',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {

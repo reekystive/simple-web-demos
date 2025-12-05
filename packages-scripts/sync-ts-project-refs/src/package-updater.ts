@@ -68,6 +68,18 @@ export async function updatePackageReferences(
       tsconfigReferences.push({ path: relativePath });
     }
 
+    // Add tsconfig-level extra refs to main tsconfig
+    const mainTsconfigConfig = tsconfigConfigs.get(tsconfigPath);
+    if (mainTsconfigConfig) {
+      for (const extraRef of mainTsconfigConfig.extraRefs ?? []) {
+        const relativePath = calculateRelativePath(
+          tsconfigPath,
+          path.resolve(path.dirname(tsconfigPath), extraRef.path)
+        );
+        tsconfigReferences.push({ path: relativePath });
+      }
+    }
+
     // Filter out skipped references
     tsconfigReferences = filterReferences(tsconfigReferences, packageSkipRefs, tsconfigPath);
 
