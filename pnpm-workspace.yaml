@@ -86,6 +86,8 @@ onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - esbuild
+  - sharp
+  - workerd
 
 patchedDependencies:
   next: patches/next.patch
