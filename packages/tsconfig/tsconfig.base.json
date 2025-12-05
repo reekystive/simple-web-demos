@@ -24,7 +24,9 @@
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,
     "noEmitOnError": true,
-    "incremental": true
+    "incremental": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "disableReferencedProjectLoad": true
   },
   "include": [],
   "exclude": []
