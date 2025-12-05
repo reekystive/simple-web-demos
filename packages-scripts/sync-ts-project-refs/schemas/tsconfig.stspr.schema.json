@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/your-org/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json",
   "title": "STSPR TypeScript Config Configuration",
-  "description": "TypeScript config-level configuration for Sync TypeScript Project References (STSPR) tool. Place this file in the same directory as the corresponding tsconfig.json file. Naming convention: for tsconfig.json use tsconfig.stspr.yaml, for tsconfig.{name}.json use tsconfig.{name}.stspr.yaml.",
+  "description": "TypeScript config-level configuration for STSPR tool.",
   "type": "object",
   "properties": {
     "exclude-this-tsconfig": {
