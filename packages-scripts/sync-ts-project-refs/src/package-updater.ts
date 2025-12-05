@@ -71,17 +71,20 @@ export async function updatePackageReferences(
     // Filter out skipped references
     tsconfigReferences = filterReferences(tsconfigReferences, packageSkipRefs, tsconfigPath);
 
-    // Sort references
-    tsconfigReferences.sort((a, b) => a.path.localeCompare(b.path));
-
     const existingRefs = tsconfig.references ?? [];
     const existingPaths = new Set(existingRefs.map((r) => r.path));
     const newPaths = new Set(tsconfigReferences.map((r) => r.path));
 
+    // Check if there are changes by comparing sets (order-independent)
     const tsconfigHasChanges =
-      existingRefs.length !== tsconfigReferences.length || !Array.from(newPaths).every((p) => existingPaths.has(p));
+      existingRefs.length !== tsconfigReferences.length ||
+      !Array.from(newPaths).every((p) => existingPaths.has(p)) ||
+      !Array.from(existingPaths).every((p) => newPaths.has(p));
 
     if (tsconfigHasChanges) {
+      // Only sort when we actually need to update
+      tsconfigReferences.sort((a, b) => a.path.localeCompare(b.path));
+
       if (tsconfigReferences.length > 0) {
         tsconfig.references = tsconfigReferences;
       } else {
@@ -140,23 +143,25 @@ export async function updatePackageReferences(
     // Filter out skipped references
     tsserverReferences = filterReferences(tsserverReferences, packageSkipRefs, tsconfigTsserverPath);
 
-    // Sort workspace dependency references (after siblings)
-    const siblingCount = includedSiblings.length;
-    if (tsserverReferences.length > siblingCount) {
-      const workspaceRefs = tsserverReferences.slice(siblingCount);
-      workspaceRefs.sort((a, b) => a.path.localeCompare(b.path));
-      tsserverReferences.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
-    }
-
     const existingTsserverRefs = tsserverConfig.references ?? [];
     const existingTsserverPaths = new Set(existingTsserverRefs.map((r) => r.path));
     const newTsserverPaths = new Set(tsserverReferences.map((r) => r.path));
 
+    // Check if there are changes by comparing sets (order-independent)
     const tsserverHasChanges =
       existingTsserverRefs.length !== tsserverReferences.length ||
-      !Array.from(newTsserverPaths).every((p) => existingTsserverPaths.has(p));
+      !Array.from(newTsserverPaths).every((p) => existingTsserverPaths.has(p)) ||
+      !Array.from(existingTsserverPaths).every((p) => newTsserverPaths.has(p));
 
     if (tsserverHasChanges) {
+      // Only sort when we actually need to update
+      const siblingCount = includedSiblings.length;
+      if (tsserverReferences.length > siblingCount) {
+        const workspaceRefs = tsserverReferences.slice(siblingCount);
+        workspaceRefs.sort((a, b) => a.path.localeCompare(b.path));
+        tsserverReferences.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
+      }
+
       if (tsserverReferences.length > 0) {
         tsserverConfig.references = tsserverReferences;
       } else {
@@ -257,25 +262,40 @@ export async function updatePackageReferences(
       references.push({ path: relativePath });
     }
 
+    // Add tsconfig-level extra refs
+    const mainTsconfigConfig = tsconfigConfigs.get(tsconfigPath);
+    if (mainTsconfigConfig) {
+      for (const extraRef of mainTsconfigConfig.extraRefs ?? []) {
+        const relativePath = calculateRelativePath(
+          tsconfigPath,
+          path.resolve(path.dirname(tsconfigPath), extraRef.path)
+        );
+        references.push({ path: relativePath });
+      }
+    }
+
     // Filter out skipped references
     references = filterReferences(references, packageSkipRefs, tsconfigPath);
-
-    // Sort workspace dependency references (after siblings)
-    const siblingCount = includedSiblings.length;
-    if (references.length > siblingCount) {
-      const workspaceRefs = references.slice(siblingCount);
-      workspaceRefs.sort((a, b) => a.path.localeCompare(b.path));
-      references.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
-    }
 
     const existingRefs = tsconfig.references ?? [];
     const existingPaths = new Set(existingRefs.map((r) => r.path));
     const newPaths = new Set(references.map((r) => r.path));
 
+    // Check if there are changes by comparing sets (order-independent)
     const hasChanges =
-      existingRefs.length !== references.length || !Array.from(newPaths).every((p) => existingPaths.has(p));
+      existingRefs.length !== references.length ||
+      !Array.from(newPaths).every((p) => existingPaths.has(p)) ||
+      !Array.from(existingPaths).every((p) => newPaths.has(p));
 
     if (hasChanges) {
+      // Only sort when we actually need to update
+      const siblingCount = includedSiblings.length;
+      if (references.length > siblingCount) {
+        const workspaceRefs = references.slice(siblingCount);
+        workspaceRefs.sort((a, b) => a.path.localeCompare(b.path));
+        references.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
+      }
+
       if (references.length > 0) {
         tsconfig.references = references;
       } else {

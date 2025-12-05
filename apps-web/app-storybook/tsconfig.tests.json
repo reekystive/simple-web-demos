@@ -9,7 +9,7 @@
     "jsx": "react-jsx",
     "emitDeclarationOnly": true
   },
-  "include": ["./src", "**/__tests__/"],
+  "include": ["./src", "./src/**/__tests__/"],
   "exclude": ["**/node_modules/"],
   "references": [
     {

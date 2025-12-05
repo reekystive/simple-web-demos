@@ -48,35 +48,26 @@ export async function mergeExtraRefs(
     const tsconfig = await readTsConfig(tsconfigPath);
     const existingRefs = tsconfig.references ?? [];
 
-    // Create a map to track all unique references by path
-    const allRefsMap = new Map<string, { path: string }>();
+    // Create a set of existing reference paths for quick lookup
+    const existingPaths = new Set(existingRefs.map((ref) => ref.path));
 
-    // Add existing references first
-    for (const ref of existingRefs) {
-      allRefsMap.set(ref.path, ref);
-    }
-
-    // Add extra references, which will automatically deduplicate
+    // Find extra references that are not already present
+    const newRefs: { path: string }[] = [];
     for (const ref of extraRefs) {
       // Calculate relative path for the extra ref
       const relativePath = calculateRelativePath(tsconfigPath, path.resolve(path.dirname(tsconfigPath), ref.path));
-      allRefsMap.set(relativePath, { path: relativePath });
+      if (!existingPaths.has(relativePath)) {
+        newRefs.push({ path: relativePath });
+      }
     }
 
-    // Convert back to array and sort by path
-    const mergedReferences = Array.from(allRefsMap.values()).sort((a, b) => a.path.localeCompare(b.path));
-
-    // Check if there are changes by comparing the sorted arrays
-    const hasChanges =
-      existingRefs.length !== mergedReferences.length ||
-      !existingRefs
-        .slice()
-        .sort((a, b) => a.path.localeCompare(b.path))
-        .every((ref, index) => ref.path === mergedReferences[index]?.path);
-
-    if (!hasChanges) {
+    // If no new references to add, return false
+    if (newRefs.length === 0) {
       return false;
     }
+
+    // Merge: keep existing order and append new refs at the end
+    const mergedReferences = [...existingRefs, ...newRefs];
 
     // Update the tsconfig
     tsconfig.references = mergedReferences;
@@ -87,11 +78,10 @@ export async function mergeExtraRefs(
     }
 
     if (actuallyChanged) {
-      const addedCount = mergedReferences.length - existingRefs.length;
       if (verbose) {
         console.log(
           chalk.gray(
-            `    ${dryRun ? '[DRY RUN] ' : ''}✓ Merged extra-refs from config (${addedCount} new, ${mergedReferences.length} total)`
+            `    ${dryRun ? '[DRY RUN] ' : ''}✓ Merged extra-refs from config (${newRefs.length} new, ${mergedReferences.length} total)`
           )
         );
       }
@@ -152,20 +142,22 @@ export async function updateSiblingTsconfigReferences(
     // Filter out skipped references
     const filteredReferences = filterReferences(references, skipRefs, siblingTsconfigPath);
 
-    // Sort references by path for consistency
-    filteredReferences.sort((a, b) => a.path.localeCompare(b.path));
-
-    // Check if there are changes
+    // Check if there are changes by comparing sets (order-independent)
     const existingRefs = tsconfig.references ?? [];
     const existingPaths = new Set(existingRefs.map((r) => r.path));
     const newPaths = new Set(filteredReferences.map((r) => r.path));
 
     const hasChanges =
-      existingRefs.length !== filteredReferences.length || !Array.from(newPaths).every((p) => existingPaths.has(p));
+      existingRefs.length !== filteredReferences.length ||
+      !Array.from(newPaths).every((p) => existingPaths.has(p)) ||
+      !Array.from(existingPaths).every((p) => newPaths.has(p));
 
     if (!hasChanges) {
       return false;
     }
+
+    // Only sort when we actually need to update
+    filteredReferences.sort((a, b) => a.path.localeCompare(b.path));
 
     // Update references
     if (filteredReferences.length > 0) {

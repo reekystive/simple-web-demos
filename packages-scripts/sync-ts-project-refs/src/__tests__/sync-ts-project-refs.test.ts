@@ -27,6 +27,10 @@ const TEST_CASES: TestCase[] = [
     name: 'use-alter-tsconfig mode',
     dir: 'case-02-alter-tsconfig',
   },
+  {
+    name: 'extra-refs from tsconfig.stspr.yaml',
+    dir: 'case-04-extra-refs',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
@@ -148,8 +152,8 @@ async function compareDirectories(actualDir: string, expectedDir: string): Promi
 
     // For JSON files, parse and compare to ignore formatting differences
     if (relPath.endsWith('.json')) {
-      const actualJson = JSON.parse(actualContent);
-      const expectedJson = JSON.parse(expectedContent);
+      const actualJson = JSON.parse(actualContent) as unknown;
+      const expectedJson = JSON.parse(expectedContent) as unknown;
       expect(actualJson).toEqual(expectedJson);
     } else {
       expect(actualContent).toBe(expectedContent);

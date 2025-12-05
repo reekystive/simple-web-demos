@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "emitDeclarationOnly": true
   },
-  "include": ["./src/", "**/__tests__/", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
+  "include": ["./src/", "./src/**/__tests__/", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
   "exclude": [],
   "references": [
     {
