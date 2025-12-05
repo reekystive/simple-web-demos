@@ -122,8 +122,13 @@ export async function readTsConfig(tsconfigPath: string): Promise<TsConfig> {
 
 /**
  * Write tsconfig.json with proper formatting
+ * Returns true if the file was actually changed
  */
-export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSolutionStyle = false): Promise<void> {
+export async function writeTsConfig(
+  tsconfigPath: string,
+  config: TsConfig,
+  isSolutionStyle = false
+): Promise<boolean> {
   let content = '';
 
   // Add comment for solution-style tsconfig
@@ -133,23 +138,41 @@ export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSo
   }
 
   content += `${JSON.stringify(config, null, 2)}\n`;
-  await fs.writeFile(tsconfigPath, content, 'utf-8');
 
-  // Format with prettier
-  await formatWithPrettier(tsconfigPath);
+  // Format with prettier to get the final content
+  const formattedContent = await formatWithPrettier(content, tsconfigPath);
+
+  // Check if file content would actually change
+  try {
+    const existingContent = await fs.readFile(tsconfigPath, 'utf-8');
+    if (existingContent === formattedContent) {
+      // No changes needed
+      return false;
+    }
+  } catch {
+    // File doesn't exist, will be created
+  }
+
+  // Write the formatted content
+  await fs.writeFile(tsconfigPath, formattedContent, 'utf-8');
+  return true;
 }
 
 /**
- * Format a file with prettier
+ * Format content with prettier
+ * Returns the formatted content
  */
-async function formatWithPrettier(filePath: string): Promise<void> {
+async function formatWithPrettier(content: string, filePath: string): Promise<string> {
   try {
-    const { $ } = await import('zx');
-    $.verbose = false;
-    await $`prettier --write ${filePath}`;
+    const prettier = await import('prettier');
+    const options = await prettier.resolveConfig(filePath);
+    return await prettier.format(content, {
+      ...options,
+      filepath: filePath,
+    });
   } catch {
-    // Silently fail if prettier is not available or fails
-    console.warn(`Warning: Could not format ${filePath} with prettier`);
+    // If prettier fails, return original content
+    return content;
   }
 }
 

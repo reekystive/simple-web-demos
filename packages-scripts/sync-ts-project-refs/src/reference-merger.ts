@@ -81,20 +81,23 @@ export async function mergeExtraRefs(
     // Update the tsconfig
     tsconfig.references = mergedReferences;
 
+    let actuallyChanged = true;
     if (!dryRun) {
-      await writeTsConfig(tsconfigPath, tsconfig);
+      actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
     }
 
-    const addedCount = mergedReferences.length - existingRefs.length;
-    if (verbose) {
-      console.log(
-        chalk.gray(
-          `    ${dryRun ? '[DRY RUN] ' : ''}✓ Merged extra-refs from config (${addedCount} new, ${mergedReferences.length} total)`
-        )
-      );
+    if (actuallyChanged) {
+      const addedCount = mergedReferences.length - existingRefs.length;
+      if (verbose) {
+        console.log(
+          chalk.gray(
+            `    ${dryRun ? '[DRY RUN] ' : ''}✓ Merged extra-refs from config (${addedCount} new, ${mergedReferences.length} total)`
+          )
+        );
+      }
     }
 
-    return true;
+    return actuallyChanged;
   } catch (error) {
     if (verbose) {
       console.warn(chalk.yellow(`    ⚠ ${packageName}: Failed to merge extra-refs:`), error);
@@ -172,7 +175,8 @@ export async function updateSiblingTsconfigReferences(
     }
 
     if (!dryRun) {
-      await writeTsConfig(siblingTsconfigPath, tsconfig);
+      const actuallyChanged = await writeTsConfig(siblingTsconfigPath, tsconfig);
+      return actuallyChanged;
     }
 
     return true;

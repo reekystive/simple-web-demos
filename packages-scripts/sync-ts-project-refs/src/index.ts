@@ -126,16 +126,26 @@ if (check) {
 }
 
 /**
- * Find workspace root using pnpm
+ * Find workspace root by searching for pnpm-workspace.yaml
  */
 async function findWorkspaceRoot(): Promise<string> {
-  try {
-    $.verbose = false;
-    const result = await $`pnpm -w exec pwd`;
-    return result.stdout.trim();
-  } catch {
-    throw new Error('Failed to find workspace root. Make sure you are in a pnpm workspace.');
+  let currentDir = process.cwd();
+  const root = path.parse(currentDir).root;
+
+  while (currentDir !== root) {
+    const workspaceFile = path.join(currentDir, 'pnpm-workspace.yaml');
+    try {
+      await fs.access(workspaceFile);
+      return currentDir;
+    } catch {
+      // File doesn't exist, go up one directory
+      currentDir = path.dirname(currentDir);
+    }
   }
+
+  throw new Error(
+    'Failed to find workspace root. Make sure you are in a pnpm workspace (no pnpm-workspace.yaml found).'
+  );
 }
 
 /**
@@ -232,14 +242,17 @@ async function main(): Promise<void> {
       if (rootTsconfigHasChanges) {
         rootTsconfig.references = rootTsconfigReferences;
         if (!dryRun && !check) {
-          await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+          rootTsconfigUpdated = await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+        } else {
+          rootTsconfigUpdated = true;
         }
-        rootTsconfigUpdated = true;
-        console.log(
-          chalk.gray(
-            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json → only references tsconfig.tsserver.json`
-          )
-        );
+        if (rootTsconfigUpdated) {
+          console.log(
+            chalk.gray(
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json → only references tsconfig.tsserver.json`
+            )
+          );
+        }
       }
 
       // Update root tsconfig.tsserver.json with all packages
@@ -295,15 +308,20 @@ async function main(): Promise<void> {
         rootTsserverConfig.references = rootReferences;
 
         if (!dryRun && !check) {
-          await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true);
+          rootUpdated = await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true);
+        } else {
+          rootUpdated = true;
         }
 
-        console.log(
-          chalk.cyan(
-            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.tsserver.json updated (${rootReferences.length} references)`
-          )
-        );
-        rootUpdated = true;
+        if (rootUpdated) {
+          console.log(
+            chalk.cyan(
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.tsserver.json updated (${rootReferences.length} references)`
+            )
+          );
+        } else {
+          console.log(chalk.gray('  ✓ Root tsconfig.tsserver.json: no changes needed'));
+        }
       } else {
         console.log(chalk.gray('  ✓ Root tsconfig.tsserver.json: no changes needed'));
       }
@@ -363,15 +381,20 @@ async function main(): Promise<void> {
         rootTsconfig.references = rootReferences;
 
         if (!dryRun && !check) {
-          await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+          rootUpdated = await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+        } else {
+          rootUpdated = true;
         }
 
-        console.log(
-          chalk.cyan(
-            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json updated (${rootReferences.length} references)`
-          )
-        );
-        rootUpdated = true;
+        if (rootUpdated) {
+          console.log(
+            chalk.cyan(
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json updated (${rootReferences.length} references)`
+            )
+          );
+        } else {
+          console.log(chalk.gray('  ✓ Root tsconfig.json: no changes needed'));
+        }
       } else {
         console.log(chalk.gray('  ✓ Root tsconfig.json: no changes needed'));
       }

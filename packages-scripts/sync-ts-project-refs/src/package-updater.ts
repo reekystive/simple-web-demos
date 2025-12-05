@@ -88,9 +88,11 @@ export async function updatePackageReferences(
         delete tsconfig.references;
       }
       if (!dryRun) {
-        await writeTsConfig(tsconfigPath, tsconfig);
+        const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
+        mainConfigChanged = actuallyChanged;
+      } else {
+        mainConfigChanged = true;
       }
-      mainConfigChanged = true;
     }
 
     // Update alter tsconfig with all siblings and workspace deps
@@ -161,14 +163,19 @@ export async function updatePackageReferences(
         delete tsserverConfig.references;
       }
       if (!dryRun) {
-        await writeTsConfig(tsconfigTsserverPath, tsserverConfig);
+        const actuallyChanged = await writeTsConfig(tsconfigTsserverPath, tsserverConfig);
+        tsserverConfigChanged = actuallyChanged;
+      } else {
+        tsserverConfigChanged = true;
       }
-      tsserverConfigChanged = true;
     }
 
     // Update other sibling tsconfig.*.json files with workspace dependencies
+    // Exclude the alter tsconfig since it's already been updated above
     const { tsconfigPaths } = packageInfo;
-    for (const siblingPath of tsconfigPaths) {
+    const siblingsToUpdate = tsconfigPaths.filter((p) => p !== tsconfigTsserverPath);
+
+    for (const siblingPath of siblingsToUpdate) {
       const siblingConfig = tsconfigConfigs.get(siblingPath);
       const siblingSkipRefs = [...packageSkipRefs, ...(siblingConfig?.skipRefs ?? [])];
 
@@ -275,9 +282,11 @@ export async function updatePackageReferences(
         delete tsconfig.references;
       }
       if (!dryRun) {
-        await writeTsConfig(tsconfigPath, tsconfig);
+        const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
+        mainConfigChanged = actuallyChanged;
+      } else {
+        mainConfigChanged = true;
       }
-      mainConfigChanged = true;
     }
 
     // Update sibling tsconfig.*.json files with workspace dependencies
