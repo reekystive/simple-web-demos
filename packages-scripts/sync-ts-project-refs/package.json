@@ -29,6 +29,7 @@
   "dependencies": {
     "chalk": "catalog:",
     "fast-glob": "catalog:",
+    "jsonc-parser": "catalog:",
     "prettier": "catalog:",
     "yaml": "catalog:",
     "zod": "catalog:",

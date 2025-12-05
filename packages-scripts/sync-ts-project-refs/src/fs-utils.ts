@@ -6,6 +6,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import fg from 'fast-glob';
+import * as jsonc from 'jsonc-parser';
 
 import type { TsConfig, WorkspaceConfig } from './types.js';
 
@@ -28,130 +29,84 @@ export async function findAllPackageJsons(
 }
 
 /**
- * Strip JSON comments from a string
- * More robust implementation that handles edge cases
- */
-export function stripJsonComments(jsonString: string): string {
-  let result = '';
-  let inString = false;
-  let inSingleComment = false;
-  let inMultiComment = false;
-  let escapeNext = false;
-
-  for (let i = 0; i < jsonString.length; i++) {
-    const char = jsonString[i];
-    const nextChar = jsonString[i + 1];
-
-    // Handle escape sequences in strings
-    if (escapeNext) {
-      if (inString && !inSingleComment && !inMultiComment) {
-        result += char ?? '';
-      }
-      escapeNext = false;
-      continue;
-    }
-
-    if (char === '\\' && inString) {
-      escapeNext = true;
-      result += char;
-      continue;
-    }
-
-    // Handle string boundaries
-    if (char === '"' && !inSingleComment && !inMultiComment) {
-      inString = !inString;
-      result += char;
-      continue;
-    }
-
-    // Skip everything if we're in a string
-    if (inString) {
-      result += char ?? '';
-      continue;
-    }
-
-    // Handle multi-line comment end
-    if (inMultiComment) {
-      if (char === '*' && nextChar === '/') {
-        inMultiComment = false;
-        i++; // Skip the '/'
-      }
-      continue;
-    }
-
-    // Handle single-line comment end
-    if (inSingleComment) {
-      if (char === '\n' || char === '\r') {
-        inSingleComment = false;
-        result += char; // Keep the newline
-      }
-      continue;
-    }
-
-    // Check for comment start
-    if (char === '/') {
-      if (nextChar === '/') {
-        inSingleComment = true;
-        i++; // Skip the second '/'
-        continue;
-      }
-      if (nextChar === '*') {
-        inMultiComment = true;
-        i++; // Skip the '*'
-        continue;
-      }
-    }
-
-    result += char ?? '';
-  }
-
-  // Remove trailing commas before closing braces/brackets
-  result = result.replace(/,(\s*[}\]])/g, '$1');
-
-  return result;
-}
-
-/**
- * Read and parse tsconfig.json (with comment support)
+ * Read and parse tsconfig.json (with comment support using jsonc-parser)
  */
 export async function readTsConfig(tsconfigPath: string): Promise<TsConfig> {
   const content = await fs.readFile(tsconfigPath, 'utf-8');
-  const stripped = stripJsonComments(content);
-  return JSON.parse(stripped) as TsConfig;
+  return jsonc.parse(content) as TsConfig;
 }
 
 /**
- * Write tsconfig.json with proper formatting
+ * Write tsconfig.json with proper formatting using jsonc-parser
  * Returns true if the file was actually changed
  */
 export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSolutionStyle = false): Promise<boolean> {
-  let content = '';
+  // Read existing content to preserve comments and formatting
+  let existingContent = '';
 
-  // Add comment for solution-style tsconfig
-  if (isSolutionStyle) {
-    content += '// Solution-style tsconfig for TypeScript project references\n';
-    content += '// This file orchestrates all workspace packages\n';
-  }
-
-  content += `${JSON.stringify(config, null, 2)}\n`;
-
-  // Format with prettier to get the final content
-  const formattedContent = await formatWithPrettier(content, tsconfigPath);
-
-  // Check if file content would actually change
   try {
-    const existingContent = await fs.readFile(tsconfigPath, 'utf-8');
-    if (existingContent === formattedContent) {
-      // No changes needed
+    existingContent = await fs.readFile(tsconfigPath, 'utf-8');
+
+    // Parse existing config to check what needs to be updated
+    const existingConfig = jsonc.parse(existingContent) as TsConfig;
+
+    // Collect all edits needed
+    const edits: jsonc.Edit[] = [];
+
+    // Update each top-level property individually to preserve comments
+    for (const [key, value] of Object.entries(config)) {
+      const existingValue = existingConfig[key as keyof TsConfig];
+
+      // Only update if the value is different
+      if (JSON.stringify(existingValue) !== JSON.stringify(value)) {
+        const propertyEdits = jsonc.modify(existingContent, [key], value, {
+          formattingOptions: {
+            tabSize: 2,
+            insertSpaces: true,
+            eol: '\n',
+          },
+        });
+        edits.push(...propertyEdits);
+      }
+    }
+
+    // If no edits needed, return false
+    if (edits.length === 0) {
       return false;
     }
-  } catch {
-    // File doesn't exist, will be created
-  }
 
-  // Write the formatted content
-  await fs.writeFile(tsconfigPath, formattedContent, 'utf-8');
-  return true;
+    // Apply edits to get new content
+    let newContent = jsonc.applyEdits(existingContent, edits);
+
+    // Format with prettier
+    newContent = await formatWithPrettier(newContent, tsconfigPath);
+
+    // Check if content actually changed after formatting
+    const formattedExisting = await formatWithPrettier(existingContent, tsconfigPath);
+    if (formattedExisting === newContent) {
+      return false;
+    }
+
+    // Write the new content
+    await fs.writeFile(tsconfigPath, newContent, 'utf-8');
+    return true;
+  } catch {
+    // File doesn't exist, create new content
+    let newContent = '';
+
+    // Add comment for solution-style tsconfig
+    if (isSolutionStyle) {
+      newContent += '// Solution-style tsconfig for TypeScript project references\n';
+      newContent += '// This file orchestrates all workspace packages\n';
+    }
+
+    newContent += `${JSON.stringify(config, null, 2)}\n`;
+
+    // Format with prettier
+    const formattedContent = await formatWithPrettier(newContent, tsconfigPath);
+    await fs.writeFile(tsconfigPath, formattedContent, 'utf-8');
+    return true;
+  }
 }
 
 /**

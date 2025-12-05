@@ -35,6 +35,10 @@ const TEST_CASES: TestCase[] = [
     name: 'alter-tsconfig with extra-refs',
     dir: 'case-05-alter-tsconfig-with-extra-refs',
   },
+  {
+    name: 'preserve comments in tsconfig.json',
+    dir: 'case-06-preserve-comments',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
@@ -80,7 +84,9 @@ describe('sync-ts-project-refs', () => {
       await updateRootTsconfig(workDir, packageMap);
 
       // Compare with expected output
-      await compareDirectories(workDir, expectedDir);
+      // For comment preservation test, compare exact text including comments
+      const preserveComments = testCase.dir === 'case-06-preserve-comments';
+      await compareDirectories(workDir, expectedDir, preserveComments);
     });
 
     it(`${testCase.name} - idempotent (no changes on second run)`, async () => {
@@ -136,7 +142,7 @@ async function copyDir(src: string, dest: string): Promise<void> {
 /**
  * Compare two directories recursively
  */
-async function compareDirectories(actualDir: string, expectedDir: string): Promise<void> {
+async function compareDirectories(actualDir: string, expectedDir: string, preserveComments = false): Promise<void> {
   const expectedFiles = await getAllFiles(expectedDir);
 
   for (const relPath of expectedFiles) {
@@ -155,7 +161,8 @@ async function compareDirectories(actualDir: string, expectedDir: string): Promi
     const expectedContent = await fs.readFile(expectedPath, 'utf-8');
 
     // For JSON files, parse and compare to ignore formatting differences
-    if (relPath.endsWith('.json')) {
+    // Unless we're testing comment preservation
+    if (relPath.endsWith('.json') && !preserveComments) {
       const actualJson = JSON.parse(actualContent) as unknown;
       const expectedJson = JSON.parse(expectedContent) as unknown;
       expect(actualJson).toEqual(expectedJson);

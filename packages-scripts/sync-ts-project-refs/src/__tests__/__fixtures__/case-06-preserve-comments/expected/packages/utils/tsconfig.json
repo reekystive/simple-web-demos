@@ -1,0 +1,10 @@
+{
+  // This is a top-level comment about the config
+  "compilerOptions": {
+    // Compiler options comment
+    "strict": true,
+    "target": "ES2020"
+  },
+  // References will be added below
+  "references": []
+}
