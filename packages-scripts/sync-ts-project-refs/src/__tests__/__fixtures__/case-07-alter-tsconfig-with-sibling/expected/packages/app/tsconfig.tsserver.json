@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "./tsconfig.custom.json"
+    },
+    {
+      "path": "../utils/tsconfig.json"
+    }
+  ]
+}

@@ -8,7 +8,7 @@
       "path": "./tsconfig.node.json"
     },
     {
-      "path": "./apps-web/app-storybook/tsconfig.json"
+      "path": "./apps-web/app-storybook/tsconfig.node.json"
     },
     {
       "path": "./apps-web/app-template-nextjs/tsconfig.json"

@@ -39,6 +39,10 @@ const TEST_CASES: TestCase[] = [
     name: 'preserve comments in tsconfig.json',
     dir: 'case-06-preserve-comments',
   },
+  {
+    name: 'alter-tsconfig with sibling tsconfig files',
+    dir: 'case-07-alter-tsconfig-with-sibling',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {

@@ -1,0 +1,2 @@
+use-alter-tsconfig: true
+alter-tsconfig-path: ./tsconfig.tsserver.json
