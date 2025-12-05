@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/your-org/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json",
+  "$id": "https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json",
   "title": "STSPR TypeScript Config Configuration",
   "description": "TypeScript config-level configuration for STSPR tool.",
   "type": "object",
