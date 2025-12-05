@@ -5,11 +5,11 @@ name: Lint, typecheck, and test
 on:
   push:
     branches:
-      - '*'
+      - "*"
   pull_request:
     branches:
-      - 'main'
-      - 'dev'
+      - "main"
+      - "dev"
 
 jobs:
   lint:
@@ -28,19 +28,16 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: 'lint'
+          restore-key-prefix: "lint"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pre-build dependencies
-        run: pnpm -w run build:tsc:packages
-
       - name: Build & typecheck
-        run: pnpm -w run build:tsc:root
+        run: pnpm -w --no-bail run tsc:build:packages
 
       - name: Run ESLint
-        run: pnpm -w run lint:eslint:root
+        run: pnpm -w --no-bail run lint:eslint:packages
 
   test:
     runs-on: ubuntu-latest
@@ -58,16 +55,13 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: 'test'
+          restore-key-prefix: "test"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pre-build dependencies
-        run: pnpm -w run build:tsc:packages
-
       - name: Build & typecheck
-        run: pnpm -w run build:tsc:root
+        run: pnpm -w run tsc:build:packages
 
       - name: Run tests
         run: pnpm -w run test:packages
@@ -88,13 +82,14 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: 'build-storybook'
+          restore-key-prefix: "build-storybook"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pre-build dependencies
-        run: pnpm -w --workspace-concurrency -1 --filter "@monorepo/app-storybook..." run build:tsc
+      - name: Build workspace dependencies
+        run: pnpm run tsc:build:depsOnly
+        working-directory: apps-web/app-storybook
 
       - name: Build storybook
         run: pnpm run build

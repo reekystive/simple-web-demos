@@ -4,14 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:tsc:root": "tsc --build tsconfig.json",
-    "build:tsc:packages": "pnpm --filter '*' --workspace-concurrency -1 run build:tsc",
+    "tsc:build:root": "tsc --build tsconfig.json",
+    "tsc:build:packages": "pnpm --filter '*' --workspace-concurrency=-2 run tsc:build",
     "lint:eslint:root": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
-    "lint:eslint:packages": "pnpm -r --workspace-concurrency -1 run lint:eslint",
-    "lint:tsc:root": "tsc --build tsconfig.json --noEmit",
-    "lint:tsc:packages": "pnpm -r --workspace-concurrency -1 run lint:tsc",
-    "test:packages": "pnpm -r --workspace-concurrency -1 run test",
-    "test:update:packages": "pnpm -r --workspace-concurrency -1 run test:update"
+    "lint:eslint:packages": "pnpm --filter '*' --workspace-concurrency=-2 run lint:eslint",
+    "test:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test",
+    "test:update:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test:update"
   },
   "devDependencies": {
     "@eslint/css": "catalog:",
