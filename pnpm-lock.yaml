@@ -536,9 +536,6 @@ importers:
       '@monorepo/tsconfig':
         specifier: workspace:^
         version: link:../../packages/tsconfig
-      '@monorepo/workspace-package-graph':
-        specifier: workspace:*
-        version: link:../workspace-package-graph
       tsx:
         specifier: 'catalog:'
         version: 4.21.0

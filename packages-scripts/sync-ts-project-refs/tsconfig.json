@@ -10,9 +10,6 @@
     },
     {
       "path": "./tsconfig.tests.json"
-    },
-    {
-      "path": "../workspace-package-graph/tsconfig.json"
     }
   ]
 }

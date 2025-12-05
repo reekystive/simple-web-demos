@@ -5,14 +5,8 @@
     "types": ["node"],
     "rootDir": "./src",
     "outDir": "./dist",
-    // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./dist/tsconfig.src.tsbuildinfo"
   },
   "include": ["./src"],
-  "exclude": [],
-  "references": [
-    {
-      "path": "../workspace-package-graph/tsconfig.json"
-    }
-  ]
+  "exclude": []
 }

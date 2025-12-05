@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:^",
-    "@monorepo/workspace-package-graph": "workspace:*",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
