@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=../schemas/tsconfig.stspr-package.schema.json
+
 # =============================================================================
 # Package-level Configuration for Sync TypeScript Project References (STSPR)
 # =============================================================================

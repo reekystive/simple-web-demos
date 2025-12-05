@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/your-org/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json",
+  "title": "STSPR TypeScript Config Configuration",
+  "description": "TypeScript config-level configuration for Sync TypeScript Project References (STSPR) tool. Place this file in the same directory as the corresponding tsconfig.json file. Naming convention: for tsconfig.json use tsconfig.stspr.yaml, for tsconfig.{name}.json use tsconfig.{name}.stspr.yaml.",
+  "type": "object",
+  "properties": {
+    "exclude-this-tsconfig": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to exclude this specific TypeScript configuration from processing. When true, this tsconfig file will be completely ignored by the sync tool: it won't be processed for project references, other packages won't reference this specific tsconfig, and it won't be included in sibling tsconfig references within the same package."
+    },
+    "extra-refs": {
+      "type": "array",
+      "default": [],
+      "description": "Additional TypeScript project references to include for this specific tsconfig. These references will ONLY be added to this particular TypeScript configuration, not to other tsconfig files in the same package.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the TypeScript configuration file (relative to the directory containing this tsconfig file).",
+            "examples": [
+              "../../test-utils/tsconfig.json",
+              "../../build-tools/tsconfig.json",
+              "../../types/global-types/tsconfig.json",
+              "../../../external-packages/shared-interfaces/tsconfig.json"
+            ]
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    },
+    "skip-refs": {
+      "type": "array",
+      "default": [],
+      "description": "TypeScript project references to explicitly skip/exclude for this specific tsconfig. These references will be removed from this particular TypeScript configuration even if they would normally be included through workspace dependencies or package-level config.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the TypeScript configuration file to skip (relative to the directory containing this tsconfig file).",
+            "examples": [
+              "../test-package/tsconfig.json",
+              "../production-only-package/tsconfig.json",
+              "../problematic-for-this-config/tsconfig.json",
+              "../build-time-only/tsconfig.json"
+            ]
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

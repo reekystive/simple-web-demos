@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/your-org/sync-ts-project-refs/schemas/tsconfig.stspr-package.schema.json",
+  "title": "STSPR Package Configuration",
+  "description": "Package-level configuration for Sync TypeScript Project References (STSPR) tool. Place this file in the root directory of your package (same level as package.json).",
+  "type": "object",
+  "properties": {
+    "use-alter-tsconfig": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to use an alternative main TypeScript configuration file instead of tsconfig.json. When enabled, the alternative tsconfig becomes the 'main' configuration that other packages will reference, while tsconfig.json may only reference the alternative config."
+    },
+    "alter-tsconfig-path": {
+      "type": "string",
+      "default": "./tsconfig.tsserver.json",
+      "description": "Path to the alternative TypeScript configuration file (relative to package root). Only used when use-alter-tsconfig is true. This file will be treated as the main configuration for project references.",
+      "examples": ["./tsconfig.tsserver.json", "./tsconfig.build.json", "./tsconfig.lib.json", "./tsconfig.app.json"]
+    },
+    "skip-add-alter-tsconfig-to-main-tsconfig": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to skip adding the alternative tsconfig reference to the main tsconfig.json. When false (default): tsconfig.json will reference the alternative config. When true: tsconfig.json won't reference the alternative config (useful for standalone configs)."
+    },
+    "include-deps-in-main-tsconfig-if-using-alter-tsconfig": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include workspace dependencies in the main tsconfig.json when using alternative config. When false (default): Only the alternative config gets workspace dependencies. When true: Both main and alternative configs get workspace dependencies."
+    },
+    "exclude-this-package": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to exclude this entire package from the TypeScript project reference graph. When true, this package will be treated as a pre-built external package: other packages won't automatically reference this package, and it won't be included in the root solution-style tsconfig."
+    },
+    "skip-deps": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to skip scanning regular dependencies when building project references. When true, workspace dependencies in 'dependencies' field will be ignored."
+    },
+    "skip-dev-deps": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to skip scanning development dependencies when building project references. When true, workspace dependencies in 'devDependencies' field will be ignored."
+    },
+    "skip-optional-deps": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to skip scanning optional dependencies when building project references. When true, workspace dependencies in 'optionalDependencies' field will be ignored."
+    },
+    "extra-refs": {
+      "type": "array",
+      "default": [],
+      "description": "Additional TypeScript project references to include at the package level. These references will be added to ALL TypeScript configurations in this package (both main tsconfig.json and alternative configs).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the TypeScript configuration file (relative to package root).",
+            "examples": [
+              "../../external-packages/shared-types/tsconfig.json",
+              "../shared-utils/tsconfig.json",
+              "../../configs/typescript-config/tsconfig.json"
+            ]
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    },
+    "skip-refs": {
+      "type": "array",
+      "default": [],
+      "description": "TypeScript project references to explicitly skip/exclude at the package level. These references will be removed from ALL TypeScript configurations in this package even if they would normally be included through workspace dependencies.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the TypeScript configuration file to skip (relative to package root).",
+            "examples": [
+              "../problematic-package/tsconfig.json",
+              "../runtime-only-package/tsconfig.json",
+              "../legacy-package/tsconfig.json"
+            ]
+          }
+        },
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
