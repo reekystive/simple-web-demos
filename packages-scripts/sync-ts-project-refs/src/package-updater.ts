@@ -20,7 +20,7 @@ export async function updatePackageReferences(
   monorepoRoot: string,
   dryRun = false,
   verbose = false
-): Promise<number> {
+): Promise<{ packagesUpdated: number; tsconfigsUpdated: number }> {
   const { name, tsconfigPath, tsconfigTsserverPath, workspaceDeps, tsconfigConfigs, packageConfig } = packageInfo;
 
   let mainConfigChanged = false;
@@ -401,5 +401,12 @@ export async function updatePackageReferences(
     console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (extra-refs merged)`));
   }
 
-  return mainConfigChanged || tsserverConfigChanged || siblingUpdateCount > 0 || extraRefsMerged ? 1 : 0;
+  const hasAnyChanges = mainConfigChanged || tsserverConfigChanged || siblingUpdateCount > 0 || extraRefsMerged;
+  const tsconfigsUpdated =
+    (mainConfigChanged ? 1 : 0) + (tsserverConfigChanged ? 1 : 0) + siblingUpdateCount + (extraRefsMerged ? 1 : 0);
+
+  return {
+    packagesUpdated: hasAnyChanges ? 1 : 0,
+    tsconfigsUpdated,
+  };
 }

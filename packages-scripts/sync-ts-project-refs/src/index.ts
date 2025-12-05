@@ -190,21 +190,15 @@ async function main(): Promise<void> {
   // Update all packages
   console.log(chalk.blue(`🔧 ${dryRun ? 'Analyzing' : 'Updating'} package references...\n`));
 
-  let updatedCount = 0;
+  let packagesUpdated = 0;
+  let tsconfigsUpdated = 0;
   let totalPackages = 0;
-  let totalReferences = 0;
 
   for (const packageInfo of packageMap.values()) {
     totalPackages++;
-    const changed = await updatePackageReferences(packageInfo, packageMap, workspaceRoot, dryRun || check, verbose);
-    updatedCount += changed;
-
-    // Count references that would be/were added
-    if (packageInfo.workspaceDeps.length > 0) {
-      // Only count dependencies that exist in our workspace
-      const resolvedDeps = packageInfo.workspaceDeps.filter((dep) => packageMap.has(dep));
-      totalReferences += resolvedDeps.length;
-    }
+    const result = await updatePackageReferences(packageInfo, packageMap, workspaceRoot, dryRun || check, verbose);
+    packagesUpdated += result.packagesUpdated;
+    tsconfigsUpdated += result.tsconfigsUpdated;
   }
 
   // Update root tsconfig files
@@ -407,22 +401,24 @@ async function main(): Promise<void> {
   console.log();
   console.log(chalk.blue('📊 Summary:\n'));
   console.log(chalk.gray(`  Total packages processed: ${chalk.cyan(totalPackages)}`));
-  console.log(chalk.gray(`  Packages ${dryRun || check ? 'that would be ' : ''}updated: ${chalk.cyan(updatedCount)}`));
+  console.log(
+    chalk.gray(`  Packages ${dryRun || check ? 'that would be ' : ''}updated: ${chalk.cyan(packagesUpdated)}`)
+  );
+  console.log(
+    chalk.gray(`  Tsconfig files ${dryRun || check ? 'that would be ' : ''}updated: ${chalk.cyan(tsconfigsUpdated)}`)
+  );
   console.log(
     chalk.gray(
       `  Root solution-style tsconfig ${dryRun || check ? 'would be ' : ''}updated: ${chalk.cyan(rootUpdated || rootTsconfigUpdated ? 'Yes' : 'No')}`
     )
   );
-  console.log(
-    chalk.gray(`  Total references ${dryRun || check ? 'that would be ' : ''}added: ${chalk.cyan(totalReferences)}`)
-  );
   console.log();
 
   if (check) {
-    if (updatedCount > 0 || rootUpdated || rootTsconfigUpdated) {
+    if (packagesUpdated > 0 || rootUpdated || rootTsconfigUpdated) {
       console.log(
         chalk.red(
-          `❌ Check failed: ${updatedCount} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''} need(s) to be updated!\n`
+          `❌ Check failed: ${packagesUpdated} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''} need(s) to be updated!\n`
         )
       );
       console.log(chalk.yellow('💡 Run without --check to apply these changes\n'));
@@ -432,10 +428,10 @@ async function main(): Promise<void> {
     }
   } else if (dryRun) {
     console.log(chalk.yellow('💡 Run without --dry-run to apply these changes\n'));
-  } else if (updatedCount > 0 || rootUpdated || rootTsconfigUpdated) {
+  } else if (packagesUpdated > 0 || rootUpdated || rootTsconfigUpdated) {
     console.log(
       chalk.green(
-        `✅ Successfully updated ${updatedCount} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''}!\n`
+        `✅ Successfully updated ${packagesUpdated} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''}!\n`
       )
     );
   } else {

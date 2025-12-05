@@ -98,8 +98,8 @@ describe('sync-ts-project-refs', () => {
 
         let changesCount = 0;
         for (const packageInfo of packageMap.values()) {
-          const changed = await updatePackageReferences(packageInfo, packageMap, workDir, false, false);
-          changesCount += changed;
+          const result = await updatePackageReferences(packageInfo, packageMap, workDir, false, false);
+          changesCount += result.packagesUpdated;
         }
 
         if (i === 0) {
