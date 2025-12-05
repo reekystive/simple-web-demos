@@ -1,0 +1,162 @@
+# =============================================================================
+# Package-level Configuration for Sync TypeScript Project References (STSPR)
+# =============================================================================
+#
+# This file configures how the sync-ts-project-refs tool handles this specific package.
+# Place this file in the root directory of your package (same level as package.json).
+#
+# File name: tsconfig.stspr-package.yaml
+#
+# The tool will automatically detect and use this configuration when processing
+# the package's TypeScript project references.
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Alternative TypeScript Configuration
+# -----------------------------------------------------------------------------
+
+# Whether to use an alternative main TypeScript configuration file instead of tsconfig.json
+# When enabled, the alternative tsconfig becomes the "main" configuration that other
+# packages will reference, while tsconfig.json may only reference the alternative config.
+#
+# Default: false
+# Example scenarios:
+# - You have a tsconfig.tsserver.json for better IDE support
+# - You want to separate build config from IDE config
+use-alter-tsconfig: false
+
+# Path to the alternative TypeScript configuration file (relative to package root)
+# Only used when use-alter-tsconfig is true.
+# This file will be treated as the main configuration for project references.
+#
+# Default: "./tsconfig.tsserver.json"
+# Common alternatives:
+# - "./tsconfig.build.json" (for build-specific config)
+# - "./tsconfig.lib.json" (for library packages)
+# - "./tsconfig.app.json" (for application packages)
+alter-tsconfig-path: ./tsconfig.tsserver.json
+
+# Whether to skip adding the alternative tsconfig reference to the main tsconfig.json
+# When false (default): tsconfig.json will reference the alternative config
+# When true: tsconfig.json won't reference the alternative config (useful for standalone configs)
+#
+# Default: false
+# Use case: When you want the alternative config to be completely independent
+skip-add-alter-tsconfig-to-main-tsconfig: false
+
+# Whether to include workspace dependencies in the main tsconfig.json when using alternative config
+# When false (default): Only the alternative config gets workspace dependencies
+# When true: Both main and alternative configs get workspace dependencies
+#
+# Default: false
+# Use case: When you need dependencies available in both configs for different purposes
+include-deps-in-main-tsconfig-if-using-alter-tsconfig: false
+
+# -----------------------------------------------------------------------------
+# Package Exclusion
+# -----------------------------------------------------------------------------
+
+# Whether to exclude this entire package from the TypeScript project reference graph
+# When true, this package will be treated as a pre-built external package:
+# - Other packages won't automatically reference this package
+# - This package won't be included in the root solution-style tsconfig
+# - Useful for packages that are built separately or are external dependencies
+#
+# Default: false
+# Use cases:
+# - Legacy packages that don't support project references
+# - Packages built with different tools (webpack, rollup, etc.)
+# - External packages that shouldn't be part of the TypeScript build
+exclude-this-package: false
+
+# -----------------------------------------------------------------------------
+# Dependency Scanning Control
+# -----------------------------------------------------------------------------
+
+# Whether to skip scanning regular dependencies when building project references
+# When true, workspace dependencies in "dependencies" field will be ignored
+#
+# Default: false
+# Use case: When you only want devDependencies to be included in project references
+skip-deps: false
+
+# Whether to skip scanning development dependencies when building project references
+# When true, workspace dependencies in "devDependencies" field will be ignored
+#
+# Default: false
+# Use case: When you want to exclude development-only packages from build references
+skip-dev-deps: false
+
+# Whether to skip scanning optional dependencies when building project references
+# When true, workspace dependencies in "optionalDependencies" field will be ignored
+#
+# Default: false
+# Use case: When optional dependencies shouldn't affect the build graph
+skip-optional-deps: false
+
+# -----------------------------------------------------------------------------
+# Package-level Reference Management
+# -----------------------------------------------------------------------------
+
+# Additional TypeScript project references to include at the package level
+# These references will be added to ALL TypeScript configurations in this package
+# (both main tsconfig.json and alternative configs like tsconfig.tsserver.json)
+#
+# Format: Array of objects with 'path' property
+# Paths are relative to the package root directory
+#
+# Use cases:
+# - Reference external packages not in workspace dependencies
+# - Reference shared configuration packages
+# - Reference utility packages that aren't in package.json dependencies
+extra-refs:
+  # Example: Reference an external package in the monorepo
+  - { path: '../../external-packages/shared-types/tsconfig.json' }
+
+  # Example: Reference a sibling package for shared utilities
+  - { path: '../shared-utils/tsconfig.json' }
+
+  # Example: Reference a configuration package
+  # - { path: '../../configs/typescript-config/tsconfig.json' }
+
+# TypeScript project references to explicitly skip/exclude at the package level
+# These references will be removed from ALL TypeScript configurations in this package
+# even if they would normally be included through workspace dependencies
+#
+# Format: Array of objects with 'path' property
+# Paths are relative to the package root directory
+#
+# Use cases:
+# - Exclude problematic dependencies that cause circular references
+# - Exclude packages that are imported at runtime only
+# - Exclude packages that have build issues
+skip-refs:
+  # Example: Skip a dependency that causes circular references
+  - { path: '../problematic-package/tsconfig.json' }
+
+  # Example: Skip a runtime-only dependency
+  # - { path: '../runtime-only-package/tsconfig.json' }
+
+  # Example: Skip a package with build issues
+  # - { path: '../legacy-package/tsconfig.json' }
+
+# -----------------------------------------------------------------------------
+# Configuration Tips
+# -----------------------------------------------------------------------------
+#
+# 1. Start Simple: Begin with default values and only customize what you need
+#
+# 2. Alternative Configs: Use alter-tsconfig-path when you need different
+#    configurations for IDE vs build (common pattern: tsconfig.tsserver.json)
+#
+# 3. Reference Management: Use extra-refs for dependencies not in package.json
+#    and skip-refs to resolve circular dependencies or build issues
+#
+# 4. Debugging: Run with --verbose flag to see how your configuration affects
+#    the generated project references
+#
+# 5. Validation: The tool uses Zod for configuration validation, so you'll get
+#    clear error messages if there are configuration issues
+#
+# =============================================================================

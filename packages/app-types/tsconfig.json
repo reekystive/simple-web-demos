@@ -5,9 +5,8 @@
     "skipLibCheck": false,
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc",
-    "tsBuildInfoFile": "./node_modules/.cache/tsc/tsconfig.tsbuildinfo",
-    "types": []
+    "tsBuildInfoFile": "./node_modules/.cache/tsc/tsconfig.tsbuildinfo"
   },
   "files": ["app-types-vite.d.ts"],
-  "exclude": ["**/node_modules/"]
+  "exclude": []
 }

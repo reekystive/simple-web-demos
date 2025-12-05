@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": [],
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-web",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
@@ -13,9 +12,13 @@
     "plugins": [{ "name": "next" }],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    // required by nextjs
     "noEmit": true
   },
-  "include": ["src", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
-  "exclude": ["**/node_modules/", "**/__tests__/"]
+  "include": ["./src/", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["**/__tests__/"],
+  "references": [
+    {
+      "path": "../../packages/utils/tsconfig.json"
+    }
+  ]
 }

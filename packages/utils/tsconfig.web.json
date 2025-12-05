@@ -2,12 +2,11 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@monorepo/tsconfig/tsconfig.web.json",
   "compilerOptions": {
-    "types": [],
     "rootDir": "./src",
     "outDir": "./dist",
     // https://github.com/microsoft/TypeScript/issues/30925#issuecomment-483371766
     "tsBuildInfoFile": "./dist/tsconfig.web.tsbuildinfo"
   },
-  "include": ["./src"],
-  "exclude": ["**/node_modules/", "**/__tests__/"]
+  "include": ["./src/"],
+  "exclude": ["**/__tests__/"]
 }

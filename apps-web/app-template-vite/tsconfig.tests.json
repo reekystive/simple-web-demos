@@ -10,6 +10,11 @@
     "jsx": "react-jsx",
     "emitDeclarationOnly": true
   },
-  "include": ["./src", "**/__tests__/"],
-  "exclude": ["**/node_modules/"]
+  "include": ["./src/", "**/__tests__/"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../packages/utils/tsconfig.json"
+    }
+  ]
 }

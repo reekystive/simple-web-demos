@@ -1,0 +1,38 @@
+{
+  "name": "@monorepo/sync-ts-project-refs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "build": "pnpm run tsc:build",
+    "dev": "tsx --tsconfig tsconfig.src.json src/index.ts",
+    "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:update": "vitest run --update",
+    "test:watch": "vitest --watch",
+    "tsc:build": "tsc --build tsconfig.json",
+    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
+    "tsc:build:watch": "tsc --build tsconfig.json --watch"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:^",
+    "@monorepo/workspace-package-graph": "workspace:*",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "chalk": "catalog:",
+    "fast-glob": "catalog:",
+    "prettier": "catalog:",
+    "yaml": "catalog:",
+    "zod": "catalog:",
+    "zx": "catalog:"
+  }
+}

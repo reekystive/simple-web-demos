@@ -1,4 +1,5 @@
 {
+  "extends": "@monorepo/tsconfig/tsconfig.base.json",
   "files": [],
   "references": [
     {

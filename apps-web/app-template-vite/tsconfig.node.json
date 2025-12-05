@@ -10,5 +10,10 @@
     "emitDeclarationOnly": true
   },
   "include": ["./*.ts", "./.*.ts", "./*.js", "./.*.js", "./*.mjs", "./.*.mjs", "./*.cjs", "./.*.cjs"],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../packages/utils/tsconfig.json"
+    }
+  ]
 }

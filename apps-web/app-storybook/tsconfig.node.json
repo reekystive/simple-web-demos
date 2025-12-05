@@ -21,5 +21,10 @@
     "./.storybook/main.ts",
     "./types/node-env.ts"
   ],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../packages/utils/tsconfig.json"
+    }
+  ]
 }

@@ -12,9 +12,6 @@
     },
     {
       "path": "../../packages/utils/tsconfig.json"
-    },
-    {
-      "path": "../../packages/app-types/tsconfig.json"
     }
   ]
 }
