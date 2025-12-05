@@ -18,7 +18,6 @@ import chalk from 'chalk';
 import { $ } from 'zx';
 
 import { parseWorkspace } from './config-reader.js';
-import { CONFIG } from './config.js';
 import { findAllPackageJsons, findSiblingTsconfigs, readTsConfig, writeTsConfig } from './fs-utils.js';
 import { buildPackageMap, getStandardReferencePath } from './package-parser.js';
 import { updatePackageReferences } from './package-updater.js';
@@ -30,6 +29,34 @@ const args = process.argv.slice(2);
 const showHelp = args.includes('--help') || args.includes('-h');
 const dryRun = args.includes('--dry-run') || args.includes('-d');
 const verbose = args.includes('--verbose') || args.includes('-v');
+const check = args.includes('--check');
+
+// Parse workspace root argument
+const workspaceRootIndex = args.findIndex((arg) => arg === '--workspace-root' || arg === '-r');
+const customWorkspaceRoot = workspaceRootIndex !== -1 ? args[workspaceRootIndex + 1] : undefined;
+
+// Validate arguments - check for unknown flags
+const knownFlags = new Set(['--help', '-h', '--dry-run', '-d', '--verbose', '-v', '--check', '--workspace-root', '-r']);
+
+const unknownArgs: string[] = [];
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  if (arg?.startsWith('-')) {
+    if (!knownFlags.has(arg)) {
+      unknownArgs.push(arg);
+    }
+    // Skip the next argument if this is --workspace-root or -r
+    if ((arg === '--workspace-root' || arg === '-r') && i + 1 < args.length) {
+      i++;
+    }
+  }
+}
+
+if (unknownArgs.length > 0) {
+  console.error(chalk.red(`\n❌ Error: Unknown argument(s): ${unknownArgs.join(', ')}\n`));
+  console.log(chalk.gray('Run with --help to see available options.\n'));
+  process.exit(1);
+}
 
 // Show help message
 if (showHelp) {
@@ -44,12 +71,17 @@ ${chalk.bold('Usage:')}
   tsx scripts/monorepo/sync-ts-project-refs [options]
 
 ${chalk.bold('Options:')}
-  --dry-run, -d             Preview changes without modifying files
-  --verbose, -v             Show detailed information
-  --help, -h                Show this help message
+  --workspace-root, -r <path>  Specify workspace root directory (default: auto-detect using pnpm)
+  --check                      Check if references are up-to-date (exit with error if not)
+  --dry-run, -d                Preview changes without modifying files
+  --verbose, -v                Show detailed information
+  --help, -h                   Show this help message
 
 ${chalk.bold('Examples:')}
-  # Preview what would be changed
+  # Check if references are up-to-date (useful in CI)
+  tsx scripts/monorepo/sync-ts-project-refs --check
+
+  # Preview what would be changed (auto-detects workspace root)
   tsx scripts/monorepo/sync-ts-project-refs --dry-run
 
   # Apply changes to all packages
@@ -57,6 +89,9 @@ ${chalk.bold('Examples:')}
 
   # Apply changes with verbose output
   tsx scripts/monorepo/sync-ts-project-refs --verbose
+
+  # Specify a custom workspace root (skips auto-detection)
+  tsx scripts/monorepo/sync-ts-project-refs --workspace-root /path/to/workspace
 
 ${chalk.bold('Configuration:')}
   The tool supports advanced configuration via YAML files:
@@ -84,20 +119,45 @@ ${chalk.bold('Output:')}
   process.exit(0);
 }
 
-console.log(chalk.blue('🔧 Adding TypeScript project references...\n'));
-console.log(chalk.gray(`Root directory: ${CONFIG.MONOREPO_ROOT}\n`));
-
-if (dryRun) {
+if (check) {
+  console.log(chalk.blue('🔍 CHECK MODE - Verifying references are up-to-date\n'));
+} else if (dryRun) {
   console.log(chalk.yellow('🔍 DRY RUN MODE - No files will be modified\n'));
+}
+
+/**
+ * Find workspace root using pnpm
+ */
+async function findWorkspaceRoot(): Promise<string> {
+  try {
+    $.verbose = false;
+    const result = await $`pnpm -w exec pwd`;
+    return result.stdout.trim();
+  } catch {
+    throw new Error('Failed to find workspace root. Make sure you are in a pnpm workspace.');
+  }
 }
 
 /**
  * Main function
  */
 async function main(): Promise<void> {
+  // Determine workspace root
+  let workspaceRoot: string;
+  if (customWorkspaceRoot) {
+    workspaceRoot = path.resolve(customWorkspaceRoot);
+    console.log(chalk.blue('🔧 Adding TypeScript project references...\n'));
+    console.log(chalk.gray(`Using specified workspace root: ${workspaceRoot}\n`));
+  } else {
+    console.log(chalk.blue('🔧 Adding TypeScript project references...\n'));
+    console.log(chalk.gray('Finding workspace root using pnpm...'));
+    workspaceRoot = await findWorkspaceRoot();
+    console.log(chalk.gray(`Found workspace root: ${workspaceRoot}\n`));
+  }
+
   // Parse workspace configuration
   console.log(chalk.blue('📦 Parsing workspace configuration...'));
-  const { includePatterns, excludePatterns } = await parseWorkspace(CONFIG.MONOREPO_ROOT);
+  const { includePatterns, excludePatterns } = await parseWorkspace(workspaceRoot);
   if (verbose) {
     console.log(chalk.gray(`  Include patterns: ${includePatterns.join(', ')}`));
     console.log(chalk.gray(`  Exclude patterns: ${excludePatterns.join(', ')}`));
@@ -106,7 +166,7 @@ async function main(): Promise<void> {
 
   // Find all package.json files
   console.log(chalk.blue('🔎 Finding all package.json files...'));
-  const packageJsons = await findAllPackageJsons(CONFIG.MONOREPO_ROOT, {
+  const packageJsons = await findAllPackageJsons(workspaceRoot, {
     includePatterns,
     excludePatterns,
   });
@@ -126,7 +186,7 @@ async function main(): Promise<void> {
 
   for (const packageInfo of packageMap.values()) {
     totalPackages++;
-    const changed = await updatePackageReferences(packageInfo, packageMap, CONFIG.MONOREPO_ROOT, dryRun, verbose);
+    const changed = await updatePackageReferences(packageInfo, packageMap, workspaceRoot, dryRun || check, verbose);
     updatedCount += changed;
 
     // Count references that would be/were added
@@ -141,8 +201,8 @@ async function main(): Promise<void> {
   console.log();
   console.log(chalk.blue('🔧 Updating root tsconfig files (solution-style)...\n'));
 
-  const rootTsconfigPath = path.join(CONFIG.MONOREPO_ROOT, 'tsconfig.json');
-  const rootTsconfigTsserverPath = path.join(CONFIG.MONOREPO_ROOT, 'tsconfig.tsserver.json');
+  const rootTsconfigPath = path.join(workspaceRoot, 'tsconfig.json');
+  const rootTsconfigTsserverPath = path.join(workspaceRoot, 'tsconfig.tsserver.json');
   let rootUpdated = false;
   let rootTsconfigUpdated = false;
 
@@ -171,12 +231,14 @@ async function main(): Promise<void> {
 
       if (rootTsconfigHasChanges) {
         rootTsconfig.references = rootTsconfigReferences;
-        if (!dryRun) {
+        if (!dryRun && !check) {
           await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
         }
         rootTsconfigUpdated = true;
         console.log(
-          chalk.gray(`  ${dryRun ? '[DRY RUN] ' : ''}✓ Root tsconfig.json → only references tsconfig.tsserver.json`)
+          chalk.gray(
+            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json → only references tsconfig.tsserver.json`
+          )
         );
       }
 
@@ -195,7 +257,7 @@ async function main(): Promise<void> {
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
           const targetPath = getStandardReferencePath(info);
-          let pkgPath = path.relative(CONFIG.MONOREPO_ROOT, targetPath);
+          let pkgPath = path.relative(workspaceRoot, targetPath);
           if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
             pkgPath = `./${pkgPath}`;
           }
@@ -232,13 +294,13 @@ async function main(): Promise<void> {
       if (rootHasChanges) {
         rootTsserverConfig.references = rootReferences;
 
-        if (!dryRun) {
+        if (!dryRun && !check) {
           await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true);
         }
 
         console.log(
           chalk.cyan(
-            `  ${dryRun ? '[DRY RUN] ' : ''}✓ Root tsconfig.tsserver.json updated (${rootReferences.length} references)`
+            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.tsserver.json updated (${rootReferences.length} references)`
           )
         );
         rootUpdated = true;
@@ -263,7 +325,7 @@ async function main(): Promise<void> {
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
           const targetPath = getStandardReferencePath(info);
-          let pkgPath = path.relative(CONFIG.MONOREPO_ROOT, targetPath);
+          let pkgPath = path.relative(workspaceRoot, targetPath);
           if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
             pkgPath = `./${pkgPath}`;
           }
@@ -300,13 +362,13 @@ async function main(): Promise<void> {
       if (rootHasChanges) {
         rootTsconfig.references = rootReferences;
 
-        if (!dryRun) {
+        if (!dryRun && !check) {
           await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
         }
 
         console.log(
           chalk.cyan(
-            `  ${dryRun ? '[DRY RUN] ' : ''}✓ Root tsconfig.json updated (${rootReferences.length} references)`
+            `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json updated (${rootReferences.length} references)`
           )
         );
         rootUpdated = true;
@@ -322,16 +384,30 @@ async function main(): Promise<void> {
   console.log();
   console.log(chalk.blue('📊 Summary:\n'));
   console.log(chalk.gray(`  Total packages processed: ${chalk.cyan(totalPackages)}`));
-  console.log(chalk.gray(`  Packages ${dryRun ? 'that would be ' : ''}updated: ${chalk.cyan(updatedCount)}`));
+  console.log(chalk.gray(`  Packages ${dryRun || check ? 'that would be ' : ''}updated: ${chalk.cyan(updatedCount)}`));
   console.log(
     chalk.gray(
-      `  Root solution-style tsconfig ${dryRun ? 'would be ' : ''}updated: ${chalk.cyan(rootUpdated || rootTsconfigUpdated ? 'Yes' : 'No')}`
+      `  Root solution-style tsconfig ${dryRun || check ? 'would be ' : ''}updated: ${chalk.cyan(rootUpdated || rootTsconfigUpdated ? 'Yes' : 'No')}`
     )
   );
-  console.log(chalk.gray(`  Total references ${dryRun ? 'that would be ' : ''}added: ${chalk.cyan(totalReferences)}`));
+  console.log(
+    chalk.gray(`  Total references ${dryRun || check ? 'that would be ' : ''}added: ${chalk.cyan(totalReferences)}`)
+  );
   console.log();
 
-  if (dryRun) {
+  if (check) {
+    if (updatedCount > 0 || rootUpdated || rootTsconfigUpdated) {
+      console.log(
+        chalk.red(
+          `❌ Check failed: ${updatedCount} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''} need(s) to be updated!\n`
+        )
+      );
+      console.log(chalk.yellow('💡 Run without --check to apply these changes\n'));
+      process.exit(1);
+    } else {
+      console.log(chalk.green('✅ All packages have correct references!\n'));
+    }
+  } else if (dryRun) {
     console.log(chalk.yellow('💡 Run without --dry-run to apply these changes\n'));
   } else if (updatedCount > 0 || rootUpdated || rootTsconfigUpdated) {
     console.log(
