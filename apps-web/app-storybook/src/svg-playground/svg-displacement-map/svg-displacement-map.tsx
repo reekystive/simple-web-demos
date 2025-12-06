@@ -175,14 +175,12 @@ export const SvgDisplacementMap: FC = () => {
             draggable={false}
             className="aspect-square w-80 object-cover"
           />
-          <motion.img
-            src={displacementMap?.dataUrl}
-            draggable={false}
+          <motion.div
+            className={cn('absolute z-10 size-30 rounded-full')}
             drag
             dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
             dragTransition={{ restDelta: 0.01, restSpeed: 0.1 }}
             dragElastic={1}
-            className="absolute z-10 size-30 rounded-full object-cover opacity-60"
             style={{
               x,
               y,
@@ -191,7 +189,13 @@ export const SvgDisplacementMap: FC = () => {
               translateX: '-50%',
               translateY: '-50%',
             }}
-          />
+          >
+            <img
+              src={displacementMap?.dataUrl}
+              draggable={false}
+              className="size-full rounded-full object-cover opacity-60"
+            />
+          </motion.div>
         </div>
 
         {/* final result */}
