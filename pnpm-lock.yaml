@@ -224,9 +224,6 @@ catalogs:
       version: 8.8.5
 
 patchedDependencies:
-  next:
-    hash: 1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42
-    path: patches/next.patch
   vaul:
     hash: 86d6ef30ea627d9a926b5c2501b32cecbb14915824cb587d869752fc3ef441da
     path: patches/vaul.patch
@@ -366,7 +363,7 @@ importers:
         version: 19.2.1(react@19.2.1)
       react-scan:
         specifier: 'catalog:'
-        version: 0.4.3(@types/react@19.2.7)(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(rollup@4.53.3)
+        version: 0.4.3(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(rollup@4.53.3)
       react-usestateref:
         specifier: 'catalog:'
         version: 1.0.9(react@19.2.1)
@@ -436,10 +433,10 @@ importers:
         version: link:../../packages/utils
       '@opennextjs/cloudflare':
         specifier: 'catalog:'
-        version: 1.14.3(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(wrangler@4.53.0)
+        version: 1.14.3(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(wrangler@4.53.0)
       next:
         specifier: 'catalog:'
-        version: 16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
+        version: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
       react:
         specifier: 'catalog:'
         version: 19.2.1
@@ -10086,7 +10083,7 @@ snapshots:
     dependencies:
       which: 4.0.0
 
-  '@opennextjs/aws@3.9.4(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))':
+  '@opennextjs/aws@3.9.4(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))':
     dependencies:
       '@ast-grep/napi': 0.40.0
       '@aws-sdk/client-cloudfront': 3.398.0
@@ -10102,7 +10099,7 @@ snapshots:
       cookie: 1.1.1
       esbuild: 0.25.4
       express: 5.2.1
-      next: 16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
+      next: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
       path-to-regexp: 6.3.0
       urlpattern-polyfill: 10.1.0
       yaml: 2.8.2
@@ -10110,15 +10107,15 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@opennextjs/cloudflare@1.14.3(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(wrangler@4.53.0)':
+  '@opennextjs/cloudflare@1.14.3(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(wrangler@4.53.0)':
     dependencies:
       '@ast-grep/napi': 0.40.0
       '@dotenvx/dotenvx': 1.31.0
-      '@opennextjs/aws': 3.9.4(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))
+      '@opennextjs/aws': 3.9.4(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))
       cloudflare: 4.5.0
       enquirer: 2.4.1
       glob: 12.0.0
-      next: 16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
+      next: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
       ts-tqdm: 0.8.6
       wrangler: 4.53.0
       yargs: 18.0.0
@@ -14586,7 +14583,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3):
+  next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3):
     dependencies:
       '@next/env': 16.0.7
       '@swc/helpers': 0.5.15
@@ -15032,7 +15029,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
 
-  react-scan@0.4.3(@types/react@19.2.7)(next@16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(rollup@4.53.3):
+  react-scan@0.4.3(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(rollup@4.53.3):
     dependencies:
       '@babel/core': 7.28.5
       '@babel/generator': 7.28.5
@@ -15054,7 +15051,7 @@ snapshots:
       react-dom: 19.2.1(react@19.2.1)
       tsx: 4.21.0
     optionalDependencies:
-      next: 16.0.7(patch_hash=1a957829fd003aca8df03d47bb850a289a50eb0751fe87f86a2086fe201aab42)(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
+      next: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3)
       unplugin: 2.1.0
     transitivePeerDependencies:
       - '@types/react'

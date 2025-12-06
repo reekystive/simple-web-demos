@@ -91,5 +91,4 @@ onlyBuiltDependencies:
   - workerd
 
 patchedDependencies:
-  next: patches/next.patch
   vaul: patches/vaul.patch

@@ -46,6 +46,7 @@ words:
   - Vitest
   - WCAG
   - webp
+  - workerd
 flagWords:
   - blacklist -> blocklist
   - whitelist -> allowlist
