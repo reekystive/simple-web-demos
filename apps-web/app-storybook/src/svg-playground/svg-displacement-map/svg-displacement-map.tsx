@@ -176,19 +176,12 @@ export const SvgDisplacementMap: FC = () => {
             className="aspect-square w-80 object-cover"
           />
           <motion.div
-            className={cn('absolute z-10 size-30 rounded-full')}
+            className={cn('absolute inset-0 z-10 m-auto size-30 rounded-full')}
             drag
             dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
             dragTransition={{ restDelta: 0.01, restSpeed: 0.1 }}
             dragElastic={1}
-            style={{
-              x,
-              y,
-              top: '50%',
-              left: '50%',
-              translateX: '-50%',
-              translateY: '-50%',
-            }}
+            style={{ x, y }}
           >
             <img
               src={displacementMap?.dataUrl}
@@ -206,17 +199,7 @@ export const SvgDisplacementMap: FC = () => {
             draggable={false}
             className="aspect-square w-80 object-cover"
           />
-          <motion.div
-            className={cn('absolute z-10 size-30 rounded-full')}
-            style={{
-              x,
-              y,
-              top: '50%',
-              left: '50%',
-              translateX: '-50%',
-              translateY: '-50%',
-            }}
-          >
+          <motion.div className={cn('absolute inset-0 z-10 m-auto size-30 rounded-full')} style={{ x, y }}>
             <LiquidDiv
               onTapStart={() => setActive(true)}
               onTap={() => setActive(false)}
