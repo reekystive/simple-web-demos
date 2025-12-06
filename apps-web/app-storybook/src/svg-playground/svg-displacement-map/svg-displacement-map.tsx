@@ -43,7 +43,7 @@ export const SvgDisplacementMap: FC = () => {
       <p className="pb-6 text-sm">Drag the circle in the images to see the displacement effects.</p>
 
       {/* controls */}
-      <div className={`flex flex-row gap-2 overflow-clip px-2 select-none`}>
+      <div className={`flex max-w-3xl flex-row flex-wrap place-content-center gap-2 overflow-clip px-2 select-none`}>
         <Button
           size="sm"
           color={'green'}
