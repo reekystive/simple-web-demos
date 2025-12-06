@@ -91,4 +91,6 @@ onlyBuiltDependencies:
   - workerd
 
 patchedDependencies:
+  '@react-hookz/web': patches/@react-hookz__web.patch
+  radix-ui: patches/radix-ui.patch
   vaul: patches/vaul.patch

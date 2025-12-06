@@ -224,6 +224,12 @@ catalogs:
       version: 8.8.5
 
 patchedDependencies:
+  '@react-hookz/web':
+    hash: 7d059f9e8563fc129ac754d5c1a0dc4d3dc356c099f428f358cb1cb94a39fb9b
+    path: patches/@react-hookz__web.patch
+  radix-ui:
+    hash: 485a085c0b1ad0e53117b9bfe90784b64d918aad086e7ad7f87dfd0169f300ae
+    path: patches/radix-ui.patch
   vaul:
     hash: 86d6ef30ea627d9a926b5c2501b32cecbb14915824cb587d869752fc3ef441da
     path: patches/vaul.patch
@@ -336,7 +342,7 @@ importers:
         version: 1.3.6(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@react-hookz/web':
         specifier: 'catalog:'
-        version: 25.2.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 25.2.0(patch_hash=7d059f9e8563fc129ac754d5c1a0dc4d3dc356c099f428f358cb1cb94a39fb9b)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       es-toolkit:
         specifier: 'catalog:'
         version: 1.42.0
@@ -354,7 +360,7 @@ importers:
         version: 5.1.6
       radix-ui:
         specifier: 'catalog:'
-        version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        version: 1.4.3(patch_hash=485a085c0b1ad0e53117b9bfe90784b64d918aad086e7ad7f87dfd0169f300ae)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react:
         specifier: 'catalog:'
         version: 19.2.1
@@ -11180,7 +11186,7 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
-  '@react-hookz/web@25.2.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@react-hookz/web@25.2.0(patch_hash=7d059f9e8563fc129ac754d5c1a0dc4d3dc356c099f428f358cb1cb94a39fb9b)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@ver0/deep-equal': 1.0.0
       react: 19.2.1
@@ -14910,7 +14916,7 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  radix-ui@1.4.3(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+  radix-ui@1.4.3(patch_hash=485a085c0b1ad0e53117b9bfe90784b64d918aad086e7ad7f87dfd0169f300ae)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:
       '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-accessible-icon': 1.1.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
