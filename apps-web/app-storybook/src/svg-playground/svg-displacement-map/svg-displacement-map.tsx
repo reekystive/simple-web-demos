@@ -3,7 +3,7 @@ import { LiquidDiv } from '#src/animations/liquid-square/liquid-div.js';
 import { SpringTap } from '#src/animations/liquid-square/spring-tap.js';
 import { Button } from '#src/components/button/button.js';
 import { cn } from '@monorepo/utils';
-import { motion, useMotionValue } from 'motion/react';
+import { cubicBezier, motion, useMotionValue } from 'motion/react';
 import { FC, useMemo, useReducer, useState } from 'react';
 import { drawCircularGlassDisplacementMap } from './draw-map-circular-glass.js';
 import { getImages, imageReducer } from './images.js';
@@ -25,11 +25,14 @@ export const SvgDisplacementMap: FC = () => {
 
   const displacementMap = useMemo(() => drawCircularGlassDisplacementMap(), []);
 
+  const [active, setActive] = useState(false);
+
   const [showBlurLayer, setShowBlurLayer] = useState(true);
   const [showDarkenLayer, setShowDarkenLayer] = useState(true);
   const [showTintLayer, setShowTintLayer] = useState(false);
   const [showGlassLayer, setShowGlassLayer] = useState(true);
   const [showVibranceLayer, setShowVibranceLayer] = useState(true);
+  const [showActiveLayer, setShowActiveLayer] = useState(true);
   const [showEdgeHighlightLayer, setShowEdgeHighlightLayer] = useState(true);
 
   return (
@@ -99,6 +102,16 @@ export const SvgDisplacementMap: FC = () => {
           className="px-2"
         >
           {showVibranceLayer ? 'Hide vibrance layer' : 'Show vibrance layer'}
+        </Button>
+
+        <Button
+          size="sm"
+          color={showActiveLayer ? 'yellow' : 'green'}
+          allPossibleContents={['Show active layer', 'Hide active layer']}
+          onClick={() => setShowActiveLayer((prev) => !prev)}
+          className="px-2"
+        >
+          {showActiveLayer ? 'Hide active layer' : 'Show active layer'}
         </Button>
 
         <Button
@@ -200,7 +213,13 @@ export const SvgDisplacementMap: FC = () => {
               translateY: '-50%',
             }}
           >
-            <LiquidDiv className="size-full rounded-full">
+            <LiquidDiv
+              onTapStart={() => setActive(true)}
+              onTap={() => setActive(false)}
+              onTapCancel={() => setActive(false)}
+              liquidConfig={{ hoverCursorShape: 'pointer', activeAndOutsideCursorShape: 'pointer' }}
+              className="size-full rounded-full"
+            >
               <SpringTap className="relative size-full rounded-full">
                 {showBlurLayer && (
                   <div className={cn('pointer-events-none absolute inset-0 rounded-full backdrop-blur-[1px]')} />
@@ -231,6 +250,16 @@ export const SvgDisplacementMap: FC = () => {
                   <div
                     className={cn('pointer-events-none absolute inset-0 rounded-full')}
                     style={{ backdropFilter: 'url(#vibrance)' }}
+                  />
+                )}
+
+                {showActiveLayer && (
+                  <motion.div
+                    className={cn('pointer-events-none absolute inset-0 rounded-full')}
+                    style={{ backdropFilter: 'url(#active)' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: active ? 1 : 0 }}
+                    transition={{ type: 'tween', duration: 0.5, ease: cubicBezier(0, 1, 0.2, 1) }}
                   />
                 )}
 
@@ -316,6 +345,17 @@ const SvgDefs: FC<{ className?: string; displacementMapUrl?: string }> = ({ clas
             <feFuncR type="gamma" amplitude="1" exponent="0.9" offset="0" />
             <feFuncG type="gamma" amplitude="1" exponent="0.9" offset="0" />
             <feFuncB type="gamma" amplitude="1" exponent="0.9" offset="0" />
+          </feComponentTransfer>
+        </filter>
+
+        <filter id="active" colorInterpolationFilters="sRGB">
+          <feFlood floodColor="#ffffff" floodOpacity="0.1" result="whiteLayer" />
+          <feBlend in="SourceGraphic" in2="whiteLayer" mode="overlay" />
+          <feColorMatrix type="saturate" values="1.1" />
+          <feComponentTransfer>
+            <feFuncR type="gamma" amplitude="1.3" exponent="0.8" offset="0.2" />
+            <feFuncG type="gamma" amplitude="1.3" exponent="0.8" offset="0.2" />
+            <feFuncB type="gamma" amplitude="1.3" exponent="0.8" offset="0.2" />
           </feComponentTransfer>
         </filter>
 

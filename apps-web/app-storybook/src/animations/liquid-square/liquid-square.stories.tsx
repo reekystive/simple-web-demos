@@ -33,7 +33,7 @@ export const LiquidDivWithText: StoryObj = {
     layout: 'centered',
   },
   render: () => (
-    <LiquidDiv liquidConfig={{ disableDraggingCursor: true }} className="max-w-lg rounded-xl bg-neutral-500/20 p-4">
+    <LiquidDiv className="max-w-lg rounded-xl bg-neutral-500/20 p-4">
       Nulla eu elit excepteur sunt. Cupidatat minim anim minim aliqua velit id. Velit aute exercitation veniam non
       eiusmod exercitation cillum voluptate laborum labore consequat enim nulla est. Nostrud enim voluptate sit aute
       laborum officia fugiat ut ullamco commodo ullamco nulla duis. Excepteur nisi veniam laboris aute magna. Magna nisi
@@ -48,7 +48,7 @@ export const LiquidRoundButton: StoryObj = {
     layout: 'centered',
   },
   render: () => (
-    <LiquidDiv liquidConfig={{ disableDraggingCursor: true }} className="h-12 w-12">
+    <LiquidDiv className="h-12 w-12">
       <div
         className={`
           flex h-full w-full flex-col items-center justify-center rounded-full bg-neutral-500/20 outline-[0.5px]
@@ -68,7 +68,10 @@ export const LiquidMemoji: StoryObj = {
   },
   render: () => {
     return (
-      <LiquidDiv className="group h-12 w-12">
+      <LiquidDiv
+        liquidConfig={{ hoverCursorShape: 'pointer', activeAndOutsideCursorShape: 'pointer' }}
+        className="group h-12 w-12"
+      >
         <SpringTap className="relative h-full w-full overflow-clip rounded-full select-none">
           <ImageWithState
             draggable={false}

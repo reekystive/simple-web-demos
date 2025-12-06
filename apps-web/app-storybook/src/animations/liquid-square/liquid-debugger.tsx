@@ -1,7 +1,7 @@
 import { cn } from '@monorepo/utils';
 import { motion, PanInfo } from 'motion/react';
 import { FC, useCallback, useState } from 'react';
-import { useGrabbingCursor } from './use-grabbing-cursor.js';
+import { useBodyCursor } from './use-body-cursor.js';
 import { useLiquidStretch } from './use-liquid-stretch.js';
 
 const baseWidth = 200;
@@ -12,7 +12,7 @@ export const LiquidDebugger: FC<{ className?: string }> = ({ className }) => {
 
   const [grabbing, setGrabbing] = useState(false);
 
-  useGrabbingCursor(grabbing);
+  useBodyCursor(grabbing ? 'grabbing' : null);
 
   const handlePanStart = useCallback(() => {
     setGrabbing(true);
