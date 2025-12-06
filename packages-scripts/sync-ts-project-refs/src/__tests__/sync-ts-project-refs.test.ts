@@ -3,15 +3,16 @@
  */
 
 import * as fs from 'node:fs/promises';
+import * as os from 'node:os';
 import * as path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { parseWorkspace } from '../config-reader.js';
-import { findAllPackageJsons, readTsConfig, writeTsConfig } from '../fs-utils.js';
-import { buildPackageMap, getStandardReferencePath } from '../package-parser.js';
+import { findAllPackageJsons } from '../fs-utils.js';
+import { buildPackageMap } from '../package-parser.js';
 import { updatePackageReferences } from '../package-updater.js';
-import type { PackageInfo } from '../types.js';
+import { updateRootTsconfig } from '../root-updater.js';
 
 interface TestCase {
   name: string;
@@ -51,8 +52,9 @@ describe('sync-ts-project-refs', () => {
   let tempDir = '';
 
   beforeEach(async () => {
-    // Create a temporary directory for each test
-    tempDir = path.join(testDir, `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    // Create a temporary directory for each test in the OS temp directory
+    const tempBase = os.tmpdir();
+    tempDir = path.join(tempBase, `sync-ts-project-refs-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     await fs.mkdir(tempDir, { recursive: true });
   });
 
@@ -85,12 +87,10 @@ describe('sync-ts-project-refs', () => {
       }
 
       // Update root tsconfig.json
-      await updateRootTsconfig(workDir, packageMap);
+      await updateRootTsconfig(workDir, packageMap, false);
 
-      // Compare with expected output
-      // For comment preservation test, compare exact text including comments
-      const preserveComments = testCase.dir === 'case-06-preserve-comments';
-      await compareDirectories(workDir, expectedDir, preserveComments);
+      // Compare with expected output - always preserve comments
+      await compareDirectories(workDir, expectedDir);
     });
 
     it(`${testCase.name} - idempotent (no changes on second run)`, async () => {
@@ -112,12 +112,16 @@ describe('sync-ts-project-refs', () => {
           changesCount += result.packagesUpdated;
         }
 
+        // Update root tsconfig and check for changes
+        const rootChanged = await updateRootTsconfig(workDir, packageMap, false);
+
         if (i === 0) {
           // First run should make changes
-          expect(changesCount).toBeGreaterThan(0);
+          expect(changesCount > 0 || rootChanged).toBe(true);
         } else {
           // Second run should make no changes
           expect(changesCount).toBe(0);
+          expect(rootChanged).toBe(false);
         }
       }
     });
@@ -146,33 +150,33 @@ async function copyDir(src: string, dest: string): Promise<void> {
 /**
  * Compare two directories recursively
  */
-async function compareDirectories(actualDir: string, expectedDir: string, preserveComments = false): Promise<void> {
+async function compareDirectories(actualDir: string, expectedDir: string): Promise<void> {
   const expectedFiles = await getAllFiles(expectedDir);
+  const actualFiles = await getAllFiles(actualDir);
 
-  for (const relPath of expectedFiles) {
-    const actualPath = path.join(actualDir, relPath);
-    const expectedPath = path.join(expectedDir, relPath);
+  // Check that all expected files exist and match
+  for (const relativePath of expectedFiles) {
+    const actualPath = path.join(actualDir, relativePath);
+    const expectedPath = path.join(expectedDir, relativePath);
 
     // Check if file exists
     try {
       await fs.access(actualPath);
     } catch {
-      throw new Error(`Expected file not found: ${relPath}`);
+      throw new Error(`Expected file not found: ${relativePath}`);
     }
 
-    // Compare file contents
+    // Compare file contents - always compare as exact text to preserve comments
     const actualContent = await fs.readFile(actualPath, 'utf-8');
     const expectedContent = await fs.readFile(expectedPath, 'utf-8');
+    expect(actualContent).toBe(expectedContent);
+  }
 
-    // For JSON files, parse and compare to ignore formatting differences
-    // Unless we're testing comment preservation
-    if (relPath.endsWith('.json') && !preserveComments) {
-      const actualJson = JSON.parse(actualContent) as unknown;
-      const expectedJson = JSON.parse(expectedContent) as unknown;
-      expect(actualJson).toEqual(expectedJson);
-    } else {
-      expect(actualContent).toBe(expectedContent);
-    }
+  // Check for unexpected extra files in actual directory
+  const expectedSet = new Set(expectedFiles);
+  const unexpectedFiles = actualFiles.filter((file) => !expectedSet.has(file));
+  if (unexpectedFiles.length > 0) {
+    throw new Error(`Unexpected files found in actual directory: ${unexpectedFiles.join(', ')}`);
   }
 }
 
@@ -193,33 +197,4 @@ async function getAllFiles(dir: string, baseDir = dir): Promise<string[]> {
   }
 
   return files;
-}
-
-/**
- * Update root tsconfig.json with all package references
- */
-async function updateRootTsconfig(workDir: string, packageMap: Map<string, PackageInfo>): Promise<void> {
-  const rootTsconfigPath = path.join(workDir, 'tsconfig.json');
-  const rootTsconfig = await readTsConfig(rootTsconfigPath);
-  const rootReferences: { path: string }[] = [];
-
-  // Add all workspace packages
-  const packagePaths = Array.from(packageMap.values())
-    .filter((info) => !info.packageConfig.excludeThisPackage)
-    .map((info) => {
-      const targetPath = getStandardReferencePath(info);
-      let pkgPath = path.relative(workDir, targetPath);
-      if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
-        pkgPath = `./${pkgPath}`;
-      }
-      return pkgPath;
-    })
-    .sort();
-
-  for (const pkgPath of packagePaths) {
-    rootReferences.push({ path: pkgPath });
-  }
-
-  rootTsconfig.references = rootReferences;
-  await writeTsConfig(rootTsconfigPath, rootTsconfig, false);
 }

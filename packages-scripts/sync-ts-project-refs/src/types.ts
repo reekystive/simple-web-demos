@@ -43,7 +43,7 @@ export interface PackageInfo {
   name: string;
   packageJsonPath: string;
   tsconfigPath: string; // Standard tsconfig.json path
-  tsconfigTsserverPath: string | null; // Main tsconfig path (could be overridden)
+  alterTsconfigPath: string | null; // Canonical tsconfig path (could be overridden by alter tsconfig)
   tsconfigPaths: string[]; // Non-standard tsconfig.*.json paths
   workspaceDeps: string[];
   packageConfig: PackageConfig;

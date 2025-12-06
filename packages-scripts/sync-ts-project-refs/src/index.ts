@@ -19,7 +19,7 @@ import { $ } from 'zx';
 
 import { parseWorkspace } from './config-reader.js';
 import { findAllPackageJsons, findSiblingTsconfigs, readTsConfig, writeTsConfig } from './fs-utils.js';
-import { buildPackageMap, getStandardReferencePath } from './package-parser.js';
+import { buildPackageMap, getCanonicalReferencePath } from './package-parser.js';
 import { updatePackageReferences } from './package-updater.js';
 
 $.verbose = false;
@@ -263,7 +263,7 @@ async function main(): Promise<void> {
       const packagePaths = Array.from(packageMap.values())
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
-          const targetPath = getStandardReferencePath(info);
+          const targetPath = getCanonicalReferencePath(info);
           let pkgPath = path.relative(workspaceRoot, targetPath);
           if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
             pkgPath = `./${pkgPath}`;
@@ -336,7 +336,7 @@ async function main(): Promise<void> {
       const packagePaths = Array.from(packageMap.values())
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
-          const targetPath = getStandardReferencePath(info);
+          const targetPath = getCanonicalReferencePath(info);
           let pkgPath = path.relative(workspaceRoot, targetPath);
           if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
             pkgPath = `./${pkgPath}`;

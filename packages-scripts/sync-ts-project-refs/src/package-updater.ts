@@ -7,7 +7,7 @@ import * as path from 'node:path';
 import chalk from 'chalk';
 
 import { calculateRelativePath, findSiblingTsconfigs, readTsConfig, writeTsConfig } from './fs-utils.js';
-import { getStandardReferencePath } from './package-parser.js';
+import { getCanonicalReferencePath } from './package-parser.js';
 import { filterReferences, mergeExtraRefs, updateSiblingTsconfigReferences } from './reference-merger.js';
 import type { PackageInfo } from './types.js';
 
@@ -21,10 +21,10 @@ export async function updatePackageReferences(
   dryRun = false,
   verbose = false
 ): Promise<{ packagesUpdated: number; tsconfigsUpdated: number }> {
-  const { name, tsconfigPath, tsconfigTsserverPath, workspaceDeps, tsconfigConfigs, packageConfig } = packageInfo;
+  const { name, tsconfigPath, alterTsconfigPath, workspaceDeps, tsconfigConfigs, packageConfig } = packageInfo;
 
   let mainConfigChanged = false;
-  let tsserverConfigChanged = false;
+  let alterConfigChanged = false;
   let siblingUpdateCount = 0;
   const updatedSiblings: string[] = [];
 
@@ -32,8 +32,8 @@ export async function updatePackageReferences(
   const packageSkipRefs = packageConfig.skipRefs ?? [];
 
   // If package has an alter tsconfig, handle the logic based on configuration
-  if (tsconfigTsserverPath && packageConfig.useAlterTsconfig) {
-    const alterTsconfigName = path.basename(tsconfigTsserverPath);
+  if (alterTsconfigPath && packageConfig.useAlterTsconfig) {
+    const alterTsconfigName = path.basename(alterTsconfigPath);
 
     // Update tsconfig.json based on configuration
     const tsconfig = await readTsConfig(tsconfigPath);
@@ -55,7 +55,7 @@ export async function updatePackageReferences(
             }
             continue;
           }
-          const targetPath = getStandardReferencePath(depInfo);
+          const targetPath = getCanonicalReferencePath(depInfo);
           const relativePath = calculateRelativePath(tsconfigPath, targetPath);
           tsconfigReferences.push({ path: relativePath });
         }
@@ -111,19 +111,19 @@ export async function updatePackageReferences(
     }
 
     // Update alter tsconfig with all siblings and workspace deps
-    const tsserverConfig = await readTsConfig(tsconfigTsserverPath);
+    const alterConfig = await readTsConfig(alterTsconfigPath);
 
     // Find sibling tsconfigs (exclude both tsconfig.json and the alter tsconfig)
-    const siblingTsconfigs = await findSiblingTsconfigs(tsconfigTsserverPath, ['tsconfig.json']);
+    const siblingTsconfigs = await findSiblingTsconfigs(alterTsconfigPath, ['tsconfig.json']);
 
     // Filter out excluded tsconfigs
     const includedSiblings = siblingTsconfigs.filter((sibling) => {
-      const siblingPath = path.resolve(path.dirname(tsconfigTsserverPath), sibling);
+      const siblingPath = path.resolve(path.dirname(alterTsconfigPath), sibling);
       const config = tsconfigConfigs.get(siblingPath);
       return !config?.excludeThisTsconfig;
     });
 
-    let tsserverReferences: { path: string }[] = includedSiblings.map((p) => ({ path: p }));
+    let alterReferences: { path: string }[] = includedSiblings.map((p) => ({ path: p }));
 
     // Add workspace dependencies to alter tsconfig
     for (const depName of workspaceDeps) {
@@ -135,9 +135,9 @@ export async function updatePackageReferences(
           }
           continue;
         }
-        const targetPath = getStandardReferencePath(depInfo);
-        const relativePath = calculateRelativePath(tsconfigTsserverPath, targetPath);
-        tsserverReferences.push({ path: relativePath });
+        const targetPath = getCanonicalReferencePath(depInfo);
+        const relativePath = calculateRelativePath(alterTsconfigPath, targetPath);
+        alterReferences.push({ path: relativePath });
       } else if (verbose) {
         console.log(chalk.gray(`    ${name}: dependency ${depName} not found in workspace`));
       }
@@ -146,51 +146,51 @@ export async function updatePackageReferences(
     // Add package-level extra refs to alter tsconfig
     for (const extraRef of packageConfig.extraRefs ?? []) {
       const relativePath = calculateRelativePath(
-        tsconfigTsserverPath,
-        path.resolve(path.dirname(tsconfigTsserverPath), extraRef.path)
+        alterTsconfigPath,
+        path.resolve(path.dirname(alterTsconfigPath), extraRef.path)
       );
-      tsserverReferences.push({ path: relativePath });
+      alterReferences.push({ path: relativePath });
     }
 
     // Filter out skipped references
-    tsserverReferences = filterReferences(tsserverReferences, packageSkipRefs, tsconfigTsserverPath);
+    alterReferences = filterReferences(alterReferences, packageSkipRefs, alterTsconfigPath);
 
-    const existingTsserverRefs = tsserverConfig.references ?? [];
-    const existingTsserverPaths = new Set(existingTsserverRefs.map((r) => r.path));
-    const newTsserverPaths = new Set(tsserverReferences.map((r) => r.path));
+    const existingAlterRefs = alterConfig.references ?? [];
+    const existingAlterPaths = new Set(existingAlterRefs.map((r) => r.path));
+    const newAlterPaths = new Set(alterReferences.map((r) => r.path));
 
     // Check if there are changes by comparing sets (order-independent)
-    const tsserverHasChanges =
-      existingTsserverRefs.length !== tsserverReferences.length ||
-      !Array.from(newTsserverPaths).every((p) => existingTsserverPaths.has(p)) ||
-      !Array.from(existingTsserverPaths).every((p) => newTsserverPaths.has(p));
+    const alterHasChanges =
+      existingAlterRefs.length !== alterReferences.length ||
+      !Array.from(newAlterPaths).every((p) => existingAlterPaths.has(p)) ||
+      !Array.from(existingAlterPaths).every((p) => newAlterPaths.has(p));
 
-    if (tsserverHasChanges) {
+    if (alterHasChanges) {
       // Only sort when we actually need to update
       const siblingCount = includedSiblings.length;
-      if (tsserverReferences.length > siblingCount) {
-        const workspaceRefs = tsserverReferences.slice(siblingCount);
+      if (alterReferences.length > siblingCount) {
+        const workspaceRefs = alterReferences.slice(siblingCount);
         workspaceRefs.sort((a, b) => a.path.localeCompare(b.path));
-        tsserverReferences.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
+        alterReferences.splice(siblingCount, workspaceRefs.length, ...workspaceRefs);
       }
 
-      if (tsserverReferences.length > 0) {
-        tsserverConfig.references = tsserverReferences;
+      if (alterReferences.length > 0) {
+        alterConfig.references = alterReferences;
       } else {
-        delete tsserverConfig.references;
+        delete alterConfig.references;
       }
       if (!dryRun) {
-        const actuallyChanged = await writeTsConfig(tsconfigTsserverPath, tsserverConfig);
-        tsserverConfigChanged = actuallyChanged;
+        const actuallyChanged = await writeTsConfig(alterTsconfigPath, alterConfig);
+        alterConfigChanged = actuallyChanged;
       } else {
-        tsserverConfigChanged = true;
+        alterConfigChanged = true;
       }
     }
 
     // Update other sibling tsconfig.*.json files with workspace dependencies
     // Exclude the alter tsconfig since it's already been updated above
     const { tsconfigPaths } = packageInfo;
-    const siblingsToUpdate = tsconfigPaths.filter((p) => p !== tsconfigTsserverPath);
+    const siblingsToUpdate = tsconfigPaths.filter((p) => p !== alterTsconfigPath);
 
     for (const siblingPath of siblingsToUpdate) {
       const siblingConfig = tsconfigConfigs.get(siblingPath);
@@ -212,7 +212,7 @@ export async function updatePackageReferences(
     }
 
     // Log changes
-    if (mainConfigChanged || tsserverConfigChanged) {
+    if (mainConfigChanged || alterConfigChanged) {
       console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name}`));
 
       if (mainConfigChanged && verbose) {
@@ -227,8 +227,8 @@ export async function updatePackageReferences(
         }
       }
 
-      if (tsserverConfigChanged) {
-        const refCount = tsserverReferences.length;
+      if (alterConfigChanged) {
+        const refCount = alterReferences.length;
         console.log(chalk.gray(`    ${dryRun ? '[DRY RUN] ' : ''}${alterTsconfigName} (${refCount} references)`));
       }
     }
@@ -260,7 +260,7 @@ export async function updatePackageReferences(
           }
           continue;
         }
-        const targetPath = getStandardReferencePath(depInfo);
+        const targetPath = getCanonicalReferencePath(depInfo);
         const relativePath = calculateRelativePath(tsconfigPath, targetPath);
         references.push({ path: relativePath });
       } else if (verbose) {
@@ -372,11 +372,11 @@ export async function updatePackageReferences(
   }
 
   // Always merge extra-refs for alter tsconfig if it exists
-  if (tsconfigTsserverPath) {
-    const tsserverConfig = tsconfigConfigs.get(tsconfigTsserverPath);
-    if (tsserverConfig) {
-      const tsserverExtraRefsMerged = await mergeExtraRefs(tsconfigTsserverPath, tsserverConfig, name, dryRun, verbose);
-      if (tsserverExtraRefsMerged) {
+  if (alterTsconfigPath) {
+    const alterConfig = tsconfigConfigs.get(alterTsconfigPath);
+    if (alterConfig) {
+      const alterExtraRefsMerged = await mergeExtraRefs(alterTsconfigPath, alterConfig, name, dryRun, verbose);
+      if (alterExtraRefsMerged) {
         extraRefsMerged = true;
       }
     }
@@ -389,7 +389,7 @@ export async function updatePackageReferences(
         console.log(chalk.gray(`    ${dryRun ? '[DRY RUN] ' : ''}✓ Updated ${siblingName}`));
       }
     } else {
-      if (!mainConfigChanged && !tsserverConfigChanged) {
+      if (!mainConfigChanged && !alterConfigChanged) {
         console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (sibling tsconfigs only)`));
       }
       console.log(chalk.gray(`    ${dryRun ? '[DRY RUN] ' : ''}Updated ${siblingUpdateCount} sibling tsconfig(s)`));
@@ -397,13 +397,13 @@ export async function updatePackageReferences(
   }
 
   // If we only merged extra-refs and nothing else changed, log it
-  if (extraRefsMerged && !mainConfigChanged && !tsserverConfigChanged && siblingUpdateCount === 0) {
+  if (extraRefsMerged && !mainConfigChanged && !alterConfigChanged && siblingUpdateCount === 0) {
     console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (extra-refs merged)`));
   }
 
-  const hasAnyChanges = mainConfigChanged || tsserverConfigChanged || siblingUpdateCount > 0 || extraRefsMerged;
+  const hasAnyChanges = mainConfigChanged || alterConfigChanged || siblingUpdateCount > 0 || extraRefsMerged;
   const tsconfigsUpdated =
-    (mainConfigChanged ? 1 : 0) + (tsserverConfigChanged ? 1 : 0) + siblingUpdateCount + (extraRefsMerged ? 1 : 0);
+    (mainConfigChanged ? 1 : 0) + (alterConfigChanged ? 1 : 0) + siblingUpdateCount + (extraRefsMerged ? 1 : 0);
 
   return {
     packagesUpdated: hasAnyChanges ? 1 : 0,

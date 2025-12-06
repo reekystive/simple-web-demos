@@ -7,7 +7,7 @@ import * as path from 'node:path';
 import chalk from 'chalk';
 
 import { calculateRelativePath, readTsConfig, writeTsConfig } from './fs-utils.js';
-import { getStandardReferencePath } from './package-parser.js';
+import { getCanonicalReferencePath } from './package-parser.js';
 import type { PackageInfo, TsconfigConfig } from './types.js';
 
 /**
@@ -132,8 +132,8 @@ export async function updateSiblingTsconfigReferences(
         if (depInfo.packageConfig.excludeThisPackage) {
           continue;
         }
-        // Use main tsconfig if available, otherwise tsconfig.json
-        const targetPath = getStandardReferencePath(depInfo);
+        // Use canonical tsconfig if available, otherwise tsconfig.json
+        const targetPath = getCanonicalReferencePath(depInfo);
         const relativePath = calculateRelativePath(siblingTsconfigPath, targetPath);
         references.push({ path: relativePath });
       }

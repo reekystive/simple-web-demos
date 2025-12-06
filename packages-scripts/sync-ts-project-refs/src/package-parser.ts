@@ -47,17 +47,17 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
     }
 
     // Determine main tsconfig path based on configuration
-    let tsconfigTsserverPath: string | null = null;
+    let alterTsconfigPath: string | null = null;
 
     if (packageConfig.useAlterTsconfig && packageConfig.alterTsconfigPath) {
       const altPath = path.resolve(packageDir, packageConfig.alterTsconfigPath);
       try {
         await fs.access(altPath);
-        tsconfigTsserverPath = altPath;
+        alterTsconfigPath = altPath;
         if (verbose) {
           console.log(
             chalk.gray(
-              `  ${pkg.name}: using ${packageConfig.alterTsconfigPath} as alter tsconfig (will be used as standard reference)`
+              `  ${pkg.name}: using ${packageConfig.alterTsconfigPath} as alter tsconfig (will be used as canonical reference)`
             )
           );
         }
@@ -75,12 +75,12 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
       const legacyTsserverPath = path.join(packageDir, 'tsconfig.tsserver.json');
       try {
         await fs.access(legacyTsserverPath);
-        tsconfigTsserverPath = legacyTsserverPath;
+        alterTsconfigPath = legacyTsserverPath;
         if (verbose) {
-          console.log(chalk.gray(`  ${pkg.name}: has tsconfig.tsserver.json (will be used as standard reference)`));
+          console.log(chalk.gray(`  ${pkg.name}: has tsconfig.tsserver.json (will be used as canonical reference)`));
         }
       } catch {
-        // No tsserver config, continue normally
+        // No alter tsconfig, continue normally
       }
     }
 
@@ -110,8 +110,8 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
 
       // Also read config for main tsconfig files
       tsconfigConfigs.set(tsconfigPath, await readTsconfigConfig(tsconfigPath));
-      if (tsconfigTsserverPath) {
-        tsconfigConfigs.set(tsconfigTsserverPath, await readTsconfigConfig(tsconfigTsserverPath));
+      if (alterTsconfigPath) {
+        tsconfigConfigs.set(alterTsconfigPath, await readTsconfigConfig(alterTsconfigPath));
       }
 
       tsconfigPaths.sort();
@@ -145,7 +145,7 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
       name: pkg.name,
       packageJsonPath,
       tsconfigPath,
-      tsconfigTsserverPath,
+      alterTsconfigPath,
       tsconfigPaths,
       workspaceDeps: Array.from(workspaceDeps),
       packageConfig,
@@ -174,8 +174,8 @@ export async function buildPackageMap(packageJsons: string[], verbose = false): 
 }
 
 /**
- * Get the standard reference path for a package (alter tsconfig if configured, otherwise tsconfig.json)
+ * Get the canonical reference path for a package (alter tsconfig if configured, otherwise tsconfig.json)
  */
-export function getStandardReferencePath(packageInfo: PackageInfo): string {
-  return packageInfo.tsconfigTsserverPath ?? packageInfo.tsconfigPath;
+export function getCanonicalReferencePath(packageInfo: PackageInfo): string {
+  return packageInfo.alterTsconfigPath ?? packageInfo.tsconfigPath;
 }
