@@ -3,3 +3,4 @@ liquid glass:
 - [ ] support custom / adaptive size, just like a simple div (with resize observer)
 - [ ] support gooey effect
 - [ ] add local highlight effect, moving with finger
+- [ ] add dispersion effect for glass material
