@@ -36,11 +36,11 @@ export const SvgDisplacementMap: FC = () => {
   const [showEdgeHighlightLayer, setShowEdgeHighlightLayer] = useState(true);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-2">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-2 py-4">
       <SvgDefs className="absolute" displacementMapUrl={displacementMap?.dataUrl} />
 
       <h2 className="-mb-1 text-xl">SVG Displacement Map</h2>
-      <p className="pb-6 text-sm">Drag the circle in the images to see the displacement effects.</p>
+      <p className="px-2 pb-6 text-sm">Drag the circle in the images to see the displacement effects.</p>
 
       {/* controls */}
       <div className={`flex max-w-3xl flex-row flex-wrap place-content-center gap-2 overflow-clip px-2 select-none`}>
@@ -163,7 +163,7 @@ export const SvgDisplacementMap: FC = () => {
       {/* results */}
       <div
         className={`
-          flex flex-col gap-4 p-4 select-none
+          flex flex-col gap-4 px-4 select-none
           md:flex-row md:gap-8
         `}
       >
