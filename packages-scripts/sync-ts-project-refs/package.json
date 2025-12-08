@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "chalk": "catalog:",
-    "fast-glob": "catalog:",
+    "globby": "catalog:",
     "jsonc-parser": "catalog:",
     "prettier": "catalog:",
     "yaml": "catalog:",

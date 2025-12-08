@@ -5,7 +5,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import fg from 'fast-glob';
+import { globby } from 'globby';
 import * as jsonc from 'jsonc-parser';
 
 import type { TsConfig, WorkspaceConfig } from './types.js';
@@ -19,9 +19,10 @@ export async function findAllPackageJsons(
 ): Promise<string[]> {
   const patterns = includePatterns.map((p) => path.join(p, 'package.json'));
 
-  const files = await fg(patterns, {
+  const files = await globby(patterns, {
     cwd: monorepoRoot,
     absolute: true,
+    gitignore: true,
     ignore: excludePatterns.map((p) => path.join(p, '**')),
   });
 
