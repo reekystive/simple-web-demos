@@ -19,10 +19,10 @@
     "test:coverage": "vitest run --coverage",
     "test:update": "vitest run --update",
     "test:watch": "vitest --watch",
-    "tsc:build": "tsc --build tsconfig.json",
-    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build": "tsgo --build tsconfig.json",
+    "tsc:build:clean": "tsgo --build tsconfig.json --clean",
     "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
-    "tsc:build:watch": "tsc --build tsconfig.json --watch"
+    "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "dependencies": {
     "@faker-js/faker": "catalog:",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:^",
+    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

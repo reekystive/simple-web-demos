@@ -15,16 +15,10 @@
     "test:coverage": "vitest run --coverage",
     "test:update": "vitest run --update",
     "test:watch": "vitest --watch",
-    "tsc:build": "tsc --build tsconfig.json",
-    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build": "tsgo --build tsconfig.json",
+    "tsc:build:clean": "tsgo --build tsconfig.json --clean",
     "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
-    "tsc:build:watch": "tsc --build tsconfig.json --watch"
-  },
-  "devDependencies": {
-    "@monorepo/tsconfig": "workspace:^",
-    "tsx": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "dependencies": {
     "chalk": "catalog:",
@@ -34,5 +28,12 @@
     "yaml": "catalog:",
     "zod": "catalog:",
     "zx": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:^",
+    "@typescript/native-preview": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

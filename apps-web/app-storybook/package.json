@@ -15,10 +15,10 @@
     "test:coverage": "vitest run --coverage",
     "test:update": "vitest run --update",
     "test:watch": "vitest --watch",
-    "tsc:build": "tsc --build tsconfig.json",
-    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build": "tsgo --build tsconfig.json",
+    "tsc:build:clean": "tsgo --build tsconfig.json --clean",
     "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
-    "tsc:build:watch": "tsc --build tsconfig.json --watch"
+    "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
@@ -54,6 +54,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-react-swc": "catalog:",
     "csstype": "catalog:",
     "storybook": "catalog:",

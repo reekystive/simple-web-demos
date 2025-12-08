@@ -11,7 +11,7 @@
     "test:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test",
     "test:update:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test:update",
     "tsc:build:packages": "pnpm --filter '*' --workspace-concurrency=-2 run tsc:build",
-    "tsc:build:root": "tsc --build tsconfig.json"
+    "tsc:build:root": "tsgo --build tsconfig.json"
   },
   "devDependencies": {
     "@eslint/css": "catalog:",
@@ -23,6 +23,7 @@
     "@types/eslint-config-prettier": "catalog:",
     "@types/node": "catalog:",
     "@typescript-eslint/types": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-better-tailwindcss": "catalog:",

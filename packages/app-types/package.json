@@ -12,10 +12,10 @@
   "scripts": {
     "build": "pnpm run tsc:build",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
-    "tsc:build": "tsc --build tsconfig.json",
-    "tsc:build:clean": "tsc --build tsconfig.json --clean",
+    "tsc:build": "tsgo --build tsconfig.json",
+    "tsc:build:clean": "tsgo --build tsconfig.json --clean",
     "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
-    "tsc:build:watch": "tsc --build tsconfig.json --watch"
+    "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:^",
