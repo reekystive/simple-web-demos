@@ -2,9 +2,14 @@
  * Type definitions for sync-ts-project-refs
  */
 
+export interface RootConfig {
+  includeIndirectDeps?: boolean;
+}
+
 export interface WorkspaceConfig {
   includePatterns: string[];
   excludePatterns: string[];
+  rootConfig: RootConfig;
 }
 
 export interface PackageJson {

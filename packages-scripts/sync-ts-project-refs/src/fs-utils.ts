@@ -15,7 +15,7 @@ import type { TsConfig, WorkspaceConfig } from './types.js';
  */
 export async function findAllPackageJsons(
   monorepoRoot: string,
-  { includePatterns, excludePatterns }: WorkspaceConfig
+  { includePatterns, excludePatterns }: Pick<WorkspaceConfig, 'includePatterns' | 'excludePatterns'>
 ): Promise<string[]> {
   const patterns = includePatterns.map((p) => path.join(p, 'package.json'));
 

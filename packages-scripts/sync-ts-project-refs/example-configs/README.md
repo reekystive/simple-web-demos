@@ -4,6 +4,16 @@ This directory contains example configuration files for the Sync TypeScript Proj
 
 ## Files
 
+### `tsconfig.stspr-root.yaml`
+
+Root-level configuration that controls behavior for the entire workspace.
+
+**Location**: Place in the workspace root directory (same level as `pnpm-workspace.yaml`)
+
+**Purpose**:
+
+- Toggle whether indirect (transitive) workspace dependencies should also be added as TypeScript project references
+
 ### `tsconfig.stspr-package.yaml`
 
 Package-level configuration that controls how the entire package is processed by the STSPR tool.

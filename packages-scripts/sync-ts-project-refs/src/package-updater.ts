@@ -12,6 +12,48 @@ import { filterReferences, mergeExtraRefs, updateSiblingTsconfigReferences } fro
 import type { PackageInfo } from './types.js';
 
 /**
+ * Build the dependency list for a package, optionally including transitive workspace deps.
+ */
+function collectWorkspaceDependencies(
+  packageInfo: PackageInfo,
+  packageMap: Map<string, PackageInfo>,
+  includeIndirectDeps: boolean
+): string[] {
+  if (!includeIndirectDeps) {
+    return packageInfo.workspaceDeps;
+  }
+
+  const allDeps = new Set<string>();
+  const queue = [...packageInfo.workspaceDeps];
+
+  while (queue.length > 0) {
+    const depName = queue.shift();
+    if (!depName) {
+      continue;
+    }
+
+    if (depName === packageInfo.name || allDeps.has(depName)) {
+      continue;
+    }
+
+    allDeps.add(depName);
+
+    const depInfo = packageMap.get(depName);
+    if (!depInfo) {
+      continue;
+    }
+
+    for (const nextDep of depInfo.workspaceDeps) {
+      if (!allDeps.has(nextDep) && nextDep !== packageInfo.name) {
+        queue.push(nextDep);
+      }
+    }
+  }
+
+  return Array.from(allDeps);
+}
+
+/**
  * Update a single package's tsconfig.json with references
  */
 export async function updatePackageReferences(
@@ -19,9 +61,11 @@ export async function updatePackageReferences(
   packageMap: Map<string, PackageInfo>,
   monorepoRoot: string,
   dryRun = false,
-  verbose = false
+  verbose = false,
+  includeIndirectDeps = false
 ): Promise<{ packagesUpdated: number; tsconfigsUpdated: number }> {
-  const { name, tsconfigPath, alterTsconfigPath, workspaceDeps, tsconfigConfigs, packageConfig } = packageInfo;
+  const { name, tsconfigPath, alterTsconfigPath, tsconfigConfigs, packageConfig } = packageInfo;
+  const workspaceDeps = collectWorkspaceDependencies(packageInfo, packageMap, includeIndirectDeps);
 
   let mainConfigChanged = false;
   let alterConfigChanged = false;

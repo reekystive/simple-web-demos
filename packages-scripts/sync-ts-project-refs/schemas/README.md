@@ -31,6 +31,16 @@ extra-refs:
 
 **Files**: `tsconfig.stspr.yaml`, `tsconfig.{name}.stspr.yaml`
 
+### Root-level Configuration
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr-root.schema.json
+
+include-indirect-deps: false
+```
+
+**File**: `tsconfig.stspr-root.yaml` (place alongside `pnpm-workspace.yaml`)
+
 ## Editor Setup
 
 Install the [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) in VS Code/Cursor for:
@@ -44,5 +54,6 @@ Install the [YAML extension](https://marketplace.visualstudio.com/items?itemName
 
 - `tsconfig.stspr-package.schema.json` - Package-level configuration schema
 - `tsconfig.stspr.schema.json` - TypeScript config-level configuration schema
+- `tsconfig.stspr-root.schema.json` - Root-level configuration schema
 
 Both schemas follow [JSON Schema Draft 07](https://json-schema.org/specification-links.html#draft-7) specification.

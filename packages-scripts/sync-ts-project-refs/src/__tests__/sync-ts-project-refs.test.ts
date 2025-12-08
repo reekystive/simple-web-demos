@@ -44,6 +44,10 @@ const TEST_CASES: TestCase[] = [
     name: 'alter-tsconfig with sibling tsconfig files',
     dir: 'case-07-alter-tsconfig-with-sibling',
   },
+  {
+    name: 'include indirect dependencies from root config',
+    dir: 'case-08-indirect-deps',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
@@ -77,13 +81,14 @@ describe('sync-ts-project-refs', () => {
       await copyDir(inputDir, workDir);
 
       // Run the sync tool
-      const { includePatterns, excludePatterns } = await parseWorkspace(workDir);
+      const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
+      const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
       const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
       const packageMap = await buildPackageMap(packageJsons, false);
 
       // Update all packages
       for (const packageInfo of packageMap.values()) {
-        await updatePackageReferences(packageInfo, packageMap, workDir, false, false);
+        await updatePackageReferences(packageInfo, packageMap, workDir, false, false, includeIndirectDeps);
       }
 
       // Update root tsconfig.json
@@ -102,13 +107,21 @@ describe('sync-ts-project-refs', () => {
 
       // Run the sync tool twice
       for (let i = 0; i < 2; i++) {
-        const { includePatterns, excludePatterns } = await parseWorkspace(workDir);
+        const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
+        const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
         const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
         const packageMap = await buildPackageMap(packageJsons, false);
 
         let changesCount = 0;
         for (const packageInfo of packageMap.values()) {
-          const result = await updatePackageReferences(packageInfo, packageMap, workDir, false, false);
+          const result = await updatePackageReferences(
+            packageInfo,
+            packageMap,
+            workDir,
+            false,
+            false,
+            includeIndirectDeps
+          );
           changesCount += result.packagesUpdated;
         }
 

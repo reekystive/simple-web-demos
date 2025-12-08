@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../schemas/tsconfig.stspr-root.schema.json
+
+# =============================================================================
+# Root-level Configuration for Sync TypeScript Project References (STSPR)
+# =============================================================================
+#
+# Place this file in the workspace root (next to pnpm-workspace.yaml) to control
+# behavior that affects every package in the monorepo.
+#
+# =============================================================================
+
+# Whether to include transitive workspace dependencies as project references.
+# - false (default): only direct workspace dependencies become references
+# - true: include both direct and indirect workspace dependencies
+include-indirect-deps: false

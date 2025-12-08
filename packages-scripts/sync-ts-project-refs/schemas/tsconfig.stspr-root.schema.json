@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr-root.schema.json",
+  "title": "STSPR Root Configuration",
+  "description": "Root-level configuration for STSPR tool.",
+  "type": "object",
+  "properties": {
+    "include-indirect-deps": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to include transitive workspace dependencies for each package when generating TypeScript project references."
+    }
+  },
+  "additionalProperties": false
+}

@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
-import type { PackageConfig, TsconfigConfig, WorkspaceConfig } from './types.js';
+import type { PackageConfig, RootConfig, TsconfigConfig, WorkspaceConfig } from './types.js';
 
 // Zod schemas for configuration validation
 const WorkspaceConfigSchema = z.object({
@@ -17,6 +17,10 @@ const WorkspaceConfigSchema = z.object({
 
 const RefSchema = z.object({
   path: z.string(),
+});
+
+const RootConfigSchema = z.object({
+  'include-indirect-deps': z.boolean().optional().default(false),
 });
 
 const PackageConfigSchema = z.object({
@@ -46,6 +50,7 @@ export async function parseWorkspace(monorepoRoot: string): Promise<WorkspaceCon
   const content = await fs.readFile(workspaceFile, 'utf-8');
   const rawConfig: unknown = yaml.parse(content);
   const config = WorkspaceConfigSchema.parse(rawConfig);
+  const rootConfig = await readRootConfig(monorepoRoot);
 
   const { packages } = config;
   const includePatterns: string[] = [];
@@ -59,7 +64,7 @@ export async function parseWorkspace(monorepoRoot: string): Promise<WorkspaceCon
     }
   }
 
-  return { includePatterns, excludePatterns };
+  return { includePatterns, excludePatterns, rootConfig };
 }
 
 /**
@@ -100,6 +105,28 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
       skipOptionalDeps: defaultConfig['skip-optional-deps'],
       extraRefs: defaultConfig['extra-refs'],
       skipRefs: defaultConfig['skip-refs'],
+    };
+  }
+}
+
+/**
+ * Read root-level STSPR configuration
+ */
+export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> {
+  const configPath = path.join(monorepoRoot, 'tsconfig.stspr-root.yaml');
+
+  try {
+    const content = await fs.readFile(configPath, 'utf-8');
+    const rawConfig: unknown = yaml.parse(content);
+    const config = RootConfigSchema.parse(rawConfig);
+
+    return {
+      includeIndirectDeps: config['include-indirect-deps'],
+    };
+  } catch {
+    const defaultConfig = RootConfigSchema.parse({});
+    return {
+      includeIndirectDeps: defaultConfig['include-indirect-deps'],
     };
   }
 }

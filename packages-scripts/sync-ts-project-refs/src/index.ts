@@ -167,10 +167,12 @@ async function main(): Promise<void> {
 
   // Parse workspace configuration
   console.log(chalk.blue('📦 Parsing workspace configuration...'));
-  const { includePatterns, excludePatterns } = await parseWorkspace(workspaceRoot);
+  const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workspaceRoot);
+  const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
   if (verbose) {
     console.log(chalk.gray(`  Include patterns: ${includePatterns.join(', ')}`));
     console.log(chalk.gray(`  Exclude patterns: ${excludePatterns.join(', ')}`));
+    console.log(chalk.gray(`  Include indirect dependencies: ${includeIndirectDeps ? 'yes' : 'no'}`));
   }
   console.log();
 
@@ -196,7 +198,14 @@ async function main(): Promise<void> {
 
   for (const packageInfo of packageMap.values()) {
     totalPackages++;
-    const result = await updatePackageReferences(packageInfo, packageMap, workspaceRoot, dryRun || check, verbose);
+    const result = await updatePackageReferences(
+      packageInfo,
+      packageMap,
+      workspaceRoot,
+      dryRun || check,
+      verbose,
+      includeIndirectDeps
+    );
     packagesUpdated += result.packagesUpdated;
     tsconfigsUpdated += result.tsconfigsUpdated;
   }
