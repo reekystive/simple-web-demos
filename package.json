@@ -6,6 +6,7 @@
   "scripts": {
     "lint:eslint:packages": "pnpm --filter '*' --workspace-concurrency=-2 run lint:eslint",
     "lint:eslint:root": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
+    "prepare": "husky",
     "sort-package-json:check": "sort-package-json '**/package.json' --ignore '**/node_modules/' --check",
     "sort-package-json:sort": "sort-package-json '**/package.json' --ignore '**/node_modules/'",
     "test:packages": "pnpm --filter '*' --workspace-concurrency=-2 run test",
@@ -34,6 +35,8 @@
     "eslint-plugin-react-refresh": "catalog:",
     "eslint-plugin-storybook": "catalog:",
     "globals": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-organize-imports": "catalog:",
     "sort-package-json": "catalog:",

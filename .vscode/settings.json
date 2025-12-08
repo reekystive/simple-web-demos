@@ -28,7 +28,8 @@
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "mdx"],
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    ".lintstagedrc": "json"
   },
   "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list"],
   "tailwindCSS.classFunctions": ["cva", "cx", "cn", "clsx", "twMerge", "tw"],
