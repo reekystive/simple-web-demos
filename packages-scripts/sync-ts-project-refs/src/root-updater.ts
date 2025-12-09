@@ -52,9 +52,5 @@ export async function updateRootTsconfig(
 
   rootTsconfig.references = rootReferences;
 
-  if (!dryRun) {
-    return await writeTsConfig(rootTsconfigPath, rootTsconfig, false);
-  }
-
-  return true;
+  return await writeTsConfig(rootTsconfigPath, rootTsconfig, false, dryRun);
 }

@@ -41,7 +41,12 @@ export async function readTsConfig(tsconfigPath: string): Promise<TsConfig> {
  * Write tsconfig.json with proper formatting using jsonc-parser
  * Returns true if the file was actually changed
  */
-export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSolutionStyle = false): Promise<boolean> {
+export async function writeTsConfig(
+  tsconfigPath: string,
+  config: TsConfig,
+  isSolutionStyle = false,
+  simulate = false
+): Promise<boolean> {
   // Read existing content to preserve comments and formatting
   let existingContent = '';
 
@@ -93,6 +98,10 @@ export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSo
       return false;
     }
 
+    if (simulate) {
+      return true;
+    }
+
     // Write the new content
     await fs.writeFile(tsconfigPath, newContent, 'utf-8');
     return true;
@@ -110,6 +119,9 @@ export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSo
 
     // Format with prettier
     const formattedContent = await formatWithPrettier(newContent, tsconfigPath);
+    if (simulate) {
+      return true;
+    }
     await fs.writeFile(tsconfigPath, formattedContent, 'utf-8');
     return true;
   }

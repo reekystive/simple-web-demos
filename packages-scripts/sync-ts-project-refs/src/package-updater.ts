@@ -69,6 +69,8 @@ export async function updatePackageReferences(
 
   let mainConfigChanged = false;
   let alterConfigChanged = false;
+  let mainConfigNeedsChange = false;
+  let alterConfigNeedsChange = false;
   let siblingUpdateCount = 0;
   const updatedSiblings: string[] = [];
 
@@ -138,6 +140,7 @@ export async function updatePackageReferences(
       !Array.from(existingPaths).every((p) => newPaths.has(p));
 
     if (tsconfigHasChanges) {
+      mainConfigNeedsChange = true;
       // Only sort when we actually need to update
       tsconfigReferences.sort((a, b) => a.path.localeCompare(b.path));
 
@@ -146,12 +149,8 @@ export async function updatePackageReferences(
       } else {
         delete tsconfig.references;
       }
-      if (!dryRun) {
-        const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
-        mainConfigChanged = actuallyChanged;
-      } else {
-        mainConfigChanged = true;
-      }
+      const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig, false, dryRun);
+      mainConfigChanged = actuallyChanged;
     }
 
     // Update alter tsconfig with all siblings and workspace deps
@@ -210,6 +209,7 @@ export async function updatePackageReferences(
       !Array.from(existingAlterPaths).every((p) => newAlterPaths.has(p));
 
     if (alterHasChanges) {
+      alterConfigNeedsChange = true;
       // Only sort when we actually need to update
       const siblingCount = includedSiblings.length;
       if (alterReferences.length > siblingCount) {
@@ -223,12 +223,8 @@ export async function updatePackageReferences(
       } else {
         delete alterConfig.references;
       }
-      if (!dryRun) {
-        const actuallyChanged = await writeTsConfig(alterTsconfigPath, alterConfig);
-        alterConfigChanged = actuallyChanged;
-      } else {
-        alterConfigChanged = true;
-      }
+      const actuallyChanged = await writeTsConfig(alterTsconfigPath, alterConfig, false, dryRun);
+      alterConfigChanged = actuallyChanged;
     }
 
     // Update other sibling tsconfig.*.json files with workspace dependencies
@@ -344,6 +340,7 @@ export async function updatePackageReferences(
       !Array.from(existingPaths).every((p) => newPaths.has(p));
 
     if (hasChanges) {
+      mainConfigNeedsChange = true;
       // Only sort when we actually need to update
       const siblingCount = includedSiblings.length;
       if (references.length > siblingCount) {
@@ -357,12 +354,8 @@ export async function updatePackageReferences(
       } else {
         delete tsconfig.references;
       }
-      if (!dryRun) {
-        const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
-        mainConfigChanged = actuallyChanged;
-      } else {
-        mainConfigChanged = true;
-      }
+      const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig, false, dryRun);
+      mainConfigChanged = actuallyChanged;
     }
 
     // Update sibling tsconfig.*.json files with workspace dependencies
@@ -445,9 +438,9 @@ export async function updatePackageReferences(
     console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (extra-refs merged)`));
   }
 
-  const hasAnyChanges = mainConfigChanged || alterConfigChanged || siblingUpdateCount > 0 || extraRefsMerged;
+  const hasAnyChanges = mainConfigNeedsChange || alterConfigNeedsChange || siblingUpdateCount > 0 || extraRefsMerged;
   const tsconfigsUpdated =
-    (mainConfigChanged ? 1 : 0) + (alterConfigChanged ? 1 : 0) + siblingUpdateCount + (extraRefsMerged ? 1 : 0);
+    (mainConfigNeedsChange ? 1 : 0) + (alterConfigNeedsChange ? 1 : 0) + siblingUpdateCount + (extraRefsMerged ? 1 : 0);
 
   return {
     packagesUpdated: hasAnyChanges ? 1 : 0,

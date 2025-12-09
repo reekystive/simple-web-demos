@@ -261,11 +261,7 @@ async function main(): Promise<void> {
 
       if (rootTsconfigHasChanges) {
         rootTsconfig.references = rootTsconfigReferences;
-        if (!dryRun && !check) {
-          rootTsconfigUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true);
-        } else {
-          rootTsconfigUpdated = true;
-        }
+        rootTsconfigUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true, dryRun || check);
         if (rootTsconfigUpdated) {
           console.log(
             chalk.gray(
@@ -327,11 +323,7 @@ async function main(): Promise<void> {
       if (rootHasChanges) {
         rootTsserverConfig.references = rootReferences;
 
-        if (!dryRun && !check) {
-          rootUpdated = await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true);
-        } else {
-          rootUpdated = true;
-        }
+        rootUpdated = await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true, dryRun || check);
 
         if (rootUpdated) {
           console.log(
@@ -396,11 +388,7 @@ async function main(): Promise<void> {
       if (rootHasChanges) {
         rootTsconfig.references = rootReferences;
 
-        if (!dryRun && !check) {
-          rootUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true);
-        } else {
-          rootUpdated = true;
-        }
+        rootUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true, dryRun || check);
 
         if (rootUpdated) {
           console.log(
