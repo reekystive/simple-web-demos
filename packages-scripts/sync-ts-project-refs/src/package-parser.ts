@@ -70,18 +70,6 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
           );
         }
       }
-    } else {
-      // Check if tsconfig.tsserver.json exists (legacy behavior)
-      const legacyTsserverPath = path.join(packageDir, 'tsconfig.tsserver.json');
-      try {
-        await fs.access(legacyTsserverPath);
-        alterTsconfigPath = legacyTsserverPath;
-        if (verbose) {
-          console.log(chalk.gray(`  ${pkg.name}: has tsconfig.tsserver.json (will be used as canonical reference)`));
-        }
-      } catch {
-        // No alter tsconfig, continue normally
-      }
     }
 
     // Find all tsconfig.*.json files

@@ -56,6 +56,10 @@ const TEST_CASES: TestCase[] = [
     name: 'remove stale references',
     dir: 'case-10-remove-reference',
   },
+  {
+    name: 'tsconfig.tsserver.json treated as sibling when use-alter-tsconfig is false',
+    dir: 'case-11-tsserver-as-sibling',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
