@@ -51,16 +51,21 @@ export async function writeTsConfig(tsconfigPath: string, config: TsConfig, isSo
     // Parse existing config to check what needs to be updated
     const existingConfig = jsonc.parse(existingContent) as TsConfig;
 
-    // Collect all edits needed
+    // Collect all edits needed (including deletions)
     const edits: jsonc.Edit[] = [];
+    const keys = new Set<string>([...Object.keys(existingConfig), ...Object.keys(config)]);
 
     // Update each top-level property individually to preserve comments
-    for (const [key, value] of Object.entries(config)) {
-      const existingValue = existingConfig[key as keyof TsConfig];
+    for (const key of keys) {
+      const value = (config as Record<string, unknown>)[key];
+      const existingValue = (existingConfig as Record<string, unknown>)[key];
+      const valueExistsInConfig = Object.prototype.hasOwnProperty.call(config, key);
 
-      // Only update if the value is different
-      if (JSON.stringify(existingValue) !== JSON.stringify(value)) {
-        const propertyEdits = jsonc.modify(existingContent, [key], value, {
+      // Only update if the value is different (including deletion)
+      const serializedNew = valueExistsInConfig ? JSON.stringify(value) : undefined;
+      const serializedOld = JSON.stringify(existingValue);
+      if (serializedNew !== serializedOld) {
+        const propertyEdits = jsonc.modify(existingContent, [key], valueExistsInConfig ? value : undefined, {
           formattingOptions: {
             tabSize: 2,
             insertSpaces: true,

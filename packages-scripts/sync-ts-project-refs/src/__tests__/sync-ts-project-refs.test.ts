@@ -52,6 +52,10 @@ const TEST_CASES: TestCase[] = [
     name: 'custom root solution tsconfig path',
     dir: 'case-09-root-solution-path',
   },
+  {
+    name: 'remove stale references',
+    dir: 'case-10-remove-reference',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
