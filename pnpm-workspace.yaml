@@ -80,7 +80,7 @@ catalog:
   vaul: ^1.1.2
   vite: ^7.2.6
   vitest: ^4.0.15
-  wrangler: ^4.53.0
+  wrangler: 4.53.0
   yaml: ^2.8.2
   zod: ^3.25.76
   zx: 8.8.5

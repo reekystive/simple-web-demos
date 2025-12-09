@@ -223,7 +223,7 @@ catalogs:
       specifier: ^4.0.15
       version: 4.0.15
     wrangler:
-      specifier: ^4.53.0
+      specifier: 4.53.0
       version: 4.53.0
     yaml:
       specifier: ^2.8.2
@@ -500,6 +500,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.0.15(@types/node@24.10.1)(jiti@2.6.1)(jsdom@26.1.0)(less@4.3.0)(lightningcss@1.30.2)(sass@1.86.3)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.53.0
 
   apps-web/app-template-vite:
     dependencies:
