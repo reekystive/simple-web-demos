@@ -12,6 +12,7 @@ Root-level configuration that controls behavior for the entire workspace.
 
 **Purpose**:
 
+- Choose which solution-style tsconfig should receive workspace references
 - Toggle whether indirect (transitive) workspace dependencies should also be added as TypeScript project references
 
 ### `tsconfig.stspr-package.yaml`

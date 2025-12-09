@@ -21,6 +21,7 @@ const RefSchema = z.object({
 
 const RootConfigSchema = z.object({
   'include-indirect-deps': z.boolean().optional().default(false),
+  'solution-tsconfig-path': z.string().optional().default('./tsconfig.json'),
 });
 
 const PackageConfigSchema = z.object({
@@ -122,11 +123,13 @@ export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> 
 
     return {
       includeIndirectDeps: config['include-indirect-deps'],
+      solutionTsconfigPath: config['solution-tsconfig-path'],
     };
   } catch {
     const defaultConfig = RootConfigSchema.parse({});
     return {
       includeIndirectDeps: defaultConfig['include-indirect-deps'],
+      solutionTsconfigPath: defaultConfig['solution-tsconfig-path'],
     };
   }
 }

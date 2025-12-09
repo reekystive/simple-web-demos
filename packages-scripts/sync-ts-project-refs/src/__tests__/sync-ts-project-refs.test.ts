@@ -48,6 +48,10 @@ const TEST_CASES: TestCase[] = [
     name: 'include indirect dependencies from root config',
     dir: 'case-08-indirect-deps',
   },
+  {
+    name: 'custom root solution tsconfig path',
+    dir: 'case-09-root-solution-path',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
@@ -57,7 +61,9 @@ describe('sync-ts-project-refs', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for each test in the OS temp directory
-    const tempBase = os.tmpdir();
+    const envTmp = process.env.STSPR_TMPDIR;
+    const tempBase = envTmp ? path.resolve(envTmp) : os.tmpdir();
+    await fs.mkdir(tempBase, { recursive: true });
     tempDir = path.join(tempBase, `sync-ts-project-refs-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     await fs.mkdir(tempDir, { recursive: true });
   });
@@ -83,6 +89,7 @@ describe('sync-ts-project-refs', () => {
       // Run the sync tool
       const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
       const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
+      const solutionTsconfigPath = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
       const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
       const packageMap = await buildPackageMap(packageJsons, false);
 
@@ -92,7 +99,7 @@ describe('sync-ts-project-refs', () => {
       }
 
       // Update root tsconfig.json
-      await updateRootTsconfig(workDir, packageMap, false);
+      await updateRootTsconfig(workDir, packageMap, false, solutionTsconfigPath);
 
       // Compare with expected output - always preserve comments
       await compareDirectories(workDir, expectedDir);
@@ -109,6 +116,7 @@ describe('sync-ts-project-refs', () => {
       for (let i = 0; i < 2; i++) {
         const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
         const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
+        const solutionTsconfigPath = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
         const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
         const packageMap = await buildPackageMap(packageJsons, false);
 
@@ -126,7 +134,7 @@ describe('sync-ts-project-refs', () => {
         }
 
         // Update root tsconfig and check for changes
-        const rootChanged = await updateRootTsconfig(workDir, packageMap, false);
+        const rootChanged = await updateRootTsconfig(workDir, packageMap, false, solutionTsconfigPath);
 
         if (i === 0) {
           // First run should make changes

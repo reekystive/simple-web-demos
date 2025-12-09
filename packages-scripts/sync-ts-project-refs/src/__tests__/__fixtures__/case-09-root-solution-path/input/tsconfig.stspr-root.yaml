@@ -1,0 +1,2 @@
+include-indirect-deps: false
+solution-tsconfig-path: ./configs/tsconfig.solution.json

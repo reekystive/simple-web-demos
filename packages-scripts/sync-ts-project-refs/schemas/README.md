@@ -37,6 +37,7 @@ extra-refs:
 # yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr-root.schema.json
 
 include-indirect-deps: false
+solution-tsconfig-path: ./tsconfig.json
 ```
 
 **File**: `tsconfig.stspr-root.yaml` (place alongside `pnpm-workspace.yaml`)

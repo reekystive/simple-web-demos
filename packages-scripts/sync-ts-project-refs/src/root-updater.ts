@@ -4,7 +4,7 @@
 
 import * as path from 'node:path';
 
-import { readTsConfig, writeTsConfig } from './fs-utils.js';
+import { calculateRelativePath, readTsConfig, writeTsConfig } from './fs-utils.js';
 import { getCanonicalReferencePath } from './package-parser.js';
 import type { PackageInfo } from './types.js';
 
@@ -14,9 +14,12 @@ import type { PackageInfo } from './types.js';
 export async function updateRootTsconfig(
   workspaceRoot: string,
   packageMap: Map<string, PackageInfo>,
-  dryRun = false
+  dryRun = false,
+  solutionTsconfigPath = './tsconfig.json'
 ): Promise<boolean> {
-  const rootTsconfigPath = path.join(workspaceRoot, 'tsconfig.json');
+  const rootTsconfigPath = path.isAbsolute(solutionTsconfigPath)
+    ? solutionTsconfigPath
+    : path.resolve(workspaceRoot, solutionTsconfigPath);
   const rootTsconfig = await readTsConfig(rootTsconfigPath);
   const rootReferences: { path: string }[] = [];
 
@@ -25,11 +28,7 @@ export async function updateRootTsconfig(
     .filter((info) => !info.packageConfig.excludeThisPackage)
     .map((info) => {
       const targetPath = getCanonicalReferencePath(info);
-      let pkgPath = path.relative(workspaceRoot, targetPath);
-      if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
-        pkgPath = `./${pkgPath}`;
-      }
-      return pkgPath;
+      return calculateRelativePath(rootTsconfigPath, targetPath);
     })
     .sort();
 

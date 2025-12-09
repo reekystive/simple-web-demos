@@ -9,6 +9,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether to include transitive workspace dependencies for each package when generating TypeScript project references."
+    },
+    "solution-tsconfig-path": {
+      "type": "string",
+      "default": "./tsconfig.json",
+      "description": "Path to the root solution-style tsconfig that will receive workspace package references. Relative paths are resolved from the workspace root."
     }
   },
   "additionalProperties": false

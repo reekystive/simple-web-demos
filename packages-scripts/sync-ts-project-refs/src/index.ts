@@ -18,7 +18,13 @@ import chalk from 'chalk';
 import { $ } from 'zx';
 
 import { parseWorkspace } from './config-reader.js';
-import { findAllPackageJsons, findSiblingTsconfigs, readTsConfig, writeTsConfig } from './fs-utils.js';
+import {
+  calculateRelativePath,
+  findAllPackageJsons,
+  findSiblingTsconfigs,
+  readTsConfig,
+  writeTsConfig,
+} from './fs-utils.js';
 import { buildPackageMap, getCanonicalReferencePath } from './package-parser.js';
 import { updatePackageReferences } from './package-updater.js';
 
@@ -169,10 +175,17 @@ async function main(): Promise<void> {
   console.log(chalk.blue('📦 Parsing workspace configuration...'));
   const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workspaceRoot);
   const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
+  const solutionTsconfigPathConfig = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
+  const rootSolutionTsconfigPath = path.isAbsolute(solutionTsconfigPathConfig)
+    ? solutionTsconfigPathConfig
+    : path.resolve(workspaceRoot, solutionTsconfigPathConfig);
+  const rootSolutionDisplayPath =
+    path.relative(workspaceRoot, rootSolutionTsconfigPath) || path.basename(rootSolutionTsconfigPath);
   if (verbose) {
     console.log(chalk.gray(`  Include patterns: ${includePatterns.join(', ')}`));
     console.log(chalk.gray(`  Exclude patterns: ${excludePatterns.join(', ')}`));
     console.log(chalk.gray(`  Include indirect dependencies: ${includeIndirectDeps ? 'yes' : 'no'}`));
+    console.log(chalk.gray(`  Root solution tsconfig: ${rootSolutionDisplayPath}`));
   }
   console.log();
 
@@ -214,7 +227,6 @@ async function main(): Promise<void> {
   console.log();
   console.log(chalk.blue('🔧 Updating root tsconfig files (solution-style)...\n'));
 
-  const rootTsconfigPath = path.join(workspaceRoot, 'tsconfig.json');
   const rootTsconfigTsserverPath = path.join(workspaceRoot, 'tsconfig.tsserver.json');
   let rootUpdated = false;
   let rootTsconfigUpdated = false;
@@ -226,13 +238,18 @@ async function main(): Promise<void> {
       await fs.access(rootTsconfigTsserverPath);
       hasRootTsserverConfig = true;
     } catch {
-      // No root tsconfig.tsserver.json, will use tsconfig.json
+      // No root tsconfig.tsserver.json, will use configured solution tsconfig
     }
 
-    if (hasRootTsserverConfig) {
-      // Update root tsconfig.json to only reference tsconfig.tsserver.json
-      const rootTsconfig = await readTsConfig(rootTsconfigPath);
-      const rootTsconfigReferences: { path: string }[] = [{ path: './tsconfig.tsserver.json' }];
+    const tsserverDisplayPath =
+      path.relative(workspaceRoot, rootTsconfigTsserverPath) || path.basename(rootTsconfigTsserverPath);
+
+    if (hasRootTsserverConfig && rootSolutionTsconfigPath !== rootTsconfigTsserverPath) {
+      // Update solution tsconfig to only reference tsconfig.tsserver.json
+      const rootTsconfig = await readTsConfig(rootSolutionTsconfigPath);
+      const rootTsconfigReferences: { path: string }[] = [
+        { path: calculateRelativePath(rootSolutionTsconfigPath, rootTsconfigTsserverPath) },
+      ];
 
       const existingRootTsconfigRefs = rootTsconfig.references ?? [];
       const existingRootTsconfigPaths = new Set(existingRootTsconfigRefs.map((r) => r.path));
@@ -245,25 +262,29 @@ async function main(): Promise<void> {
       if (rootTsconfigHasChanges) {
         rootTsconfig.references = rootTsconfigReferences;
         if (!dryRun && !check) {
-          rootTsconfigUpdated = await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+          rootTsconfigUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true);
         } else {
           rootTsconfigUpdated = true;
         }
         if (rootTsconfigUpdated) {
           console.log(
             chalk.gray(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json → only references tsconfig.tsserver.json`
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${rootSolutionDisplayPath} → only references ${tsserverDisplayPath}`
             )
           );
         }
       }
+    }
 
+    if (hasRootTsserverConfig) {
       // Update root tsconfig.tsserver.json with all packages
       const rootTsserverConfig = await readTsConfig(rootTsconfigTsserverPath);
       const rootReferences: { path: string }[] = [];
 
-      // First, add sibling tsconfig.*.json files (exclude tsconfig.json and tsconfig.tsserver.json)
-      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootTsconfigTsserverPath, ['tsconfig.json']);
+      // First, add sibling tsconfig.*.json files (exclude the configured solution tsconfig)
+      const siblingExcludes =
+        rootSolutionTsconfigPath !== rootTsconfigTsserverPath ? [path.basename(rootSolutionTsconfigPath)] : [];
+      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootTsconfigTsserverPath, siblingExcludes);
       for (const sibling of rootSiblingTsconfigs) {
         rootReferences.push({ path: sibling });
       }
@@ -273,11 +294,7 @@ async function main(): Promise<void> {
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
           const targetPath = getCanonicalReferencePath(info);
-          let pkgPath = path.relative(workspaceRoot, targetPath);
-          if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
-            pkgPath = `./${pkgPath}`;
-          }
-          return pkgPath;
+          return calculateRelativePath(rootTsconfigTsserverPath, targetPath);
         })
         .sort();
 
@@ -319,24 +336,24 @@ async function main(): Promise<void> {
         if (rootUpdated) {
           console.log(
             chalk.cyan(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.tsserver.json updated (${rootReferences.length} references)`
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${tsserverDisplayPath} updated (${rootReferences.length} references)`
             )
           );
         } else {
-          console.log(chalk.gray('  ✓ Root tsconfig.tsserver.json: no changes needed'));
+          console.log(chalk.gray(`  ✓ ${tsserverDisplayPath}: no changes needed`));
         }
       } else {
-        console.log(chalk.gray('  ✓ Root tsconfig.tsserver.json: no changes needed'));
+        console.log(chalk.gray(`  ✓ ${tsserverDisplayPath}: no changes needed`));
       }
     } else {
-      // Fall back to original behavior: update tsconfig.json directly
-      console.log(chalk.gray('  No root tsconfig.tsserver.json found, updating tsconfig.json instead'));
+      // Fall back to configured solution tsconfig
+      console.log(chalk.gray(`  No root tsconfig.tsserver.json found, updating ${rootSolutionDisplayPath} instead`));
 
-      const rootTsconfig = await readTsConfig(rootTsconfigPath);
+      const rootTsconfig = await readTsConfig(rootSolutionTsconfigPath);
       const rootReferences: { path: string }[] = [];
 
       // First, add sibling tsconfig.*.json files (e.g., tsconfig.node.json)
-      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootTsconfigPath);
+      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootSolutionTsconfigPath);
       for (const sibling of rootSiblingTsconfigs) {
         rootReferences.push({ path: sibling });
       }
@@ -346,11 +363,7 @@ async function main(): Promise<void> {
         .filter((info) => !info.packageConfig.excludeThisPackage)
         .map((info) => {
           const targetPath = getCanonicalReferencePath(info);
-          let pkgPath = path.relative(workspaceRoot, targetPath);
-          if (!pkgPath.startsWith('./') && !pkgPath.startsWith('../')) {
-            pkgPath = `./${pkgPath}`;
-          }
-          return pkgPath;
+          return calculateRelativePath(rootSolutionTsconfigPath, targetPath);
         })
         .sort();
 
@@ -384,7 +397,7 @@ async function main(): Promise<void> {
         rootTsconfig.references = rootReferences;
 
         if (!dryRun && !check) {
-          rootUpdated = await writeTsConfig(rootTsconfigPath, rootTsconfig, true);
+          rootUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true);
         } else {
           rootUpdated = true;
         }
@@ -392,14 +405,14 @@ async function main(): Promise<void> {
         if (rootUpdated) {
           console.log(
             chalk.cyan(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ Root tsconfig.json updated (${rootReferences.length} references)`
+              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${rootSolutionDisplayPath} updated (${rootReferences.length} references)`
             )
           );
         } else {
-          console.log(chalk.gray('  ✓ Root tsconfig.json: no changes needed'));
+          console.log(chalk.gray(`  ✓ ${rootSolutionDisplayPath}: no changes needed`));
         }
       } else {
-        console.log(chalk.gray('  ✓ Root tsconfig.json: no changes needed'));
+        console.log(chalk.gray(`  ✓ ${rootSolutionDisplayPath}: no changes needed`));
       }
     }
   } catch (error) {

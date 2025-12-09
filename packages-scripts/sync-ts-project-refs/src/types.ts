@@ -4,6 +4,7 @@
 
 export interface RootConfig {
   includeIndirectDeps?: boolean;
+  solutionTsconfigPath?: string;
 }
 
 export interface WorkspaceConfig {

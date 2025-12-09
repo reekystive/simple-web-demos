@@ -13,3 +13,7 @@
 # - false (default): only direct workspace dependencies become references
 # - true: include both direct and indirect workspace dependencies
 include-indirect-deps: false
+
+# Path to the solution-style tsconfig that should aggregate workspace packages.
+# Relative paths are resolved from the workspace root.
+solution-tsconfig-path: ./tsconfig.json
