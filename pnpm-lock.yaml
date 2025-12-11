@@ -258,6 +258,9 @@ importers:
       '@mdx-js/language-service':
         specifier: 'catalog:'
         version: 0.7.3
+      '@monorepo/sync-ts-project-refs':
+        specifier: workspace:*
+        version: link:packages-scripts/sync-ts-project-refs
       '@monorepo/tsconfig':
         specifier: workspace:^
         version: link:packages/tsconfig

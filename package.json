@@ -18,6 +18,7 @@
     "@eslint/css": "catalog:",
     "@eslint/js": "catalog:",
     "@mdx-js/language-service": "catalog:",
+    "@monorepo/sync-ts-project-refs": "workspace:*",
     "@monorepo/tsconfig": "workspace:^",
     "@next/eslint-plugin-next": "catalog:",
     "@types/eslint": "catalog:",
