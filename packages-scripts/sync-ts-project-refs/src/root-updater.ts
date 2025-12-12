@@ -2,6 +2,7 @@
  * Root tsconfig.json update logic
  */
 
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import { calculateRelativePath, findSiblingTsconfigs, readTsConfig, writeTsConfig } from './fs-utils.js';
@@ -27,6 +28,14 @@ export async function updateRootTsconfig(
   const rootTsconfigPath = path.isAbsolute(solutionTsconfigPath)
     ? solutionTsconfigPath
     : path.resolve(workspaceRoot, solutionTsconfigPath);
+
+  // Root solution tsconfig is optional: if it doesn't exist, skip without error.
+  try {
+    await fs.access(rootTsconfigPath);
+  } catch {
+    return false;
+  }
+
   const rootTsconfig = await readTsConfig(rootTsconfigPath);
   const rootReferences: { path: string }[] = [];
 

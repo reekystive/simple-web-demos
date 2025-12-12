@@ -24,12 +24,14 @@
           "type": "array",
           "default": [],
           "description": "Glob patterns (pnpm-workspace style, supports '!glob') for package directories to hard-exclude from processing.",
+          "examples": [["packages/legacy-*", "!packages/legacy-keep"]],
           "items": { "type": "string" }
         },
         "excludeTsconfigs": {
           "type": "array",
           "default": [],
           "description": "Glob patterns (pnpm-workspace style, supports '!glob') for tsconfig files to hard-exclude from processing.",
+          "examples": [["**/tsconfig.generated.json", "!**/tsconfig.generated.keep.json"]],
           "items": { "type": "string" }
         }
       }
@@ -41,7 +43,8 @@
         "tsconfigPath": {
           "type": "string",
           "default": "./tsconfig.json",
-          "description": "Path to the root solution tsconfig that should aggregate workspace packages. Relative paths are resolved from the workspace root."
+          "description": "Path to the root solution tsconfig that should aggregate workspace packages. Relative paths are resolved from the workspace root.",
+          "examples": ["./tsconfig.json", "./configs/tsconfig.solution.json"]
         },
         "includeSiblings": {
           "type": "boolean",
@@ -56,6 +59,7 @@
             "add": {
               "type": "array",
               "default": [],
+              "examples": [[{ "path": "./configs/tsconfig.shared.json" }]],
               "items": {
                 "type": "object",
                 "additionalProperties": false,
@@ -71,6 +75,7 @@
             "skip": {
               "type": "array",
               "default": [],
+              "examples": [[{ "path": "./packages/utils/tsconfig.json" }]],
               "items": {
                 "type": "object",
                 "additionalProperties": false,

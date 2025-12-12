@@ -78,35 +78,43 @@ references:
 
 # Scenario 1: Test Configuration (tsconfig.test.stspr.yaml)
 # -----------------------------------------------------------
-# exclude-this-tsconfig: false
-# extra-refs:
-#   - { path: '../../test-utils/tsconfig.json' }
-#   - { path: '../../jest-config/tsconfig.json' }
-# skip-refs:
-#   - { path: '../production-only-package/tsconfig.json' }
+# exclude: false
+# includeWorkspaceDeps: true
+# references:
+#   add:
+#     - { path: '../../test-utils/tsconfig.json' }
+#     - { path: '../../jest-config/tsconfig.json' }
+#   skip:
+#     - { path: '../production-only-package/tsconfig.json' }
 
 # Scenario 2: Build Configuration (tsconfig.build.stspr.yaml)
 # ------------------------------------------------------------
-# exclude-this-tsconfig: false
-# extra-refs:
-#   - { path: '../../build-tools/tsconfig.json' }
-# skip-refs:
-#   - { path: '../test-utils/tsconfig.json' }
-#   - { path: '../dev-only-package/tsconfig.json' }
+# exclude: false
+# includeWorkspaceDeps: false
+# references:
+#   add:
+#     - { path: '../../build-tools/tsconfig.json' }
+#   skip:
+#     - { path: '../test-utils/tsconfig.json' }
+#     - { path: '../dev-only-package/tsconfig.json' }
 
 # Scenario 3: IDE Configuration (tsconfig.tsserver.stspr.yaml)
 # ------------------------------------------------------------
-# exclude-this-tsconfig: false
-# extra-refs:
-#   - { path: '../../types/global-types/tsconfig.json' }
-#   - { path: '../../dev-tools/tsconfig.json' }
-# skip-refs: []  # Usually include everything for better IDE support
+# exclude: false
+# includeWorkspaceDeps: true
+# references:
+#   add:
+#     - { path: '../../types/global-types/tsconfig.json' }
+#     - { path: '../../dev-tools/tsconfig.json' }
+#   skip: []  # Usually include everything for better IDE support
 
 # Scenario 4: Legacy/Problematic Configuration
 # --------------------------------------------
-# exclude-this-tsconfig: true  # Completely ignore this config
-# extra-refs: []
-# skip-refs: []
+# exclude: true  # Completely ignore this config
+# includeWorkspaceDeps: false
+# references:
+#   add: []
+#   skip: []
 
 # -----------------------------------------------------------------------------
 # Configuration Inheritance and Priority
@@ -119,9 +127,9 @@ references:
 # 3. TypeScript config-level configuration (this file)
 #
 # This means:
-# - Config-level skip-refs can override package-level extra-refs
-# - Config-level extra-refs are added to package-level extra-refs
-# - Config-level exclusion (exclude-this-tsconfig) takes precedence
+# - Config-level references.skip can override package-level references.add
+# - Config-level references.add are added after package-level references.add
+# - Config-level exclusion (exclude) takes precedence
 #
 # -----------------------------------------------------------------------------
 

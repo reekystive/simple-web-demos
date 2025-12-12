@@ -73,6 +73,10 @@ const TEST_CASES: TestCase[] = [
     name: 'root filters excludeTsconfigs',
     dir: 'case-15-exclude-tsconfigs',
   },
+  {
+    name: 'no config and no root solution tsconfig (skip root update)',
+    dir: 'case-16-no-root-tsconfig',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {

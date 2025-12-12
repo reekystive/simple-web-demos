@@ -17,7 +17,8 @@
         "path": {
           "type": "string",
           "default": "./tsconfig.json",
-          "description": "Canonical tsconfig for this package (the file other packages should reference). Relative to the package root."
+          "description": "Canonical tsconfig for this package (the file other packages should reference). Relative to the package root.",
+          "examples": ["./tsconfig.json", "./tsconfig.canonical.json", "./tsconfig.tsserver.json"]
         },
         "includeSiblings": {
           "type": "boolean",
@@ -58,6 +59,7 @@
         "add": {
           "type": "array",
           "default": [],
+          "examples": [[{ "path": "../shared/tsconfig.json" }, { "path": "../../external/tsconfig.json" }]],
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -73,6 +75,7 @@
         "skip": {
           "type": "array",
           "default": [],
+          "examples": [[{ "path": "../problematic/tsconfig.json" }]],
           "items": {
             "type": "object",
             "additionalProperties": false,

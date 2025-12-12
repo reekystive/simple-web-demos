@@ -22,6 +22,7 @@
           "type": "array",
           "default": [],
           "description": "Additional references to add for this specific tsconfig.",
+          "examples": [[{ "path": "../app/tsconfig.json" }, { "path": "./tsconfig.web.json" }]],
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -38,6 +39,7 @@
           "type": "array",
           "default": [],
           "description": "References to skip/remove for this specific tsconfig.",
+          "examples": [[{ "path": "../problematic/tsconfig.json" }]],
           "items": {
             "type": "object",
             "additionalProperties": false,
