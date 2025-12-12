@@ -15,6 +15,20 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# Package-level Solution Style Mode
+# -----------------------------------------------------------------------------
+#
+# When enabled, the package is considered to use a solution-style setup:
+# - The main tsconfig.json will ONLY reference sibling tsconfig.*.json files
+# - The main tsconfig.json will NOT include workspace dependency references
+# - Sibling tsconfigs (e.g., tsconfig.web.json, tsconfig.tests.json) will
+#   continue to receive workspace dependency references by default
+# - You can still use tsconfig.*.stspr.yaml to add extra-refs between siblings
+#
+# Default: false
+use-package-solution-style: false
+
+# -----------------------------------------------------------------------------
 # Alternative TypeScript Configuration
 # -----------------------------------------------------------------------------
 

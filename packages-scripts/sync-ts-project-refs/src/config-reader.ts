@@ -25,6 +25,7 @@ const RootConfigSchema = z.object({
 });
 
 const PackageConfigSchema = z.object({
+  'use-package-solution-style': z.boolean().optional().default(false),
   'use-alter-tsconfig': z.boolean().optional().default(false),
   'alter-tsconfig-path': z.string().optional().default('./tsconfig.tsserver.json'),
   'skip-add-alter-tsconfig-to-main-tsconfig': z.boolean().optional().default(false),
@@ -80,6 +81,7 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
     const config = PackageConfigSchema.parse(rawConfig);
 
     return {
+      usePackageSolutionStyle: config['use-package-solution-style'],
       useAlterTsconfig: config['use-alter-tsconfig'],
       alterTsconfigPath: config['alter-tsconfig-path'],
       skipAddAlterTsconfigToMainTsconfig: config['skip-add-alter-tsconfig-to-main-tsconfig'],
@@ -95,6 +97,7 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
     // No config file or parsing error, return defaults
     const defaultConfig = PackageConfigSchema.parse({});
     return {
+      usePackageSolutionStyle: defaultConfig['use-package-solution-style'],
       useAlterTsconfig: defaultConfig['use-alter-tsconfig'],
       alterTsconfigPath: defaultConfig['alter-tsconfig-path'],
       skipAddAlterTsconfigToMainTsconfig: defaultConfig['skip-add-alter-tsconfig-to-main-tsconfig'],

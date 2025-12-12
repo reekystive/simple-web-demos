@@ -116,13 +116,14 @@ export async function updateSiblingTsconfigReferences(
   packageMap: Map<string, PackageInfo>,
   packageName: string,
   skipRefs: { path: string }[] = [],
+  extraRefs: { path: string }[] = [],
   dryRun = false,
   verbose = false
 ): Promise<boolean> {
   try {
     const tsconfig = await readTsConfig(siblingTsconfigPath);
 
-    // Build references array for workspace dependencies only
+    // Build references array for workspace dependencies
     const references: { path: string }[] = [];
 
     for (const depName of workspaceDeps) {
@@ -137,6 +138,15 @@ export async function updateSiblingTsconfigReferences(
         const relativePath = calculateRelativePath(siblingTsconfigPath, targetPath);
         references.push({ path: relativePath });
       }
+    }
+
+    // Add extra refs from config
+    for (const ref of extraRefs) {
+      const relativePath = calculateRelativePath(
+        siblingTsconfigPath,
+        path.resolve(path.dirname(siblingTsconfigPath), ref.path)
+      );
+      references.push({ path: relativePath });
     }
 
     // Filter out skipped references

@@ -60,6 +60,10 @@ const TEST_CASES: TestCase[] = [
     name: 'tsconfig.tsserver.json treated as sibling when use-alter-tsconfig is false',
     dir: 'case-11-tsserver-as-sibling',
   },
+  {
+    name: 'package-level solution style',
+    dir: 'case-12-package-solution-style',
+  },
 ];
 
 describe('sync-ts-project-refs', () => {
@@ -198,6 +202,10 @@ async function compareDirectories(actualDir: string, expectedDir: string): Promi
     // Compare file contents - always compare as exact text to preserve comments
     const actualContent = await fs.readFile(actualPath, 'utf-8');
     const expectedContent = await fs.readFile(expectedPath, 'utf-8');
+    if (actualContent !== expectedContent) {
+      // Log which file mismatched to aid debugging
+      console.error('Mismatch in file:', path.relative(expectedDir, expectedPath));
+    }
     expect(actualContent).toBe(expectedContent);
   }
 

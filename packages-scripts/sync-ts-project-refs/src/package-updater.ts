@@ -64,7 +64,7 @@ export async function updatePackageReferences(
   verbose = false,
   includeIndirectDeps = false
 ): Promise<{ packagesUpdated: number; tsconfigsUpdated: number }> {
-  const { name, tsconfigPath, alterTsconfigPath, tsconfigConfigs, packageConfig } = packageInfo;
+  const { name, tsconfigPath, alterTsconfigPath, tsconfigConfigs, packageConfig, tsconfigPaths } = packageInfo;
   const workspaceDeps = collectWorkspaceDependencies(packageInfo, packageMap, includeIndirectDeps);
 
   let mainConfigChanged = false;
@@ -235,6 +235,7 @@ export async function updatePackageReferences(
     for (const siblingPath of siblingsToUpdate) {
       const siblingConfig = tsconfigConfigs.get(siblingPath);
       const siblingSkipRefs = [...packageSkipRefs, ...(siblingConfig?.skipRefs ?? [])];
+      const siblingExtraRefs = siblingConfig?.extraRefs ?? [];
 
       const updated = await updateSiblingTsconfigReferences(
         siblingPath,
@@ -242,6 +243,7 @@ export async function updatePackageReferences(
         packageMap,
         name,
         siblingSkipRefs,
+        siblingExtraRefs,
         dryRun,
         verbose
       );
@@ -271,6 +273,84 @@ export async function updatePackageReferences(
         const refCount = alterReferences.length;
         console.log(chalk.gray(`    ${dryRun ? '[DRY RUN] ' : ''}${alterTsconfigName} (${refCount} references)`));
       }
+    }
+  } else if (packageConfig.usePackageSolutionStyle) {
+    // Package-level solution style:
+    // - tsconfig.json only references sibling tsconfig.*.json files
+    // - sibling tsconfigs get workspace dependencies as usual
+    const tsconfig = await readTsConfig(tsconfigPath);
+
+    // Find sibling tsconfigs for main tsconfig.json
+    const siblingTsconfigs = await findSiblingTsconfigs(tsconfigPath);
+
+    // Filter out excluded siblings via their tsconfig-level configs
+    const includedSiblings = siblingTsconfigs.filter((sibling) => {
+      const siblingPath = path.resolve(path.dirname(tsconfigPath), sibling);
+      const config = tsconfigConfigs.get(siblingPath);
+      return !config?.excludeThisTsconfig;
+    });
+
+    let references: { path: string }[] = includedSiblings.map((p) => ({ path: p }));
+
+    // Apply package-level skip-refs on main tsconfig references as well
+    references = filterReferences(references, packageSkipRefs, tsconfigPath);
+
+    const existingRefs = tsconfig.references ?? [];
+    const existingPaths = new Set(existingRefs.map((r) => r.path));
+    const newPaths = new Set(references.map((r) => r.path));
+
+    const hasChanges =
+      existingRefs.length !== references.length ||
+      !Array.from(newPaths).every((p) => existingPaths.has(p)) ||
+      !Array.from(existingPaths).every((p) => newPaths.has(p));
+
+    if (hasChanges) {
+      mainConfigNeedsChange = true;
+      // Deterministic order
+      references.sort((a, b) => a.path.localeCompare(b.path));
+      if (references.length > 0) {
+        tsconfig.references = references;
+      } else {
+        delete tsconfig.references;
+      }
+      const actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig, false, dryRun);
+      mainConfigChanged = actuallyChanged;
+    }
+
+    // Update all sibling tsconfig.*.json with workspace dependencies
+    for (const siblingPath of tsconfigPaths) {
+      const siblingConfig = tsconfigConfigs.get(siblingPath);
+      const siblingSkipRefs = [...packageSkipRefs, ...(siblingConfig?.skipRefs ?? [])];
+      const siblingExtraRefs = siblingConfig?.extraRefs ?? [];
+
+      const updated = await updateSiblingTsconfigReferences(
+        siblingPath,
+        workspaceDeps,
+        packageMap,
+        name,
+        siblingSkipRefs,
+        siblingExtraRefs,
+        dryRun,
+        verbose
+      );
+      if (updated) {
+        siblingUpdateCount++;
+        updatedSiblings.push(path.basename(siblingPath));
+      }
+    }
+
+    if (mainConfigChanged) {
+      console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (package solution style)`));
+      if (verbose && references.length > 0) {
+        const relativeTsconfig = path.relative(monorepoRoot, tsconfigPath);
+        console.log(chalk.gray(`    ${relativeTsconfig}`));
+        for (const ref of references) {
+          console.log(chalk.gray(`      → ${ref.path}`));
+        }
+      }
+    } else if (siblingUpdateCount > 0) {
+      console.log(chalk.cyan(`  ${dryRun ? '[DRY RUN] ' : ''}✓ ${name} (sibling tsconfigs only)`));
+      console.log(chalk.gray(`    ${dryRun ? '[DRY RUN] ' : ''}Updated ${siblingUpdateCount} sibling tsconfig(s)`));
     }
   } else {
     // Original behavior: tsconfig.json gets all siblings and workspace deps
@@ -359,10 +439,10 @@ export async function updatePackageReferences(
     }
 
     // Update sibling tsconfig.*.json files with workspace dependencies
-    const { tsconfigPaths } = packageInfo;
     for (const siblingPath of tsconfigPaths) {
       const siblingConfig = tsconfigConfigs.get(siblingPath);
       const siblingSkipRefs = [...packageSkipRefs, ...(siblingConfig?.skipRefs ?? [])];
+      const siblingExtraRefs = siblingConfig?.extraRefs ?? [];
 
       const updated = await updateSiblingTsconfigReferences(
         siblingPath,
@@ -370,6 +450,7 @@ export async function updatePackageReferences(
         packageMap,
         name,
         siblingSkipRefs,
+        siblingExtraRefs,
         dryRun,
         verbose
       );

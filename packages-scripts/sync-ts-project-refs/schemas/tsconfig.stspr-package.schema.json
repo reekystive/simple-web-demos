@@ -5,6 +5,11 @@
   "description": "Package-level configuration for STSPR tool.",
   "type": "object",
   "properties": {
+    "use-package-solution-style": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, treat this package as using a solution-style tsconfig setup. The main tsconfig.json will only reference sibling tsconfig.*.json files and will NOT include workspace dependencies. Sibling tsconfig files (e.g., tsconfig.web.json, tsconfig.tests.json) will continue to receive workspace dependency references."
+    },
     "use-alter-tsconfig": {
       "type": "boolean",
       "default": false,

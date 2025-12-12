@@ -27,6 +27,7 @@ export interface TsConfig {
 }
 
 export interface PackageConfig {
+  usePackageSolutionStyle?: boolean;
   useAlterTsconfig?: boolean;
   alterTsconfigPath?: string;
   skipAddAlterTsconfigToMainTsconfig?: boolean;
