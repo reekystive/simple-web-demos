@@ -8,11 +8,14 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsc-tests/tsconfig.tests.tsbuildinfo",
     "emitDeclarationOnly": true
   },
-  "include": ["./src/", "./src/**/__tests__/"],
+  "include": ["src/**/__tests__/"],
   "exclude": [],
   "references": [
     {
       "path": "../workspace-package-graph/tsconfig.json"
+    },
+    {
+      "path": "./tsconfig.src.json"
     }
   ]
 }

@@ -8,6 +8,11 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsc-tests/tsconfig.tests.tsbuildinfo",
     "emitDeclarationOnly": true
   },
-  "include": ["./src/", "./src/**/__tests__/"],
-  "exclude": []
+  "include": ["./src/**/__tests__/"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "./tsconfig.web.json"
+    }
+  ]
 }

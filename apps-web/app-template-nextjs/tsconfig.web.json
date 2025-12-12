@@ -9,9 +9,7 @@
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "plugins": [{ "name": "next" }],
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "noEmit": true
+    "resolveJsonModule": true
   },
   "include": ["./src/", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["**/__tests__/"],
