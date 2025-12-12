@@ -5,11 +5,11 @@ name: Lint, typecheck, and test
 on:
   push:
     branches:
-      - "*"
+      - '*'
   pull_request:
     branches:
-      - "main"
-      - "dev"
+      - 'main'
+      - 'dev'
 
 jobs:
   lint:
@@ -28,7 +28,7 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: "lint"
+          restore-key-prefix: 'lint'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -55,7 +55,7 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: "test"
+          restore-key-prefix: 'test'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -82,13 +82,13 @@ jobs:
       - name: Setup cache
         uses: ./.github/actions/setup-cache
         with:
-          restore-key-prefix: "build-storybook"
+          restore-key-prefix: 'build-storybook'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build workspace dependencies
-        run: pnpm run tsc:build:depsOnly
+        run: pnpm run tsc:build:upstream
         working-directory: apps-web/app-storybook
 
       - name: Build storybook

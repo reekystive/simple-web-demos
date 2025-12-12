@@ -17,7 +17,7 @@
     "test:watch": "vitest --watch",
     "tsc:build": "tsgo --build tsconfig.json",
     "tsc:build:clean": "tsgo --build tsconfig.json --clean",
-    "tsc:build:depsOnly": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
+    "tsc:build:upstream": "pnpm --filter '{.}...' --workspace-concurrency=-2 run tsc:build",
     "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "dependencies": {
