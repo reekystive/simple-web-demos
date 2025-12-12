@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../schemas/stspr.root.schema.json
 
 # =============================================================================
-# Root-level configuration for STSPR (sync-ts-project-refs)
+# Root-level configuration for stspr (sync-ts-project-refs)
 # =============================================================================
 #
 # File name: stspr.root.yaml
@@ -40,7 +40,7 @@ filters:
 
 rootSolution:
   # Root solution tsconfig file to update.
-  # If it does not exist, STSPR will skip updating the root solution file.
+  # If it does not exist, stspr will skip updating the root solution file.
   tsconfigPath: ./tsconfig.json
   # Include sibling root tsconfig.*.json files as references (discovery)
   includeSiblings: true

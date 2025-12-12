@@ -1,6 +1,6 @@
-# STSPR Configuration Schemas
+# stspr Configuration Schemas
 
-JSON Schema definitions for STSPR configuration files, providing IDE autocomplete and validation support.
+JSON Schema definitions for stspr configuration files, providing IDE autocomplete and validation support.
 
 ## Schema URLs
 

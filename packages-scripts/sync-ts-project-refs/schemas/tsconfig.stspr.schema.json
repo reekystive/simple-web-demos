@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json",
-  "title": "STSPR TypeScript Config Configuration",
-  "description": "TypeScript config-level configuration for STSPR tool.",
+  "title": "stspr TypeScript Config Configuration",
+  "description": "TypeScript config-level configuration for stspr tool.",
   "type": "object",
   "properties": {
     "exclude": {
@@ -12,7 +12,7 @@
     },
     "includeWorkspaceDeps": {
       "type": "boolean",
-      "description": "Whether this specific tsconfig should include workspace dependency references. If not set, STSPR derives a sensible default based on whether the file is canonical/standard/sibling."
+      "description": "Whether this specific tsconfig should include workspace dependency references. If not set, stspr derives a sensible default based on whether the file is canonical/standard/sibling."
     },
     "references": {
       "type": "object",

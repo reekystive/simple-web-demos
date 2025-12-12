@@ -1,6 +1,6 @@
-# STSPR Configuration Examples
+# stspr Configuration Examples
 
-This directory contains example configuration files for the Sync TypeScript Project References (STSPR) tool.
+This directory contains example configuration files for the Sync TypeScript Project References (stspr) tool.
 
 ## Files
 
@@ -18,7 +18,7 @@ Root-level configuration that controls behavior for the entire workspace.
 
 ### `stspr.package.yaml`
 
-Package-level configuration that controls how the entire package is processed by the STSPR tool.
+Package-level configuration that controls how the entire package is processed by the stspr tool.
 
 **Location**: Place in the package root directory (same level as `package.json`)
 

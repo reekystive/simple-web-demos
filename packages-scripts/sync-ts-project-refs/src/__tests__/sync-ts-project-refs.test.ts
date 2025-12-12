@@ -86,7 +86,7 @@ describe('sync-ts-project-refs', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for each test in the OS temp directory
-    const envTmp = process.env.STSPR_TMPDIR;
+    const envTmp = process.env.stspr_TMPDIR;
     const tempBase = envTmp ? path.resolve(envTmp) : os.tmpdir();
     await fs.mkdir(tempBase, { recursive: true });
     tempDir = path.join(tempBase, `sync-ts-project-refs-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);

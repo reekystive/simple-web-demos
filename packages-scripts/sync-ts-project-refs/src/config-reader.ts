@@ -1,5 +1,5 @@
 /**
- * Configuration file readers for STSPR (Sync TypeScript Project References)
+ * Configuration file readers for stspr (Sync TypeScript Project References)
  */
 
 import * as fs from 'node:fs/promises';
@@ -111,7 +111,7 @@ export async function parseWorkspace(monorepoRoot: string): Promise<WorkspaceCon
 }
 
 /**
- * Read package-level STSPR configuration
+ * Read package-level stspr configuration
  */
 export async function readPackageConfig(packageDir: string): Promise<PackageConfig> {
   const configPath = path.join(packageDir, 'stspr.package.yaml');
@@ -174,7 +174,7 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
 }
 
 /**
- * Read root-level STSPR configuration
+ * Read root-level stspr configuration
  */
 export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> {
   const configPath = path.join(monorepoRoot, 'stspr.root.yaml');
@@ -219,7 +219,7 @@ export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> 
 }
 
 /**
- * Read tsconfig-level STSPR configuration
+ * Read tsconfig-level stspr configuration
  */
 export async function readTsconfigConfig(tsconfigPath: string): Promise<TsconfigConfig> {
   const dir = path.dirname(tsconfigPath);

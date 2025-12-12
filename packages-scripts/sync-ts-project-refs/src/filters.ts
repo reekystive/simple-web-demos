@@ -1,5 +1,5 @@
 /**
- * Global filter helpers for STSPR (hard excludes).
+ * Global filter helpers for stspr (hard excludes).
  *
  * Patterns are pnpm-workspace style globs and support "!glob" to un-exclude.
  */

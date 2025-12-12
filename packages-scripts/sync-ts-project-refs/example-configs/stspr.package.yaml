@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../schemas/stspr.package.schema.json
 
 # =============================================================================
-# Package-level configuration for STSPR (sync-ts-project-refs)
+# Package-level configuration for stspr (sync-ts-project-refs)
 # =============================================================================
 #
 # File name: stspr.package.yaml

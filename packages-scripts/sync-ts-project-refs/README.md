@@ -1,6 +1,8 @@
-# STSPR (sync-ts-project-refs)
+<!-- markdownlint-disable MD034 -->
 
-STSPR is a **monorepo tool** that keeps **TypeScript project references** (`references`) in sync with your **pnpm workspace dependencies** (`workspace:*`).
+# stspr (sync-ts-project-refs)
+
+stspr is a **monorepo tool** that keeps **TypeScript project references** (`references`) in sync with your **pnpm workspace dependencies** (`workspace:*`).
 
 It scans your workspace packages, reads `package.json` dependency graphs, and updates each package’s `tsconfig.json` (and optional `tsconfig.*.json`) so that TypeScript builds and editor tooling can understand project boundaries.
 
@@ -19,42 +21,43 @@ It scans your workspace packages, reads `package.json` dependency graphs, and up
 - Packages that should participate must have a `tsconfig.json`
 - Workspace dependencies must use `workspace:*` (or other `workspace:` ranges)
 
+**Zero configuration required** — stspr works out of the box with sensible defaults. Configuration files are optional and only needed for advanced use cases.
+
 ## Installation
 
-This package is designed to run inside a monorepo. It provides a bin:
-
-- `sync-ts-project-refs` → `dist/index.js`
-
-In this repository you typically run it via pnpm:
+Install from npm:
 
 ```bash
-pnpm -C packages-scripts/sync-ts-project-refs start -- --help
+# pnpm
+pnpm add -D @monorepo-tooling/sync-ts-project-refs
+
+# npm
+npm install -D @monorepo-tooling/sync-ts-project-refs
+
+# yarn
+yarn add -D @monorepo-tooling/sync-ts-project-refs
 ```
 
-Or during development:
-
-```bash
-pnpm -C packages-scripts/sync-ts-project-refs dev -- --help
-```
+This package provides two equivalent commands: `stspr` and `sync-ts-project-refs`
 
 ## CLI usage
 
 ### Run
 
 ```bash
-sync-ts-project-refs
+stspr
 ```
 
 ### Preview changes
 
 ```bash
-sync-ts-project-refs --dry-run --verbose
+stspr --dry-run --verbose
 ```
 
 ### CI check (no writes, non-zero if changes needed)
 
 ```bash
-sync-ts-project-refs --check
+stspr --check
 ```
 
 ### Options
@@ -65,7 +68,9 @@ sync-ts-project-refs --check
 - **`--verbose, -v`**: print detailed processing info
 - **`--workspace-root, -r <path>`**: run against a specific workspace root (otherwise auto-detect via searching for `pnpm-workspace.yaml`)
 
-## Configuration files (v2)
+## Configuration files (optional)
+
+All configuration files below are **optional**. stspr uses sensible defaults and will work without any configuration. Use these files only when you need to customize behavior.
 
 All config keys are **camelCase**.
 
@@ -80,7 +85,7 @@ All config keys are **camelCase**.
 - Configure which root solution tsconfig to update, and add/skip refs on that file
 
 ```yaml
-# yaml-language-server: $schema=./packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
 
 graph:
   includeIndirectDeps: false
@@ -92,7 +97,7 @@ filters:
   excludeTsconfigs: []
 
 rootSolution:
-  # Root solution tsconfig to update. If it doesn't exist, STSPR skips root updating.
+  # Root solution tsconfig to update. If it doesn't exist, stspr skips root updating.
   tsconfigPath: ./tsconfig.json
   # Include sibling root tsconfig.*.json as references (discovery)
   includeSiblings: true
@@ -114,7 +119,7 @@ rootSolution:
 - Add/skip references that apply only to the canonical tsconfig
 
 ```yaml
-# yaml-language-server: $schema=./packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
 
 exclude: false
 
@@ -150,11 +155,11 @@ references:
 - `tsconfig.custom.json` → `tsconfig.custom.stspr.yaml`
 
 ```yaml
-# yaml-language-server: $schema=./packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
 
 exclude: false
 
-# If not set, STSPR derives a sensible default based on whether the file is
+# If not set, stspr derives a sensible default based on whether the file is
 # canonical/standard/sibling. You can override explicitly:
 #
 # - true  => this tsconfig will include workspace dependency references
@@ -173,11 +178,11 @@ For each package:
 
 - **Standard tsconfig**: `tsconfig.json`
   - If `canonicalTsconfig.standardReferencesCanonical` is true and canonical is not `tsconfig.json`,
-    STSPR adds a reference from `tsconfig.json` → canonical.
+    stspr adds a reference from `tsconfig.json` → canonical.
 
 - **Canonical tsconfig**: `canonicalTsconfig.path` (default `./tsconfig.json`)
-  - If `canonicalTsconfig.includeSiblings` is true, STSPR references sibling `tsconfig.*.json` files (excluding `tsconfig.json`)
-  - If `canonicalTsconfig.includeWorkspaceDeps` is true, STSPR adds workspace dependency references
+  - If `canonicalTsconfig.includeSiblings` is true, stspr references sibling `tsconfig.*.json` files (excluding `tsconfig.json`)
+  - If `canonicalTsconfig.includeWorkspaceDeps` is true, stspr adds workspace dependency references
   - Applies `stspr.package.yaml` `references.add/skip` (canonical only)
   - Applies matching `tsconfig.*.stspr.yaml` `references.add/skip`
 
@@ -191,11 +196,9 @@ This project ships JSON schemas for IDE autocomplete/validation.
 
 ### Schema URLs (raw GitHub)
 
-- `stspr.root.yaml` schema: `schemas/stspr.root.schema.json`
-- `stspr.package.yaml` schema: `schemas/stspr.package.schema.json`
-- `tsconfig.*.stspr.yaml` schema: `schemas/tsconfig.stspr.schema.json`
-
-See `schemas/README.md` for ready-to-copy `$schema=` lines.
+- `stspr.root.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
+- `stspr.package.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
+- `tsconfig.*.stspr.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
 
 ## Common recipes
 
@@ -244,7 +247,7 @@ rootSolution:
 
 ### “Why didn’t root tsconfig update?”
 
-- If `rootSolution.tsconfigPath` does not exist, STSPR **skips root updating** (by design).
+- If `rootSolution.tsconfigPath` does not exist, stspr **skips root updating** (by design).
 - If packages are missing `tsconfig.json`, they are skipped.
 - If a package matches `filters.excludePackages`, it is hard-excluded.
 
@@ -253,10 +256,3 @@ rootSolution:
 Ensure the YAML file includes the `$schema` comment and you have a YAML extension enabled:
 
 - VS Code YAML extension: `redhat.vscode-yaml`
-
-## Development
-
-```bash
-pnpm -C packages-scripts/sync-ts-project-refs test
-pnpm -C packages-scripts/sync-ts-project-refs run lint:eslint
-```
