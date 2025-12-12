@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 /**
- * Prepublish script for @monorepo/sync-ts-project-refs
+ * Prepack script for @monorepo/sync-ts-project-refs
  *
  * This script:
  * 1. Cleans the dist folder
@@ -251,7 +251,7 @@ async function copyAssets(): Promise<void> {
 async function main(): Promise<void> {
   const startTime = Date.now();
 
-  console.log(chalk.bold.magenta('\n📦 sync-ts-project-refs prepublish\n'));
+  console.log(chalk.bold.magenta('\n📦 sync-ts-project-refs prepack\n'));
 
   const totalSteps = 6;
 
@@ -279,7 +279,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(chalk.red('\n❌ Prepublish failed:\n'));
+  console.error(chalk.red('\n❌ Prepack failed:\n'));
   console.error(error);
   process.exit(1);
 });
