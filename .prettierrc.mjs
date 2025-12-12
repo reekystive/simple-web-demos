@@ -17,5 +17,9 @@ export default {
       files: 'wrangler.jsonc',
       options: { parser: 'jsonc', trailingComma: 'none' },
     },
+    {
+      files: 'package.json5',
+      options: { parser: 'json5', quoteProps: 'preserve', singleQuote: false, trailingComma: 'all' },
+    },
   ],
 };

@@ -3,13 +3,17 @@ words:
   - avenir
   - beziers
   - centi
+  - cjsx
   - clsx
   - cosθ
   - csstype
+  - ctsx
   - deadband
   - dedupe
   - dicebear
   - esbuild
+  - eslintcache
+  - globby
   - grayscale
   - greyscale
   - hookz
@@ -20,6 +24,8 @@ words:
   - Memoji
   - MERCHANTABLITY
   - metaball
+  - mjsx
+  - mtsx
   - nextjs
   - nodenext
   - nosync
@@ -36,6 +42,7 @@ words:
   - stspr
   - tanstack
   - trpc
+  - tsgo
   - turbopack
   - unplugin
   - usehooks
