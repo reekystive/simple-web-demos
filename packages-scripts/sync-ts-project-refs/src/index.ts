@@ -7,7 +7,7 @@
  * Reads package.json dependencies and generates corresponding references in tsconfig.json.
  *
  * Supports advanced configuration via YAML files:
- * - tsconfig.stspr-package.yaml: Package-level configuration
+ * - stspr.package.yaml: Package-level configuration
  * - tsconfig.stspr.yaml: TypeScript config-level configuration
  */
 
@@ -102,7 +102,7 @@ ${chalk.bold('Examples:')}
 ${chalk.bold('Configuration:')}
   The tool supports advanced configuration via YAML files:
 
-  ${chalk.bold('tsconfig.stspr-package.yaml')} (Package-level configuration):
+  ${chalk.bold('stspr.package.yaml')} (Package-level configuration):
   - use-alter-tsconfig: Use an alternative main tsconfig
   - alter-tsconfig-path: Path to the alternative tsconfig
   - skip-add-alter-tsconfig-to-main-tsconfig: Skip adding alter tsconfig to main
@@ -116,6 +116,9 @@ ${chalk.bold('Configuration:')}
   - exclude-this-tsconfig: Exclude this specific tsconfig
   - extra-refs: Config-level extra references
   - skip-refs: Config-level references to skip
+
+  Notes:
+  - For tsconfig.{name}.json you can use tsconfig.{name}.stspr.yaml (e.g. tsconfig.custom.stspr.yaml)
 
 ${chalk.bold('Output:')}
   - Lists all packages being processed

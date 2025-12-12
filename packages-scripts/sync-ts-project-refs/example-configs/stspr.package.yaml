@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/tsconfig.stspr-package.schema.json
+# yaml-language-server: $schema=../schemas/stspr.package.schema.json
 
 # =============================================================================
 # Package-level Configuration for Sync TypeScript Project References (STSPR)
@@ -7,7 +7,7 @@
 # This file configures how the sync-ts-project-refs tool handles this specific package.
 # Place this file in the root directory of your package (same level as package.json).
 #
-# File name: tsconfig.stspr-package.yaml
+# File name: stspr.package.yaml
 #
 # The tool will automatically detect and use this configuration when processing
 # the package's TypeScript project references.

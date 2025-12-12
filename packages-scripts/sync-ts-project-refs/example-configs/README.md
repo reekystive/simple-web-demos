@@ -4,7 +4,7 @@ This directory contains example configuration files for the Sync TypeScript Proj
 
 ## Files
 
-### `tsconfig.stspr-root.yaml`
+### `stspr.root.yaml`
 
 Root-level configuration that controls behavior for the entire workspace.
 
@@ -15,7 +15,7 @@ Root-level configuration that controls behavior for the entire workspace.
 - Choose which solution-style tsconfig should receive workspace references
 - Toggle whether indirect (transitive) workspace dependencies should also be added as TypeScript project references
 
-### `tsconfig.stspr-package.yaml`
+### `stspr.package.yaml`
 
 Package-level configuration that controls how the entire package is processed by the STSPR tool.
 
@@ -53,7 +53,7 @@ TypeScript config-level configuration that controls how a specific `tsconfig.jso
 
    ```bash
    # Package-level config
-   cp example-configs/tsconfig.stspr-package.yaml your-package/
+   cp example-configs/stspr.package.yaml your-package/
 
    # TypeScript config-level config (optional)
    cp example-configs/tsconfig.stspr.yaml your-package/
@@ -79,7 +79,7 @@ TypeScript config-level configuration that controls how a specific `tsconfig.jso
 The tool applies configurations in this order (later overrides earlier):
 
 1. **Default behavior**: Workspace dependencies become project references
-2. **Package-level config**: `tsconfig.stspr-package.yaml`
+2. **Package-level config**: `stspr.package.yaml`
 3. **TypeScript config-level config**: `tsconfig.stspr.yaml`
 
 ## Common Use Cases
@@ -87,7 +87,7 @@ The tool applies configurations in this order (later overrides earlier):
 ### Use Alternative TypeScript Configuration
 
 ```yaml
-# tsconfig.stspr-package.yaml
+# stspr.package.yaml
 use-alter-tsconfig: true
 alter-tsconfig-path: ./tsconfig.tsserver.json
 ```
@@ -95,14 +95,14 @@ alter-tsconfig-path: ./tsconfig.tsserver.json
 ### Exclude Package from Reference Graph
 
 ```yaml
-# tsconfig.stspr-package.yaml
+# stspr.package.yaml
 exclude-this-package: true
 ```
 
 ### Add External References
 
 ```yaml
-# tsconfig.stspr-package.yaml
+# stspr.package.yaml
 extra-refs:
   - { path: '../../external-packages/shared-types/tsconfig.json' }
 ```
@@ -110,7 +110,7 @@ extra-refs:
 ### Skip Problematic Dependencies
 
 ```yaml
-# tsconfig.stspr-package.yaml
+# stspr.package.yaml
 skip-refs:
   - { path: '../problematic-package/tsconfig.json' }
 ```

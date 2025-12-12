@@ -73,7 +73,7 @@ export async function parseWorkspace(monorepoRoot: string): Promise<WorkspaceCon
  * Read package-level STSPR configuration
  */
 export async function readPackageConfig(packageDir: string): Promise<PackageConfig> {
-  const configPath = path.join(packageDir, 'tsconfig.stspr-package.yaml');
+  const configPath = path.join(packageDir, 'stspr.package.yaml');
 
   try {
     const content = await fs.readFile(configPath, 'utf-8');
@@ -117,7 +117,7 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
  * Read root-level STSPR configuration
  */
 export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> {
-  const configPath = path.join(monorepoRoot, 'tsconfig.stspr-root.yaml');
+  const configPath = path.join(monorepoRoot, 'stspr.root.yaml');
 
   try {
     const content = await fs.readFile(configPath, 'utf-8');

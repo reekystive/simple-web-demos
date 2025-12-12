@@ -139,7 +139,7 @@ skip-refs:
 # The tool applies configurations in this order (later overrides earlier):
 #
 # 1. Default behavior (workspace dependencies → project references)
-# 2. Package-level configuration (tsconfig.stspr-package.yaml)
+# 2. Package-level configuration (stspr.package.yaml)
 # 3. TypeScript config-level configuration (this file)
 #
 # This means:

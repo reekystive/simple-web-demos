@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/tsconfig.stspr-root.schema.json
+# yaml-language-server: $schema=../schemas/stspr.root.schema.json
 
 # =============================================================================
 # Root-level Configuration for Sync TypeScript Project References (STSPR)
