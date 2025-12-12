@@ -18,15 +18,11 @@ import chalk from 'chalk';
 import { $ } from 'zx';
 
 import { parseWorkspace } from './config-reader.js';
-import {
-  calculateRelativePath,
-  findAllPackageJsons,
-  findSiblingTsconfigs,
-  readTsConfig,
-  writeTsConfig,
-} from './fs-utils.js';
-import { buildPackageMap, getCanonicalReferencePath } from './package-parser.js';
+import { resolveExcludedDirs, resolveExcludedFiles } from './filters.js';
+import { findAllPackageJsons } from './fs-utils.js';
+import { buildPackageMap } from './package-parser.js';
 import { updatePackageReferences } from './package-updater.js';
+import { updateRootTsconfig } from './root-updater.js';
 
 $.verbose = false;
 
@@ -103,19 +99,18 @@ ${chalk.bold('Configuration:')}
   The tool supports advanced configuration via YAML files:
 
   ${chalk.bold('stspr.package.yaml')} (Package-level configuration):
-  - use-alter-tsconfig: Use an alternative main tsconfig
-  - alter-tsconfig-path: Path to the alternative tsconfig
-  - skip-add-alter-tsconfig-to-main-tsconfig: Skip adding alter tsconfig to main
-  - include-deps-in-main-tsconfig-if-using-alter-tsconfig: Include deps in main when using alter
-  - exclude-this-package: Exclude this package from reference graph
-  - skip-deps/skip-dev-deps/skip-optional-deps: Control dependency scanning
-  - extra-refs: Package-level extra references
-  - skip-refs: Package-level references to skip
+  - exclude: Exclude this package from processing
+  - canonicalTsconfig.path: Canonical tsconfig for this package (what other packages should reference)
+  - canonicalTsconfig.includeSiblings: Whether canonical should reference sibling tsconfig.*.json files (discovery)
+  - canonicalTsconfig.standardReferencesCanonical: Whether tsconfig.json should reference canonical (derived by default)
+  - canonicalTsconfig.includeWorkspaceDeps: Whether canonical should include workspace dependency references
+  - dependencies.include.*: Control dependency scanning (dependencies/devDependencies/optionalDependencies)
+  - references.add/skip: Add/skip references for the canonical tsconfig only
 
   ${chalk.bold('tsconfig.stspr.yaml')} (TypeScript config-level configuration):
-  - exclude-this-tsconfig: Exclude this specific tsconfig
-  - extra-refs: Config-level extra references
-  - skip-refs: Config-level references to skip
+  - exclude: Exclude this specific tsconfig
+  - includeWorkspaceDeps: Whether this tsconfig should include workspace dependency references
+  - references.add/skip: Add/skip references for this specific tsconfig
 
   Notes:
   - For tsconfig.{name}.json you can use tsconfig.{name}.stspr.yaml (e.g. tsconfig.custom.stspr.yaml)
@@ -177,8 +172,8 @@ async function main(): Promise<void> {
   // Parse workspace configuration
   console.log(chalk.blue('📦 Parsing workspace configuration...'));
   const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workspaceRoot);
-  const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
-  const solutionTsconfigPathConfig = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
+  const includeIndirectDeps = rootConfig.graph.includeIndirectDeps;
+  const solutionTsconfigPathConfig = rootConfig.rootSolution.tsconfigPath;
   const rootSolutionTsconfigPath = path.isAbsolute(solutionTsconfigPathConfig)
     ? solutionTsconfigPathConfig
     : path.resolve(workspaceRoot, solutionTsconfigPathConfig);
@@ -194,15 +189,19 @@ async function main(): Promise<void> {
 
   // Find all package.json files
   console.log(chalk.blue('🔎 Finding all package.json files...'));
-  const packageJsons = await findAllPackageJsons(workspaceRoot, {
+  const allPackageJsons = await findAllPackageJsons(workspaceRoot, {
     includePatterns,
     excludePatterns,
   });
+  const excludedPackageDirs = await resolveExcludedDirs(workspaceRoot, rootConfig.filters.excludePackages);
+  const excludedTsconfigs = await resolveExcludedFiles(workspaceRoot, rootConfig.filters.excludeTsconfigs);
+
+  const packageJsons = allPackageJsons.filter((p) => !excludedPackageDirs.has(path.dirname(p)));
   console.log(chalk.gray(`  Found ${packageJsons.length} packages\n`));
 
   // Build package map
   console.log(chalk.blue('🔨 Building package map...'));
-  const packageMap = await buildPackageMap(packageJsons, verbose);
+  const packageMap = await buildPackageMap(packageJsons, { verbose, excludedTsconfigs });
   console.log(chalk.gray(`  Mapped ${packageMap.size} packages with tsconfig.json\n`));
 
   // Update all packages
@@ -220,7 +219,8 @@ async function main(): Promise<void> {
       workspaceRoot,
       dryRun || check,
       verbose,
-      includeIndirectDeps
+      includeIndirectDeps,
+      excludedTsconfigs
     );
     packagesUpdated += result.packagesUpdated;
     tsconfigsUpdated += result.tsconfigsUpdated;
@@ -228,186 +228,15 @@ async function main(): Promise<void> {
 
   // Update root tsconfig files
   console.log();
-  console.log(chalk.blue('🔧 Updating root tsconfig files (solution-style)...\n'));
-
-  const rootTsconfigTsserverPath = path.join(workspaceRoot, 'tsconfig.tsserver.json');
+  console.log(chalk.blue('🔧 Updating root solution tsconfig...\n'));
   let rootUpdated = false;
-  let rootTsconfigUpdated = false;
-
   try {
-    // Check if root tsconfig.tsserver.json exists
-    let hasRootTsserverConfig = false;
-    try {
-      await fs.access(rootTsconfigTsserverPath);
-      hasRootTsserverConfig = true;
-    } catch {
-      // No root tsconfig.tsserver.json, will use configured solution tsconfig
-    }
-
-    const tsserverDisplayPath =
-      path.relative(workspaceRoot, rootTsconfigTsserverPath) || path.basename(rootTsconfigTsserverPath);
-
-    if (hasRootTsserverConfig && rootSolutionTsconfigPath !== rootTsconfigTsserverPath) {
-      // Update solution tsconfig to only reference tsconfig.tsserver.json
-      const rootTsconfig = await readTsConfig(rootSolutionTsconfigPath);
-      const rootTsconfigReferences: { path: string }[] = [
-        { path: calculateRelativePath(rootSolutionTsconfigPath, rootTsconfigTsserverPath) },
-      ];
-
-      const existingRootTsconfigRefs = rootTsconfig.references ?? [];
-      const existingRootTsconfigPaths = new Set(existingRootTsconfigRefs.map((r) => r.path));
-      const newRootTsconfigPaths = new Set(rootTsconfigReferences.map((r) => r.path));
-
-      const rootTsconfigHasChanges =
-        existingRootTsconfigRefs.length !== rootTsconfigReferences.length ||
-        !Array.from(newRootTsconfigPaths).every((p) => existingRootTsconfigPaths.has(p));
-
-      if (rootTsconfigHasChanges) {
-        rootTsconfig.references = rootTsconfigReferences;
-        rootTsconfigUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true, dryRun || check);
-        if (rootTsconfigUpdated) {
-          console.log(
-            chalk.gray(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${rootSolutionDisplayPath} → only references ${tsserverDisplayPath}`
-            )
-          );
-        }
-      }
-    }
-
-    if (hasRootTsserverConfig) {
-      // Update root tsconfig.tsserver.json with all packages
-      const rootTsserverConfig = await readTsConfig(rootTsconfigTsserverPath);
-      const rootReferences: { path: string }[] = [];
-
-      // First, add sibling tsconfig.*.json files (exclude the configured solution tsconfig)
-      const siblingExcludes =
-        rootSolutionTsconfigPath !== rootTsconfigTsserverPath ? [path.basename(rootSolutionTsconfigPath)] : [];
-      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootTsconfigTsserverPath, siblingExcludes);
-      for (const sibling of rootSiblingTsconfigs) {
-        rootReferences.push({ path: sibling });
-      }
-
-      // Then, add all workspace packages
-      const packagePaths = Array.from(packageMap.values())
-        .filter((info) => !info.packageConfig.excludeThisPackage)
-        .map((info) => {
-          const targetPath = getCanonicalReferencePath(info);
-          return calculateRelativePath(rootTsconfigTsserverPath, targetPath);
-        })
-        .sort();
-
-      for (const pkgPath of packagePaths) {
-        rootReferences.push({ path: pkgPath });
-      }
-
-      // Log excluded packages if verbose
-      if (verbose) {
-        const excludedPackages = Array.from(packageMap.values()).filter(
-          (info) => info.packageConfig.excludeThisPackage
-        );
-        if (excludedPackages.length > 0) {
-          console.log(chalk.gray(`  Skipping ${excludedPackages.length} package(s) excluded by config:`));
-          for (const info of excludedPackages) {
-            console.log(chalk.gray(`    - ${info.name}`));
-          }
-        }
-      }
-
-      // Check if root tsserver config needs update
-      const existingRootRefs = rootTsserverConfig.references ?? [];
-      const existingRootPaths = new Set(existingRootRefs.map((r) => r.path));
-      const newRootPaths = new Set(rootReferences.map((r) => r.path));
-
-      const rootHasChanges =
-        existingRootRefs.length !== rootReferences.length ||
-        !Array.from(newRootPaths).every((p) => existingRootPaths.has(p));
-
-      if (rootHasChanges) {
-        rootTsserverConfig.references = rootReferences;
-
-        rootUpdated = await writeTsConfig(rootTsconfigTsserverPath, rootTsserverConfig, true, dryRun || check);
-
-        if (rootUpdated) {
-          console.log(
-            chalk.cyan(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${tsserverDisplayPath} updated (${rootReferences.length} references)`
-            )
-          );
-        } else {
-          console.log(chalk.gray(`  ✓ ${tsserverDisplayPath}: no changes needed`));
-        }
-      } else {
-        console.log(chalk.gray(`  ✓ ${tsserverDisplayPath}: no changes needed`));
-      }
-    } else {
-      // Fall back to configured solution tsconfig
-      console.log(chalk.gray(`  No root tsconfig.tsserver.json found, updating ${rootSolutionDisplayPath} instead`));
-
-      const rootTsconfig = await readTsConfig(rootSolutionTsconfigPath);
-      const rootReferences: { path: string }[] = [];
-
-      // First, add sibling tsconfig.*.json files (e.g., tsconfig.node.json)
-      const rootSiblingTsconfigs = await findSiblingTsconfigs(rootSolutionTsconfigPath);
-      for (const sibling of rootSiblingTsconfigs) {
-        rootReferences.push({ path: sibling });
-      }
-
-      // Then, add all workspace packages
-      const packagePaths = Array.from(packageMap.values())
-        .filter((info) => !info.packageConfig.excludeThisPackage)
-        .map((info) => {
-          const targetPath = getCanonicalReferencePath(info);
-          return calculateRelativePath(rootSolutionTsconfigPath, targetPath);
-        })
-        .sort();
-
-      for (const pkgPath of packagePaths) {
-        rootReferences.push({ path: pkgPath });
-      }
-
-      // Log excluded packages if verbose
-      if (verbose) {
-        const excludedPackages = Array.from(packageMap.values()).filter(
-          (info) => info.packageConfig.excludeThisPackage
-        );
-        if (excludedPackages.length > 0) {
-          console.log(chalk.gray(`  Skipping ${excludedPackages.length} package(s) excluded by config:`));
-          for (const info of excludedPackages) {
-            console.log(chalk.gray(`    - ${info.name}`));
-          }
-        }
-      }
-
-      // Check if root tsconfig needs update
-      const existingRootRefs = rootTsconfig.references ?? [];
-      const existingRootPaths = new Set(existingRootRefs.map((r) => r.path));
-      const newRootPaths = new Set(rootReferences.map((r) => r.path));
-
-      const rootHasChanges =
-        existingRootRefs.length !== rootReferences.length ||
-        !Array.from(newRootPaths).every((p) => existingRootPaths.has(p));
-
-      if (rootHasChanges) {
-        rootTsconfig.references = rootReferences;
-
-        rootUpdated = await writeTsConfig(rootSolutionTsconfigPath, rootTsconfig, true, dryRun || check);
-
-        if (rootUpdated) {
-          console.log(
-            chalk.cyan(
-              `  ${dryRun || check ? '[DRY RUN] ' : ''}✓ ${rootSolutionDisplayPath} updated (${rootReferences.length} references)`
-            )
-          );
-        } else {
-          console.log(chalk.gray(`  ✓ ${rootSolutionDisplayPath}: no changes needed`));
-        }
-      } else {
-        console.log(chalk.gray(`  ✓ ${rootSolutionDisplayPath}: no changes needed`));
-      }
+    rootUpdated = await updateRootTsconfig(workspaceRoot, packageMap, rootConfig, dryRun || check, excludedTsconfigs);
+    if (verbose) {
+      console.log(chalk.gray(`  Root solution updated: ${rootUpdated ? 'yes' : 'no'}`));
     }
   } catch (error) {
-    console.warn(chalk.yellow('⚠ Failed to update root solution-style tsconfig:'), error);
+    console.warn(chalk.yellow('⚠ Failed to update root solution tsconfig:'), error);
   }
 
   // Summary
@@ -422,16 +251,16 @@ async function main(): Promise<void> {
   );
   console.log(
     chalk.gray(
-      `  Root solution-style tsconfig ${dryRun || check ? 'would be ' : ''}updated: ${chalk.cyan(rootUpdated || rootTsconfigUpdated ? 'Yes' : 'No')}`
+      `  Root solution-style tsconfig ${dryRun || check ? 'would be ' : ''}updated: ${chalk.cyan(rootUpdated ? 'Yes' : 'No')}`
     )
   );
   console.log();
 
   if (check) {
-    if (packagesUpdated > 0 || rootUpdated || rootTsconfigUpdated) {
+    if (packagesUpdated > 0 || rootUpdated) {
       console.log(
         chalk.red(
-          `❌ Check failed: ${packagesUpdated} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''} need(s) to be updated!\n`
+          `❌ Check failed: ${packagesUpdated} package(s)${rootUpdated ? ' and root solution-style tsconfig' : ''} need(s) to be updated!\n`
         )
       );
       console.log(chalk.yellow('💡 Run without --check to apply these changes\n'));
@@ -441,10 +270,10 @@ async function main(): Promise<void> {
     }
   } else if (dryRun) {
     console.log(chalk.yellow('💡 Run without --dry-run to apply these changes\n'));
-  } else if (packagesUpdated > 0 || rootUpdated || rootTsconfigUpdated) {
+  } else if (packagesUpdated > 0 || rootUpdated) {
     console.log(
       chalk.green(
-        `✅ Successfully updated ${packagesUpdated} package(s)${rootUpdated || rootTsconfigUpdated ? ' and root solution-style tsconfig' : ''}!\n`
+        `✅ Successfully updated ${packagesUpdated} package(s)${rootUpdated ? ' and root solution-style tsconfig' : ''}!\n`
       )
     );
   } else {

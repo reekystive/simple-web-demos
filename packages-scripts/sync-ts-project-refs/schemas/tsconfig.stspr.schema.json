@@ -5,53 +5,51 @@
   "description": "TypeScript config-level configuration for STSPR tool.",
   "type": "object",
   "properties": {
-    "exclude-this-tsconfig": {
+    "exclude": {
       "type": "boolean",
       "default": false,
-      "description": "Whether to exclude this specific TypeScript configuration from processing. When true, this tsconfig file will be completely ignored by the sync tool: it won't be processed for project references, other packages won't reference this specific tsconfig, and it won't be included in sibling tsconfig references within the same package."
+      "description": "Whether to exclude this specific tsconfig from processing."
     },
-    "extra-refs": {
-      "type": "array",
-      "default": [],
-      "description": "Additional TypeScript project references to include for this specific tsconfig. These references will ONLY be added to this particular TypeScript configuration, not to other tsconfig files in the same package.",
-      "items": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to the TypeScript configuration file (relative to the directory containing this tsconfig file).",
-            "examples": [
-              "../../test-utils/tsconfig.json",
-              "../../build-tools/tsconfig.json",
-              "../../types/global-types/tsconfig.json",
-              "../../../external-packages/shared-interfaces/tsconfig.json"
-            ]
+    "includeWorkspaceDeps": {
+      "type": "boolean",
+      "description": "Whether this specific tsconfig should include workspace dependency references. If not set, STSPR derives a sensible default based on whether the file is canonical/standard/sibling."
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "add": {
+          "type": "array",
+          "default": [],
+          "description": "Additional references to add for this specific tsconfig.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to a referenced tsconfig (relative to the tsconfig directory)."
+              }
+            }
           }
         },
-        "required": ["path"],
-        "additionalProperties": false
-      }
-    },
-    "skip-refs": {
-      "type": "array",
-      "default": [],
-      "description": "TypeScript project references to explicitly skip/exclude for this specific tsconfig. These references will be removed from this particular TypeScript configuration even if they would normally be included through workspace dependencies or package-level config.",
-      "items": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to the TypeScript configuration file to skip (relative to the directory containing this tsconfig file).",
-            "examples": [
-              "../test-package/tsconfig.json",
-              "../production-only-package/tsconfig.json",
-              "../problematic-for-this-config/tsconfig.json",
-              "../build-time-only/tsconfig.json"
-            ]
+        "skip": {
+          "type": "array",
+          "default": [],
+          "description": "References to skip/remove for this specific tsconfig.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Reference path to skip/remove (relative to the tsconfig directory)."
+              }
+            }
           }
-        },
-        "required": ["path"],
-        "additionalProperties": false
+        }
       }
     }
   },

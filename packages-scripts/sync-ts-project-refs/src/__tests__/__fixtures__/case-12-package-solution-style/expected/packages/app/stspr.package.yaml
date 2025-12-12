@@ -1,1 +1,2 @@
-use-package-solution-style: true
+canonicalTsconfig:
+  includeWorkspaceDeps: false

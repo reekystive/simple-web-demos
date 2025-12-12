@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
-import type { PackageConfig, RootConfig, TsconfigConfig, WorkspaceConfig } from './types.js';
+import type { PackageConfig, Ref, RootConfig, TsconfigConfig, WorkspaceConfig } from './types.js';
 
 // Zod schemas for configuration validation
 const WorkspaceConfigSchema = z.object({
@@ -19,29 +19,70 @@ const RefSchema = z.object({
   path: z.string(),
 });
 
+const ReferencesSchema = z.object({
+  add: z.array(RefSchema).optional().default([]),
+  skip: z.array(RefSchema).optional().default([]),
+});
+
 const RootConfigSchema = z.object({
-  'include-indirect-deps': z.boolean().optional().default(false),
-  'solution-tsconfig-path': z.string().optional().default('./tsconfig.json'),
+  graph: z
+    .object({
+      includeIndirectDeps: z.boolean().optional().default(false),
+    })
+    .optional()
+    .default({ includeIndirectDeps: false }),
+  filters: z
+    .object({
+      excludePackages: z.array(z.string()).optional().default([]),
+      excludeTsconfigs: z.array(z.string()).optional().default([]),
+    })
+    .optional()
+    .default({ excludePackages: [], excludeTsconfigs: [] }),
+  rootSolution: z
+    .object({
+      tsconfigPath: z.string().optional().default('./tsconfig.json'),
+      includeSiblings: z.boolean().optional().default(true),
+      references: ReferencesSchema.optional().default({ add: [], skip: [] }),
+    })
+    .optional()
+    .default({ tsconfigPath: './tsconfig.json', includeSiblings: true, references: { add: [], skip: [] } }),
 });
 
 const PackageConfigSchema = z.object({
-  'use-package-solution-style': z.boolean().optional().default(false),
-  'use-alter-tsconfig': z.boolean().optional().default(false),
-  'alter-tsconfig-path': z.string().optional().default('./tsconfig.tsserver.json'),
-  'skip-add-alter-tsconfig-to-main-tsconfig': z.boolean().optional().default(false),
-  'include-deps-in-main-tsconfig-if-using-alter-tsconfig': z.boolean().optional().default(false),
-  'exclude-this-package': z.boolean().optional().default(false),
-  'skip-deps': z.boolean().optional().default(false),
-  'skip-dev-deps': z.boolean().optional().default(false),
-  'skip-optional-deps': z.boolean().optional().default(false),
-  'extra-refs': z.array(RefSchema).optional().default([]),
-  'skip-refs': z.array(RefSchema).optional().default([]),
+  exclude: z.boolean().optional().default(false),
+  canonicalTsconfig: z
+    .object({
+      path: z.string().optional().default('./tsconfig.json'),
+      includeSiblings: z.boolean().optional().default(true),
+      standardReferencesCanonical: z.boolean().optional(),
+      includeWorkspaceDeps: z.boolean().optional().default(true),
+    })
+    .optional()
+    .default({
+      path: './tsconfig.json',
+      includeSiblings: true,
+      includeWorkspaceDeps: true,
+    }),
+  dependencies: z
+    .object({
+      include: z
+        .object({
+          dependencies: z.boolean().optional().default(true),
+          devDependencies: z.boolean().optional().default(true),
+          optionalDependencies: z.boolean().optional().default(true),
+        })
+        .optional()
+        .default({ dependencies: true, devDependencies: true, optionalDependencies: true }),
+    })
+    .optional()
+    .default({ include: { dependencies: true, devDependencies: true, optionalDependencies: true } }),
+  references: ReferencesSchema.optional().default({ add: [], skip: [] }),
 });
 
 const TsconfigConfigSchema = z.object({
-  'exclude-this-tsconfig': z.boolean().optional().default(false),
-  'extra-refs': z.array(RefSchema).optional().default([]),
-  'skip-refs': z.array(RefSchema).optional().default([]),
+  exclude: z.boolean().optional().default(false),
+  includeWorkspaceDeps: z.boolean().optional(),
+  references: ReferencesSchema.optional().default({ add: [], skip: [] }),
 });
 
 /**
@@ -79,36 +120,55 @@ export async function readPackageConfig(packageDir: string): Promise<PackageConf
     const content = await fs.readFile(configPath, 'utf-8');
     const rawConfig: unknown = yaml.parse(content);
     const config = PackageConfigSchema.parse(rawConfig);
+    const canonicalPath = config.canonicalTsconfig.path;
+    const standardReferencesCanonical =
+      config.canonicalTsconfig.standardReferencesCanonical ?? canonicalPath !== './tsconfig.json';
 
     return {
-      usePackageSolutionStyle: config['use-package-solution-style'],
-      useAlterTsconfig: config['use-alter-tsconfig'],
-      alterTsconfigPath: config['alter-tsconfig-path'],
-      skipAddAlterTsconfigToMainTsconfig: config['skip-add-alter-tsconfig-to-main-tsconfig'],
-      includeDepsInMainTsconfigIfAlterTsconfigExists: config['include-deps-in-main-tsconfig-if-using-alter-tsconfig'],
-      excludeThisPackage: config['exclude-this-package'],
-      skipDeps: config['skip-deps'],
-      skipDevDeps: config['skip-dev-deps'],
-      skipOptionalDeps: config['skip-optional-deps'],
-      extraRefs: config['extra-refs'],
-      skipRefs: config['skip-refs'],
+      exclude: config.exclude,
+      canonicalTsconfig: {
+        path: canonicalPath,
+        includeSiblings: config.canonicalTsconfig.includeSiblings,
+        standardReferencesCanonical,
+        includeWorkspaceDeps: config.canonicalTsconfig.includeWorkspaceDeps,
+      },
+      dependencies: {
+        include: {
+          dependencies: config.dependencies.include.dependencies,
+          devDependencies: config.dependencies.include.devDependencies,
+          optionalDependencies: config.dependencies.include.optionalDependencies,
+        },
+      },
+      references: {
+        add: config.references.add as Ref[],
+        skip: config.references.skip as Ref[],
+      },
     };
   } catch {
     // No config file or parsing error, return defaults
     const defaultConfig = PackageConfigSchema.parse({});
+    const canonicalPath = defaultConfig.canonicalTsconfig.path;
+    const standardReferencesCanonical =
+      defaultConfig.canonicalTsconfig.standardReferencesCanonical ?? canonicalPath !== './tsconfig.json';
     return {
-      usePackageSolutionStyle: defaultConfig['use-package-solution-style'],
-      useAlterTsconfig: defaultConfig['use-alter-tsconfig'],
-      alterTsconfigPath: defaultConfig['alter-tsconfig-path'],
-      skipAddAlterTsconfigToMainTsconfig: defaultConfig['skip-add-alter-tsconfig-to-main-tsconfig'],
-      includeDepsInMainTsconfigIfAlterTsconfigExists:
-        defaultConfig['include-deps-in-main-tsconfig-if-using-alter-tsconfig'],
-      excludeThisPackage: defaultConfig['exclude-this-package'],
-      skipDeps: defaultConfig['skip-deps'],
-      skipDevDeps: defaultConfig['skip-dev-deps'],
-      skipOptionalDeps: defaultConfig['skip-optional-deps'],
-      extraRefs: defaultConfig['extra-refs'],
-      skipRefs: defaultConfig['skip-refs'],
+      exclude: defaultConfig.exclude,
+      canonicalTsconfig: {
+        path: canonicalPath,
+        includeSiblings: defaultConfig.canonicalTsconfig.includeSiblings,
+        standardReferencesCanonical,
+        includeWorkspaceDeps: defaultConfig.canonicalTsconfig.includeWorkspaceDeps,
+      },
+      dependencies: {
+        include: {
+          dependencies: defaultConfig.dependencies.include.dependencies,
+          devDependencies: defaultConfig.dependencies.include.devDependencies,
+          optionalDependencies: defaultConfig.dependencies.include.optionalDependencies,
+        },
+      },
+      references: {
+        add: defaultConfig.references.add as Ref[],
+        skip: defaultConfig.references.skip as Ref[],
+      },
     };
   }
 }
@@ -123,16 +183,37 @@ export async function readRootConfig(monorepoRoot: string): Promise<RootConfig> 
     const content = await fs.readFile(configPath, 'utf-8');
     const rawConfig: unknown = yaml.parse(content);
     const config = RootConfigSchema.parse(rawConfig);
-
     return {
-      includeIndirectDeps: config['include-indirect-deps'],
-      solutionTsconfigPath: config['solution-tsconfig-path'],
+      graph: { includeIndirectDeps: config.graph.includeIndirectDeps },
+      filters: {
+        excludePackages: config.filters.excludePackages,
+        excludeTsconfigs: config.filters.excludeTsconfigs,
+      },
+      rootSolution: {
+        tsconfigPath: config.rootSolution.tsconfigPath,
+        includeSiblings: config.rootSolution.includeSiblings,
+        references: {
+          add: config.rootSolution.references.add as Ref[],
+          skip: config.rootSolution.references.skip as Ref[],
+        },
+      },
     };
   } catch {
     const defaultConfig = RootConfigSchema.parse({});
     return {
-      includeIndirectDeps: defaultConfig['include-indirect-deps'],
-      solutionTsconfigPath: defaultConfig['solution-tsconfig-path'],
+      graph: { includeIndirectDeps: defaultConfig.graph.includeIndirectDeps },
+      filters: {
+        excludePackages: defaultConfig.filters.excludePackages,
+        excludeTsconfigs: defaultConfig.filters.excludeTsconfigs,
+      },
+      rootSolution: {
+        tsconfigPath: defaultConfig.rootSolution.tsconfigPath,
+        includeSiblings: defaultConfig.rootSolution.includeSiblings,
+        references: {
+          add: defaultConfig.rootSolution.references.add as Ref[],
+          skip: defaultConfig.rootSolution.references.skip as Ref[],
+        },
+      },
     };
   }
 }
@@ -151,17 +232,23 @@ export async function readTsconfigConfig(tsconfigPath: string): Promise<Tsconfig
     const config = TsconfigConfigSchema.parse(rawConfig);
 
     return {
-      excludeThisTsconfig: config['exclude-this-tsconfig'],
-      extraRefs: config['extra-refs'],
-      skipRefs: config['skip-refs'],
+      exclude: config.exclude,
+      includeWorkspaceDeps: config.includeWorkspaceDeps,
+      references: {
+        add: config.references.add as Ref[],
+        skip: config.references.skip as Ref[],
+      },
     };
   } catch {
     // No config file or parsing error, return defaults
     const defaultConfig = TsconfigConfigSchema.parse({});
     return {
-      excludeThisTsconfig: defaultConfig['exclude-this-tsconfig'],
-      extraRefs: defaultConfig['extra-refs'],
-      skipRefs: defaultConfig['skip-refs'],
+      exclude: defaultConfig.exclude,
+      includeWorkspaceDeps: defaultConfig.includeWorkspaceDeps,
+      references: {
+        add: defaultConfig.references.add as Ref[],
+        skip: defaultConfig.references.skip as Ref[],
+      },
     };
   }
 }

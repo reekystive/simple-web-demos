@@ -5,15 +5,14 @@
 import * as path from 'node:path';
 
 import chalk from 'chalk';
-
 import { calculateRelativePath, readTsConfig, writeTsConfig } from './fs-utils.js';
 import { getCanonicalReferencePath } from './package-parser.js';
-import type { PackageInfo, TsconfigConfig } from './types.js';
+import type { PackageInfo, Ref } from './types.js';
 
 /**
  * Check if a reference should be skipped based on skip-refs configuration
  */
-function shouldSkipReference(refPath: string, skipRefs: { path: string }[], fromTsconfigPath: string): boolean {
+function shouldSkipReference(refPath: string, skipRefs: Ref[], fromTsconfigPath: string): boolean {
   for (const skipRef of skipRefs) {
     // Calculate the relative path from the current tsconfig to the skip ref
     const skipRefRelativePath = calculateRelativePath(
@@ -28,80 +27,11 @@ function shouldSkipReference(refPath: string, skipRefs: { path: string }[], from
 }
 
 /**
- * Merge extra references from YAML config into a tsconfig file
- */
-export async function mergeExtraRefs(
-  tsconfigPath: string,
-  tsconfigConfig: TsconfigConfig,
-  packageName: string,
-  dryRun = false,
-  verbose = false
-): Promise<boolean> {
-  const extraRefs = tsconfigConfig.extraRefs ?? [];
-
-  if (extraRefs.length === 0) {
-    return false; // No extra references to merge
-  }
-
-  try {
-    // Read the tsconfig file
-    const tsconfig = await readTsConfig(tsconfigPath);
-    const existingRefs = tsconfig.references ?? [];
-
-    // Create a set of existing reference paths for quick lookup
-    const existingPaths = new Set(existingRefs.map((ref) => ref.path));
-
-    // Find extra references that are not already present
-    const newRefs: { path: string }[] = [];
-    for (const ref of extraRefs) {
-      // Calculate relative path for the extra ref
-      const relativePath = calculateRelativePath(tsconfigPath, path.resolve(path.dirname(tsconfigPath), ref.path));
-      if (!existingPaths.has(relativePath)) {
-        newRefs.push({ path: relativePath });
-      }
-    }
-
-    // If no new references to add, return false
-    if (newRefs.length === 0) {
-      return false;
-    }
-
-    // Merge: keep existing order and append new refs at the end
-    const mergedReferences = [...existingRefs, ...newRefs];
-
-    // Update the tsconfig
-    tsconfig.references = mergedReferences;
-
-    let actuallyChanged = true;
-    if (!dryRun) {
-      actuallyChanged = await writeTsConfig(tsconfigPath, tsconfig);
-    }
-
-    if (actuallyChanged) {
-      if (verbose) {
-        console.log(
-          chalk.gray(
-            `    ${dryRun ? '[DRY RUN] ' : ''}✓ Merged extra-refs from config (${newRefs.length} new, ${mergedReferences.length} total)`
-          )
-        );
-      }
-    }
-
-    return actuallyChanged;
-  } catch (error) {
-    if (verbose) {
-      console.warn(chalk.yellow(`    ⚠ ${packageName}: Failed to merge extra-refs:`), error);
-    }
-    return false;
-  }
-}
-
-/**
  * Filter references based on skip-refs configuration
  */
 export function filterReferences(
   references: { path: string }[],
-  skipRefs: { path: string }[],
+  skipRefs: Ref[],
   fromTsconfigPath: string
 ): { path: string }[] {
   return references.filter((ref) => !shouldSkipReference(ref.path, skipRefs, fromTsconfigPath));
@@ -115,8 +45,8 @@ export async function updateSiblingTsconfigReferences(
   workspaceDeps: string[],
   packageMap: Map<string, PackageInfo>,
   packageName: string,
-  skipRefs: { path: string }[] = [],
-  extraRefs: { path: string }[] = [],
+  skipRefs: Ref[] = [],
+  extraRefs: Ref[] = [],
   dryRun = false,
   verbose = false
 ): Promise<boolean> {
@@ -130,7 +60,7 @@ export async function updateSiblingTsconfigReferences(
       const depInfo = packageMap.get(depName);
       if (depInfo) {
         // Skip packages that are excluded
-        if (depInfo.packageConfig.excludeThisPackage) {
+        if (depInfo.packageConfig.exclude) {
           continue;
         }
         // Use canonical tsconfig if available, otherwise tsconfig.json

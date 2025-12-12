@@ -1,2 +1,4 @@
-extra-refs:
-  - { path: '../app/tsconfig.json' }
+references:
+  add:
+    - { path: '../app/tsconfig.json' }
+  skip: []

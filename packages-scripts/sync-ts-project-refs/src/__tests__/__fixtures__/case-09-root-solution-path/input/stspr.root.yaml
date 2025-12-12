@@ -1,2 +1,5 @@
-include-indirect-deps: false
-solution-tsconfig-path: ./configs/tsconfig.solution.json
+graph:
+  includeIndirectDeps: false
+
+rootSolution:
+  tsconfigPath: ./configs/tsconfig.solution.json

@@ -1,2 +1,2 @@
-use-alter-tsconfig: true
-alter-tsconfig-path: ./tsconfig.node.json
+canonicalTsconfig:
+  path: ./tsconfig.node.json

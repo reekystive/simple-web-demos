@@ -4,7 +4,7 @@
   },
   "references": [
     {
-      "path": "./tsconfig.tsserver.json"
+      "path": "../utils/tsconfig.json"
     }
   ]
 }

@@ -2,95 +2,89 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json",
   "title": "STSPR Package Configuration",
-  "description": "Package-level configuration for STSPR tool.",
+  "description": "Package-level configuration for the STSPR (sync-ts-project-refs) tool.",
   "type": "object",
   "properties": {
-    "use-package-solution-style": {
+    "exclude": {
       "type": "boolean",
       "default": false,
-      "description": "When true, treat this package as using a solution-style tsconfig setup. The main tsconfig.json will only reference sibling tsconfig.*.json files and will NOT include workspace dependencies. Sibling tsconfig files (e.g., tsconfig.web.json, tsconfig.tests.json) will continue to receive workspace dependency references."
+      "description": "When true, exclude this package from processing (it will not be updated and dependents will not reference it)."
     },
-    "use-alter-tsconfig": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to use an alternative main TypeScript configuration file instead of tsconfig.json. When enabled, the alternative tsconfig becomes the 'main' configuration that other packages will reference, while tsconfig.json may only reference the alternative config."
-    },
-    "alter-tsconfig-path": {
-      "type": "string",
-      "default": "./tsconfig.tsserver.json",
-      "description": "Path to the alternative TypeScript configuration file (relative to package root). Only used when use-alter-tsconfig is true. This file will be treated as the main configuration for project references.",
-      "examples": ["./tsconfig.tsserver.json", "./tsconfig.build.json", "./tsconfig.lib.json", "./tsconfig.app.json"]
-    },
-    "skip-add-alter-tsconfig-to-main-tsconfig": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to skip adding the alternative tsconfig reference to the main tsconfig.json. When false (default): tsconfig.json will reference the alternative config. When true: tsconfig.json won't reference the alternative config (useful for standalone configs)."
-    },
-    "include-deps-in-main-tsconfig-if-using-alter-tsconfig": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to include workspace dependencies in the main tsconfig.json when using alternative config. When false (default): Only the alternative config gets workspace dependencies. When true: Both main and alternative configs get workspace dependencies."
-    },
-    "exclude-this-package": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to exclude this entire package from the TypeScript project reference graph. When true, this package will be treated as a pre-built external package: other packages won't automatically reference this package, and it won't be included in the root solution-style tsconfig."
-    },
-    "skip-deps": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to skip scanning regular dependencies when building project references. When true, workspace dependencies in 'dependencies' field will be ignored."
-    },
-    "skip-dev-deps": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to skip scanning development dependencies when building project references. When true, workspace dependencies in 'devDependencies' field will be ignored."
-    },
-    "skip-optional-deps": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to skip scanning optional dependencies when building project references. When true, workspace dependencies in 'optionalDependencies' field will be ignored."
-    },
-    "extra-refs": {
-      "type": "array",
-      "default": [],
-      "description": "Additional TypeScript project references to include at the package level. These references will be added to ALL TypeScript configurations in this package (both main tsconfig.json and alternative configs).",
-      "items": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to the TypeScript configuration file (relative to package root).",
-            "examples": [
-              "../../external-packages/shared-types/tsconfig.json",
-              "../shared-utils/tsconfig.json",
-              "../../configs/typescript-config/tsconfig.json"
-            ]
-          }
+    "canonicalTsconfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "default": "./tsconfig.json",
+          "description": "Canonical tsconfig for this package (the file other packages should reference). Relative to the package root."
         },
-        "required": ["path"],
-        "additionalProperties": false
+        "includeSiblings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the canonical tsconfig should reference sibling tsconfig.*.json files (discovery for tsserver/eslint project service)."
+        },
+        "standardReferencesCanonical": {
+          "type": "boolean",
+          "description": "Whether the standard tsconfig.json should reference the canonical tsconfig (discovery). Defaults to true when canonicalTsconfig.path != ./tsconfig.json, otherwise false."
+        },
+        "includeWorkspaceDeps": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the canonical tsconfig should include workspace dependency references."
+        }
       }
     },
-    "skip-refs": {
-      "type": "array",
-      "default": [],
-      "description": "TypeScript project references to explicitly skip/exclude at the package level. These references will be removed from ALL TypeScript configurations in this package even if they would normally be included through workspace dependencies.",
-      "items": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to the TypeScript configuration file to skip (relative to package root).",
-            "examples": [
-              "../problematic-package/tsconfig.json",
-              "../runtime-only-package/tsconfig.json",
-              "../legacy-package/tsconfig.json"
-            ]
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dependencies": { "type": "boolean", "default": true },
+            "devDependencies": { "type": "boolean", "default": true },
+            "optionalDependencies": { "type": "boolean", "default": true }
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "References that apply only to the canonical tsconfig file.",
+      "properties": {
+        "add": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to a referenced tsconfig (relative to the package root)."
+              }
+            }
           }
         },
-        "required": ["path"],
-        "additionalProperties": false
+        "skip": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Reference path to skip/remove (relative to the canonical tsconfig directory)."
+              }
+            }
+          }
+        }
       }
     }
   },

@@ -1,0 +1,3 @@
+filters:
+  excludeTsconfigs:
+    - '**/tsconfig.web.json'

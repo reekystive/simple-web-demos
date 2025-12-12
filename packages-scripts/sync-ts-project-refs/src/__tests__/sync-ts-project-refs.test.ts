@@ -9,6 +9,7 @@ import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { parseWorkspace } from '../config-reader.js';
+import { resolveExcludedDirs, resolveExcludedFiles } from '../filters.js';
 import { findAllPackageJsons } from '../fs-utils.js';
 import { buildPackageMap } from '../package-parser.js';
 import { updatePackageReferences } from '../package-updater.js';
@@ -25,15 +26,15 @@ const TEST_CASES: TestCase[] = [
     dir: 'case-01-basic',
   },
   {
-    name: 'use-alter-tsconfig mode',
+    name: 'non-standard canonical tsconfig',
     dir: 'case-02-alter-tsconfig',
   },
   {
-    name: 'extra-refs from tsconfig.stspr.yaml',
+    name: 'tsconfig-level references.add is applied',
     dir: 'case-04-extra-refs',
   },
   {
-    name: 'alter-tsconfig with extra-refs',
+    name: 'non-standard canonical + tsconfig-level references.add',
     dir: 'case-05-alter-tsconfig-with-extra-refs',
   },
   {
@@ -41,7 +42,7 @@ const TEST_CASES: TestCase[] = [
     dir: 'case-06-preserve-comments',
   },
   {
-    name: 'alter-tsconfig with sibling tsconfig files',
+    name: 'non-standard canonical includes sibling tsconfigs',
     dir: 'case-07-alter-tsconfig-with-sibling',
   },
   {
@@ -57,12 +58,20 @@ const TEST_CASES: TestCase[] = [
     dir: 'case-10-remove-reference',
   },
   {
-    name: 'tsconfig.tsserver.json treated as sibling when use-alter-tsconfig is false',
-    dir: 'case-11-tsserver-as-sibling',
+    name: 'canonical without workspace deps (sibling-only deps)',
+    dir: 'case-12-package-solution-style',
   },
   {
-    name: 'package-level solution style',
-    dir: 'case-12-package-solution-style',
+    name: 'rootSolution references add/skip',
+    dir: 'case-13-root-solution-references',
+  },
+  {
+    name: 'root filters excludePackages',
+    dir: 'case-14-exclude-packages',
+  },
+  {
+    name: 'root filters excludeTsconfigs',
+    dir: 'case-15-exclude-tsconfigs',
   },
 ];
 
@@ -100,18 +109,28 @@ describe('sync-ts-project-refs', () => {
 
       // Run the sync tool
       const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
-      const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
-      const solutionTsconfigPath = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
-      const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
-      const packageMap = await buildPackageMap(packageJsons, false);
+      const includeIndirectDeps = rootConfig.graph.includeIndirectDeps;
+      const excludedPackageDirs = await resolveExcludedDirs(workDir, rootConfig.filters.excludePackages);
+      const excludedTsconfigs = await resolveExcludedFiles(workDir, rootConfig.filters.excludeTsconfigs);
+      const allPackageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
+      const packageJsons = allPackageJsons.filter((p) => !excludedPackageDirs.has(path.dirname(p)));
+      const packageMap = await buildPackageMap(packageJsons, { verbose: false, excludedTsconfigs });
 
       // Update all packages
       for (const packageInfo of packageMap.values()) {
-        await updatePackageReferences(packageInfo, packageMap, workDir, false, false, includeIndirectDeps);
+        await updatePackageReferences(
+          packageInfo,
+          packageMap,
+          workDir,
+          false,
+          false,
+          includeIndirectDeps,
+          excludedTsconfigs
+        );
       }
 
       // Update root tsconfig.json
-      await updateRootTsconfig(workDir, packageMap, false, solutionTsconfigPath);
+      await updateRootTsconfig(workDir, packageMap, rootConfig, false, excludedTsconfigs);
 
       // Compare with expected output - always preserve comments
       await compareDirectories(workDir, expectedDir);
@@ -127,10 +146,12 @@ describe('sync-ts-project-refs', () => {
       // Run the sync tool twice
       for (let i = 0; i < 2; i++) {
         const { includePatterns, excludePatterns, rootConfig } = await parseWorkspace(workDir);
-        const includeIndirectDeps = rootConfig.includeIndirectDeps ?? false;
-        const solutionTsconfigPath = rootConfig.solutionTsconfigPath ?? './tsconfig.json';
-        const packageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
-        const packageMap = await buildPackageMap(packageJsons, false);
+        const includeIndirectDeps = rootConfig.graph.includeIndirectDeps;
+        const excludedPackageDirs = await resolveExcludedDirs(workDir, rootConfig.filters.excludePackages);
+        const excludedTsconfigs = await resolveExcludedFiles(workDir, rootConfig.filters.excludeTsconfigs);
+        const allPackageJsons = await findAllPackageJsons(workDir, { includePatterns, excludePatterns });
+        const packageJsons = allPackageJsons.filter((p) => !excludedPackageDirs.has(path.dirname(p)));
+        const packageMap = await buildPackageMap(packageJsons, { verbose: false, excludedTsconfigs });
 
         let changesCount = 0;
         for (const packageInfo of packageMap.values()) {
@@ -140,13 +161,14 @@ describe('sync-ts-project-refs', () => {
             workDir,
             false,
             false,
-            includeIndirectDeps
+            includeIndirectDeps,
+            excludedTsconfigs
           );
           changesCount += result.packagesUpdated;
         }
 
         // Update root tsconfig and check for changes
-        const rootChanged = await updateRootTsconfig(workDir, packageMap, false, solutionTsconfigPath);
+        const rootChanged = await updateRootTsconfig(workDir, packageMap, rootConfig, false, excludedTsconfigs);
 
         if (i === 0) {
           // First run should make changes

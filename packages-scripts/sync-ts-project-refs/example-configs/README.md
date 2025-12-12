@@ -12,8 +12,9 @@ Root-level configuration that controls behavior for the entire workspace.
 
 **Purpose**:
 
-- Choose which solution-style tsconfig should receive workspace references
-- Toggle whether indirect (transitive) workspace dependencies should also be added as TypeScript project references
+- Configure indirect dependency handling
+- Configure global hard-excludes (glob patterns with `!glob` support)
+- Configure the root solution tsconfig target and its extra/skipped references
 
 ### `stspr.package.yaml`
 
@@ -23,10 +24,10 @@ Package-level configuration that controls how the entire package is processed by
 
 **Purpose**:
 
-- Configure alternative TypeScript configurations
+- Exclude a package from processing
+- Configure the canonical tsconfig for the package (what other packages should reference)
 - Control dependency scanning behavior
-- Manage package-level references and exclusions
-- Exclude entire packages from the reference graph
+- Add/skip references that apply only to the canonical tsconfig
 
 ### `tsconfig.stspr.yaml`
 
@@ -43,9 +44,9 @@ TypeScript config-level configuration that controls how a specific `tsconfig.jso
 
 **Purpose**:
 
-- Add or skip references for specific TypeScript configurations
-- Exclude specific tsconfig files from processing
-- Fine-tune references for different build scenarios (test, build, IDE, etc.)
+- Exclude a specific tsconfig from processing
+- Decide whether this specific tsconfig should include workspace dependency references
+- Add/skip references for a specific tsconfig file
 
 ## Quick Start
 
@@ -84,61 +85,59 @@ The tool applies configurations in this order (later overrides earlier):
 
 ## Common Use Cases
 
-### Use Alternative TypeScript Configuration
-
-```yaml
-# stspr.package.yaml
-use-alter-tsconfig: true
-alter-tsconfig-path: ./tsconfig.tsserver.json
-```
-
 ### Exclude Package from Reference Graph
 
 ```yaml
 # stspr.package.yaml
-exclude-this-package: true
+exclude: true
 ```
 
 ### Add External References
 
 ```yaml
 # stspr.package.yaml
-extra-refs:
-  - { path: '../../external-packages/shared-types/tsconfig.json' }
+references:
+  add:
+    - { path: '../../external-packages/shared-types/tsconfig.json' }
+  skip: []
 ```
 
 ### Skip Problematic Dependencies
 
 ```yaml
 # stspr.package.yaml
-skip-refs:
-  - { path: '../problematic-package/tsconfig.json' }
+references:
+  add: []
+  skip:
+    - { path: '../problematic-package/tsconfig.json' }
 ```
 
 ### Exclude Specific TypeScript Config
 
 ```yaml
 # tsconfig.build.stspr.yaml
-exclude-this-tsconfig: true
+exclude: true
 ```
 
 ### Test-Specific Configuration
 
 ```yaml
 # tsconfig.test.stspr.yaml
-extra-refs:
-  - { path: '../../test-utils/tsconfig.json' }
-skip-refs:
-  - { path: '../production-only/tsconfig.json' }
+includeWorkspaceDeps: true
+references:
+  add:
+    - { path: '../../test-utils/tsconfig.json' }
+  skip:
+    - { path: '../production-only/tsconfig.json' }
 ```
 
 ## Migration from Legacy System
 
 If you're migrating from the old system:
 
-- **`tsconfig.*.extra-refs.json`** → Use `extra-refs` in YAML configs
-- **`tsconfig-nosync.mark`** → Use `exclude-this-package: true`
-- **`tsconfig.*.nosync.*.json`** → Use `exclude-this-tsconfig: true`
+- **`tsconfig.*.extra-refs.json`** → Use `references.add` in YAML configs
+- **`tsconfig-nosync.mark`** → Use `exclude: true` in `stspr.package.yaml`
+- **`tsconfig.*.nosync.*.json`** → Use `exclude: true` in `tsconfig.*.stspr.yaml`
 
 ## Validation and Debugging
 

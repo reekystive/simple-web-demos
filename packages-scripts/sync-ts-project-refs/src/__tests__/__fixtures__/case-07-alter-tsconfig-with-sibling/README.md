@@ -1,34 +1,34 @@
-# Test Case 07: Alter TSConfig with Sibling TSConfig Files
+# Test Case 07: Canonical TSConfig with Sibling TSConfig Files
 
 ## Scenario
 
-This test verifies the behavior when using `use-alter-tsconfig` with multiple tsconfig files including sibling configs.
+This test verifies the behavior when using `canonicalTsconfig.path` with multiple tsconfig files including sibling configs.
 
 ## Setup
 
 - Package `app` depends on package `utils`
 - Package `app` has:
   - `tsconfig.json` (original main config)
-  - `tsconfig.tsserver.json` (designated as the alter/main config)
+  - `tsconfig.tsserver.json` (designated as the canonical config)
   - `tsconfig.custom.json` (sibling config)
 - Package `app` has configuration:
 
   ```yaml
-  use-alter-tsconfig: true
-  alter-tsconfig-path: ./tsconfig.tsserver.json
+  canonicalTsconfig:
+    path: ./tsconfig.tsserver.json
   ```
 
 ## Expected Behavior
 
-When `use-alter-tsconfig` is enabled:
+When `canonicalTsconfig.path` is set:
 
-1. **Root `tsconfig.json`**: Should reference `tsconfig.tsserver.json` (the alter config), not the original `tsconfig.json`
+1. **Root `tsconfig.json`**: Should reference `tsconfig.tsserver.json` (the canonical config), not the original `tsconfig.json`
 
-2. **Package `app/tsconfig.json`**: Should ONLY reference `tsconfig.tsserver.json` (the alter config)
+2. **Package `app/tsconfig.json`**: Should reference `tsconfig.tsserver.json` (the canonical config)
    - It should NOT reference workspace dependencies
    - It should NOT reference sibling configs
 
-3. **Package `app/tsconfig.tsserver.json`**: Becomes the "main" config and should reference:
+3. **Package `app/tsconfig.tsserver.json`**: Becomes the canonical config and should reference:
    - Workspace dependencies (`../utils/tsconfig.json`)
    - Sibling configs (`./tsconfig.custom.json`)
 
@@ -36,11 +36,11 @@ When `use-alter-tsconfig` is enabled:
 
 ## Key Point
 
-When using alter tsconfig, the alter config (e.g., `tsconfig.tsserver.json`) becomes the new "main" config that:
+When using a canonical tsconfig, the canonical config (e.g., `tsconfig.tsserver.json`) becomes the config that:
 
 - Gets referenced by other packages
 - Gets referenced by the root tsconfig
 - Receives all workspace dependency references
 - Receives all sibling tsconfig references
 
-The original `tsconfig.json` becomes a simple wrapper that only references the alter config.
+The original `tsconfig.json` becomes a simple wrapper that references the canonical config.

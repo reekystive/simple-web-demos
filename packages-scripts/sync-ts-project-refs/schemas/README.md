@@ -11,9 +11,15 @@ Use these URLs in your YAML configuration files for IDE support:
 ```yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
 
-use-alter-tsconfig: false
-exclude-this-package: false
-# ... rest of configuration
+exclude: false
+canonicalTsconfig:
+  # Defaults to ./tsconfig.json
+  path: ./tsconfig.json
+  includeSiblings: true
+  includeWorkspaceDeps: true
+references:
+  add: []
+  skip: []
 ```
 
 **File**: `stspr.package.yaml` (place in package root)
@@ -23,10 +29,12 @@ exclude-this-package: false
 ```yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
 
-exclude-this-tsconfig: false
-extra-refs:
-  - { path: '../../test-utils/tsconfig.json' }
-# ... rest of configuration
+exclude: false
+includeWorkspaceDeps: false
+references:
+  add:
+    - { path: '../../test-utils/tsconfig.json' }
+  skip: []
 ```
 
 **Files**: `tsconfig.stspr.yaml`, `tsconfig.{name}.stspr.yaml` (e.g. `tsconfig.custom.stspr.yaml`)
@@ -36,8 +44,17 @@ extra-refs:
 ```yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
 
-include-indirect-deps: false
-solution-tsconfig-path: ./tsconfig.json
+graph:
+  includeIndirectDeps: false
+filters:
+  excludePackages: []
+  excludeTsconfigs: []
+rootSolution:
+  tsconfigPath: ./tsconfig.json
+  includeSiblings: true
+  references:
+    add: []
+    skip: []
 ```
 
 **File**: `stspr.root.yaml` (place alongside `pnpm-workspace.yaml`)

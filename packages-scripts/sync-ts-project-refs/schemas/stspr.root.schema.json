@@ -2,18 +2,90 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json",
   "title": "STSPR Root Configuration",
-  "description": "Root-level configuration for STSPR tool.",
+  "description": "Root-level configuration for the STSPR (sync-ts-project-refs) tool.",
   "type": "object",
   "properties": {
-    "include-indirect-deps": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether to include transitive workspace dependencies for each package when generating TypeScript project references."
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "includeIndirectDeps": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include transitive workspace dependencies when generating references for each package."
+        }
+      }
     },
-    "solution-tsconfig-path": {
-      "type": "string",
-      "default": "./tsconfig.json",
-      "description": "Path to the root solution-style tsconfig that will receive workspace package references. Relative paths are resolved from the workspace root."
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "excludePackages": {
+          "type": "array",
+          "default": [],
+          "description": "Glob patterns (pnpm-workspace style, supports '!glob') for package directories to hard-exclude from processing.",
+          "items": { "type": "string" }
+        },
+        "excludeTsconfigs": {
+          "type": "array",
+          "default": [],
+          "description": "Glob patterns (pnpm-workspace style, supports '!glob') for tsconfig files to hard-exclude from processing.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "rootSolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tsconfigPath": {
+          "type": "string",
+          "default": "./tsconfig.json",
+          "description": "Path to the root solution tsconfig that should aggregate workspace packages. Relative paths are resolved from the workspace root."
+        },
+        "includeSiblings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to add sibling root tsconfig.*.json files (e.g. tsconfig.node.json) as references in the root solution tsconfig."
+        },
+        "references": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "References that apply only to the root solution tsconfig file.",
+          "properties": {
+            "add": {
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path"],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path to a referenced tsconfig (resolved relative to the root solution tsconfig directory)."
+                  }
+                }
+              }
+            },
+            "skip": {
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path"],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Reference path to skip/remove (resolved relative to the root solution tsconfig directory)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "additionalProperties": false

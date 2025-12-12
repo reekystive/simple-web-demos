@@ -4,10 +4,10 @@
   },
   "references": [
     {
-      "path": "./tsconfig.custom.json"
+      "path": "../utils/tsconfig.json"
     },
     {
-      "path": "../utils/tsconfig.json"
+      "path": "./tsconfig.custom.json"
     }
   ]
 }

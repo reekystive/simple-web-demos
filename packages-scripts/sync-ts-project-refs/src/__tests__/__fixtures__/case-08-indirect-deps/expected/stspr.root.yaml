@@ -1,1 +1,2 @@
-include-indirect-deps: true
+graph:
+  includeIndirectDeps: true

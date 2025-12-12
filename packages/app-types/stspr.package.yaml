@@ -1,1 +1,1 @@
-exclude-this-package: true
+exclude: true

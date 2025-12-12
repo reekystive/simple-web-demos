@@ -40,13 +40,17 @@
 # - Build configurations that conflict with the reference system
 #
 # This replaces the old tsconfig.*.nosync.*.json naming pattern
-exclude-this-tsconfig: false
+exclude: false
+
+# Whether THIS tsconfig should include workspace dependency references.
+# Default: false (canonical is controlled by stspr.package.yaml)
+includeWorkspaceDeps: false
 
 # -----------------------------------------------------------------------------
 # Config-specific Reference Management
 # -----------------------------------------------------------------------------
 
-# Additional TypeScript project references to include for this specific tsconfig
+# Additional TypeScript project references to add for this specific tsconfig
 # These references will ONLY be added to this particular TypeScript configuration,
 # not to other tsconfig files in the same package.
 #
@@ -58,43 +62,15 @@ exclude-this-tsconfig: false
 # - Build configurations that need build-specific dependencies
 # - IDE configurations that need additional type definitions
 # - Specialized configurations with unique requirements
-extra-refs:
-  # Example: Test-specific utilities (for tsconfig.test.stspr.yaml)
-  - { path: '../../test-utils/tsconfig.json' }
-
-  # Example: Build-specific configuration (for tsconfig.build.stspr.yaml)
-  - { path: '../../build-tools/tsconfig.json' }
-
-  # Example: IDE-specific type definitions (for tsconfig.tsserver.stspr.yaml)
-  - { path: '../../types/global-types/tsconfig.json' }
-
-  # Example: External package reference
-  # - { path: '../../../external-packages/shared-interfaces/tsconfig.json' }
-
-# TypeScript project references to explicitly skip/exclude for this specific tsconfig
-# These references will be removed from this particular TypeScript configuration
-# even if they would normally be included through workspace dependencies or package-level config
-#
-# Format: Array of objects with 'path' property
-# Paths are relative to the directory containing this tsconfig file
-#
-# Use cases:
-# - Build configs that shouldn't include test dependencies
-# - Test configs that shouldn't include production-only dependencies
-# - IDE configs that need to exclude problematic packages
-# - Resolving circular dependencies for specific configurations
-skip-refs:
-  # Example: Build config excluding test dependencies
-  - { path: '../test-package/tsconfig.json' }
-
-  # Example: Test config excluding production dependencies
-  - { path: '../production-only-package/tsconfig.json' }
-
-  # Example: Excluding a package that causes issues in this specific config
-  - { path: '../problematic-for-this-config/tsconfig.json' }
-
-  # Example: IDE config excluding build-time-only packages
-  # - { path: '../build-time-only/tsconfig.json' }
+references:
+  add:
+    - { path: '../../test-utils/tsconfig.json' }
+    - { path: '../../build-tools/tsconfig.json' }
+    - { path: '../../types/global-types/tsconfig.json' }
+  skip:
+    - { path: '../test-package/tsconfig.json' }
+    - { path: '../production-only-package/tsconfig.json' }
+    - { path: '../problematic-for-this-config/tsconfig.json' }
 
 # -----------------------------------------------------------------------------
 # Common Configuration Scenarios

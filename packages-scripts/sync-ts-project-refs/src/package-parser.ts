@@ -8,12 +8,17 @@ import * as path from 'node:path';
 import chalk from 'chalk';
 
 import { readPackageConfig, readTsconfigConfig } from './config-reader.js';
+import { isExcludedByFileSet } from './filters.js';
 import type { PackageInfo, PackageJson, TsconfigConfig } from './types.js';
 
 /**
  * Get package information including workspace dependencies
  */
-export async function getPackageInfo(packageJsonPath: string, verbose = false): Promise<PackageInfo | null> {
+export async function getPackageInfo(
+  packageJsonPath: string,
+  opts: { verbose?: boolean; excludedTsconfigs?: Set<string> } = {}
+): Promise<PackageInfo | null> {
+  const verbose = opts.verbose ?? false;
   try {
     const content = await fs.readFile(packageJsonPath, 'utf-8');
     const pkg = JSON.parse(content) as PackageJson;
@@ -28,7 +33,7 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
     const packageConfig = await readPackageConfig(packageDir);
 
     // Skip if package is excluded
-    if (packageConfig.excludeThisPackage) {
+    if (packageConfig.exclude) {
       if (verbose) {
         console.log(chalk.gray(`  ${pkg.name}: excluded by package config (will be skipped by dependents)`));
       }
@@ -36,9 +41,9 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
     }
 
     // Check if tsconfig.json exists
-    const tsconfigPath = path.join(packageDir, 'tsconfig.json');
+    const standardTsconfigPath = path.join(packageDir, 'tsconfig.json');
     try {
-      await fs.access(tsconfigPath);
+      await fs.access(standardTsconfigPath);
     } catch {
       if (verbose) {
         console.log(chalk.gray(`  Skipping ${pkg.name}: no tsconfig.json`));
@@ -46,35 +51,25 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
       return null;
     }
 
-    // Determine main tsconfig path based on configuration
-    let alterTsconfigPath: string | null = null;
-
-    if (packageConfig.useAlterTsconfig && packageConfig.alterTsconfigPath) {
-      const altPath = path.resolve(packageDir, packageConfig.alterTsconfigPath);
-      try {
-        await fs.access(altPath);
-        alterTsconfigPath = altPath;
-        if (verbose) {
-          console.log(
-            chalk.gray(
-              `  ${pkg.name}: using ${packageConfig.alterTsconfigPath} as alter tsconfig (will be used as canonical reference)`
-            )
-          );
-        }
-      } catch {
-        if (verbose) {
-          console.log(
-            chalk.yellow(
-              `  ${pkg.name}: configured alter tsconfig ${packageConfig.alterTsconfigPath} not found, using tsconfig.json`
-            )
-          );
-        }
+    // Resolve canonical tsconfig path
+    const canonicalCandidatePath = path.resolve(packageDir, packageConfig.canonicalTsconfig.path);
+    let canonicalResolved = standardTsconfigPath;
+    try {
+      await fs.access(canonicalCandidatePath);
+      canonicalResolved = canonicalCandidatePath;
+    } catch {
+      if (verbose && packageConfig.canonicalTsconfig.path !== './tsconfig.json') {
+        console.log(
+          chalk.yellow(
+            `  ${pkg.name}: configured canonical tsconfig ${packageConfig.canonicalTsconfig.path} not found, falling back to tsconfig.json`
+          )
+        );
       }
     }
 
     // Find all tsconfig.*.json files
     const tsconfigPaths: string[] = [];
-    const tsconfigConfigs = new Map<string, TsconfigConfig>();
+    const tsconfigConfigs = new Map<string, TsconfigConfig>(); // tsconfig path -> config
 
     try {
       const files = await fs.readdir(packageDir);
@@ -86,10 +81,16 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
 
       // Read config for each tsconfig and filter based on exclude settings
       for (const tsconfigPath of allTsconfigs) {
+        if (opts.excludedTsconfigs && isExcludedByFileSet(tsconfigPath, opts.excludedTsconfigs)) {
+          if (verbose) {
+            console.log(chalk.gray(`  ${pkg.name}: excluding ${path.basename(tsconfigPath)} by root filters`));
+          }
+          continue;
+        }
         const config = await readTsconfigConfig(tsconfigPath);
         tsconfigConfigs.set(tsconfigPath, config);
 
-        if (!config.excludeThisTsconfig) {
+        if (!config.exclude) {
           tsconfigPaths.push(tsconfigPath);
         } else if (verbose) {
           console.log(chalk.gray(`  ${pkg.name}: excluding ${path.basename(tsconfigPath)} by tsconfig config`));
@@ -97,9 +98,11 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
       }
 
       // Also read config for main tsconfig files
-      tsconfigConfigs.set(tsconfigPath, await readTsconfigConfig(tsconfigPath));
-      if (alterTsconfigPath) {
-        tsconfigConfigs.set(alterTsconfigPath, await readTsconfigConfig(alterTsconfigPath));
+      if (!opts.excludedTsconfigs || !isExcludedByFileSet(standardTsconfigPath, opts.excludedTsconfigs)) {
+        tsconfigConfigs.set(standardTsconfigPath, await readTsconfigConfig(standardTsconfigPath));
+      }
+      if (!opts.excludedTsconfigs || !isExcludedByFileSet(canonicalResolved, opts.excludedTsconfigs)) {
+        tsconfigConfigs.set(canonicalResolved, await readTsconfigConfig(canonicalResolved));
       }
 
       tsconfigPaths.sort();
@@ -111,9 +114,9 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
 
     // Check dependency types based on configuration
     const depTypes: (keyof PackageJson)[] = [];
-    if (!packageConfig.skipDeps) depTypes.push('dependencies');
-    if (!packageConfig.skipDevDeps) depTypes.push('devDependencies');
-    if (!packageConfig.skipOptionalDeps) depTypes.push('optionalDependencies');
+    if (packageConfig.dependencies.include.dependencies) depTypes.push('dependencies');
+    if (packageConfig.dependencies.include.devDependencies) depTypes.push('devDependencies');
+    if (packageConfig.dependencies.include.optionalDependencies) depTypes.push('optionalDependencies');
     depTypes.push('peerDependencies'); // Always include peer deps
 
     for (const depType of depTypes) {
@@ -132,8 +135,9 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
     return {
       name: pkg.name,
       packageJsonPath,
-      tsconfigPath,
-      alterTsconfigPath,
+      packageDir,
+      standardTsconfigPath,
+      canonicalTsconfigPath: canonicalResolved,
       tsconfigPaths,
       workspaceDeps: Array.from(workspaceDeps),
       packageConfig,
@@ -148,11 +152,15 @@ export async function getPackageInfo(packageJsonPath: string, verbose = false): 
 /**
  * Build package map: package name -> package info
  */
-export async function buildPackageMap(packageJsons: string[], verbose = false): Promise<Map<string, PackageInfo>> {
+export async function buildPackageMap(
+  packageJsons: string[],
+  opts: { verbose?: boolean; excludedTsconfigs?: Set<string> } = {}
+): Promise<Map<string, PackageInfo>> {
+  const verbose = opts.verbose ?? false;
   const packageMap = new Map<string, PackageInfo>();
 
   for (const packageJsonPath of packageJsons) {
-    const info = await getPackageInfo(packageJsonPath, verbose);
+    const info = await getPackageInfo(packageJsonPath, { verbose, excludedTsconfigs: opts.excludedTsconfigs });
     if (info) {
       packageMap.set(info.name, info);
     }
@@ -162,8 +170,8 @@ export async function buildPackageMap(packageJsons: string[], verbose = false): 
 }
 
 /**
- * Get the canonical reference path for a package (alter tsconfig if configured, otherwise tsconfig.json)
+ * Get the canonical reference path for a package (v2: canonicalTsconfigPath)
  */
 export function getCanonicalReferencePath(packageInfo: PackageInfo): string {
-  return packageInfo.alterTsconfigPath ?? packageInfo.tsconfigPath;
+  return packageInfo.canonicalTsconfigPath;
 }
