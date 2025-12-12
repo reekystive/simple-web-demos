@@ -37,6 +37,7 @@ const PACKAGE_FIELDS_TO_COPY = [
   'version',
   'description',
   'type',
+  'files',
   'imports',
   'exports',
   'bin',
@@ -51,9 +52,6 @@ const PACKAGE_FIELDS_TO_COPY = [
   'peerDependencies',
   'peerDependenciesMeta',
 ] as const;
-
-/** Additional files/folders to copy to dist-npm */
-const ASSETS_TO_COPY = ['README.md', 'example-configs', 'schemas'] as const;
 
 /** Patterns to ignore when copying dist folder */
 const DIST_IGNORE_PATTERNS = ['**/*.js.map', '**/*.d.ts.map', '**/*.tsbuildinfo'];
@@ -229,7 +227,11 @@ async function copyDistToDistNpm(): Promise<void> {
 }
 
 async function copyAssets(): Promise<void> {
-  for (const asset of ASSETS_TO_COPY) {
+  // Read files field from package.json, excluding "dist" (handled separately)
+  const pkg = await readJson<{ files?: string[] }>(PACKAGE_JSON_PATH);
+  const assets = (pkg.files ?? []).filter((f) => f !== 'dist');
+
+  for (const asset of assets) {
     const src = path.join(ROOT_DIR, asset);
     const dest = path.join(DIST_NPM_DIR, asset);
 

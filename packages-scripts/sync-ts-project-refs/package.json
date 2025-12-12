@@ -10,6 +10,12 @@
     "stspr": "./dist/index.js",
     "sync-ts-project-refs": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "example-configs",
+    "schemas",
+    "README.md"
+  ],
   "scripts": {
     "build": "pnpm run tsc:build",
     "dev": "tsx --tsconfig tsconfig.src.json src/index.ts",
