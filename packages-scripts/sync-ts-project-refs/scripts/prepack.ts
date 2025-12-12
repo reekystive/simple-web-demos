@@ -31,7 +31,7 @@ const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const DIST_NPM_DIR = path.join(ROOT_DIR, 'dist-npm');
 const PACKAGE_JSON_PATH = path.join(ROOT_DIR, 'package.json');
 
-/** Fields to copy from source package.json to dist-npm/package.json */
+/** Fields to copy from source package.json to dist-npm/package.json (supports dot notation like a.b.c) */
 const PACKAGE_FIELDS_TO_COPY = [
   'name',
   'version',
@@ -51,6 +51,7 @@ const PACKAGE_FIELDS_TO_COPY = [
   'dependencies',
   'peerDependencies',
   'peerDependenciesMeta',
+  'publishConfig.access',
 ] as const;
 
 /** Patterns to ignore when copying dist folder */
@@ -99,6 +100,37 @@ async function emptyDir(dir: string): Promise<number> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Object Path Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getByPath(obj: Record<string, unknown>, path: string): unknown {
+  const keys = path.split('.');
+  let current: unknown = obj;
+  for (const key of keys) {
+    if (current == null || typeof current !== 'object') return undefined;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+function setByPath(obj: Record<string, unknown>, path: string, value: unknown): void {
+  const keys = path.split('.');
+  let current = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const key = keys[i]!;
+    if (!(key in current) || typeof current[key] !== 'object' || current[key] == null) {
+      current[key] = {};
+    }
+    current = current[key] as Record<string, unknown>;
+  }
+  const lastKey = keys.at(-1);
+  if (lastKey) {
+    current[lastKey] = value;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Logging Utilities
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -141,10 +173,13 @@ async function createPackageJson(): Promise<void> {
   const sourcePackage = await readJson<Record<string, unknown>>(PACKAGE_JSON_PATH);
   const targetPackage: Record<string, unknown> = {};
 
-  // Copy only the fields we want
+  // Copy only the fields we want (supports dot notation like a.b.c)
+  const copiedFields: string[] = [];
   for (const field of PACKAGE_FIELDS_TO_COPY) {
-    if (field in sourcePackage) {
-      targetPackage[field] = sourcePackage[field];
+    const value = getByPath(sourcePackage, field);
+    if (value !== undefined) {
+      setByPath(targetPackage, field, value);
+      copiedFields.push(field);
     }
   }
 
@@ -154,7 +189,6 @@ async function createPackageJson(): Promise<void> {
   const targetPath = path.join(DIST_NPM_DIR, 'package.json');
   await writeJson(targetPath, targetPackage);
 
-  const copiedFields = PACKAGE_FIELDS_TO_COPY.filter((f) => f in sourcePackage);
   const overriddenFields = Object.keys(PACKAGE_FIELD_OVERRIDES);
   logSuccess(`Created ${chalk.yellow('dist-npm/package.json')}`);
   logDetail(`Copied fields: ${copiedFields.join(', ')}`);
