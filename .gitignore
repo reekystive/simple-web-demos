@@ -8,8 +8,7 @@ node_modules/
 
 # Build artifacts
 dist/
-dist-ssr/
-dist-npm/
+dist-*/
 storybook-static/
 *.local
 

@@ -38,7 +38,7 @@ const tailwindCssStylesheetPath = new URL('./packages/tailwindcss/tailwindcss.cs
  */
 const eslintConfig = [
   // config for all
-  { ignores: ['**/node_modules/', '**/dist/', '**/dist-npm/', '**/storybook-static/', '**/.next/'] },
+  { ignores: ['**/node_modules/', '**/dist/', '**/dist-*/', '**/storybook-static/', '**/.next/'] },
   { linterOptions: { reportUnusedDisableDirectives: true } },
 
   // parser for javascript/typescript code

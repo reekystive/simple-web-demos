@@ -1,4 +1,5 @@
 next-env.d.ts
 cloudflare-env.d.ts
 pnpm-lock.yaml
-dist-npm/
+dist/
+dist-*/
