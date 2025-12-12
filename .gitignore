@@ -9,6 +9,7 @@ node_modules/
 # Build artifacts
 dist/
 dist-ssr/
+dist-npm/
 storybook-static/
 *.local
 
