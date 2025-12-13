@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD034 -->
+<!-- markdownlint-disable MD034 MD029 -->
 
 # stspr (sync-ts-project-refs)
 
@@ -206,6 +206,64 @@ Notes:
 - `tsconfig.*.stspr.yaml`: https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/tsconfig.stspr.schema.json
 
 ## Common recipes
+
+### “Solution-style” pattern
+
+Even though stspr does not have a dedicated `mode: solution`, the **solution-style pattern** is still fully supported.
+
+The idea is:
+
+- **`tsconfig.json` becomes a lightweight entry/discovery file**
+  - It helps `tsserver` / editor tooling discover other `tsconfig.*.json` via `references`.
+  - It typically does **not** carry the workspace dependency reference graph itself.
+- **A non-standard canonical tsconfig becomes the real graph node**
+  - Other packages (and the root solution tsconfig) reference **this** file.
+  - This file typically **does** carry workspace dependency references.
+  - It may also reference sibling `tsconfig.*.json` files for discovery.
+
+#### Recommended configuration
+
+1. Pick a canonical tsconfig that is not `tsconfig.json` (e.g. `tsconfig.tsserver.json` or `tsconfig.canonical.json`):
+
+```yaml
+# stspr.package.yaml
+canonicalTsconfig:
+  path: ./tsconfig.tsserver.json
+  includeSiblings: true
+  includeWorkspaceDeps: true
+```
+
+2. (Optional) Decide which sibling tsconfigs should also include workspace deps refs:
+
+```yaml
+# tsconfig.web.stspr.yaml
+includeWorkspaceDeps: true
+references:
+  add: []
+  skip: []
+```
+
+#### “Pure aggregator” variant (canonical does NOT include deps refs)
+
+This is rarer, but sometimes useful if you want the canonical tsconfig to be a pure “discovery/aggregation” entry:
+
+```yaml
+# stspr.package.yaml
+canonicalTsconfig:
+  path: ./tsconfig.canonical.json
+  includeSiblings: true
+  includeWorkspaceDeps: false
+```
+
+Then explicitly enable deps refs on the tsconfig(s) that should carry them:
+
+```yaml
+# tsconfig.build.stspr.yaml
+includeWorkspaceDeps: true
+references:
+  add: []
+  skip: []
+```
 
 ### Non-standard canonical tsconfig (e.g. `tsconfig.tsserver.json`)
 
