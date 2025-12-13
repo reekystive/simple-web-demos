@@ -39,6 +39,9 @@ jobs:
       - name: Run ESLint
         run: pnpm -w --no-bail run lint:eslint:packages
 
+      - name: Run Prettier
+        run: pnpm -w --no-bail run format:check
+
   test:
     runs-on: ubuntu-latest
     name: Run tests
