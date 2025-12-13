@@ -223,12 +223,12 @@ The idea is:
 
 #### Recommended configuration
 
-1. Pick a canonical tsconfig that is not `tsconfig.json` (e.g. `tsconfig.tsserver.json` or `tsconfig.canonical.json`):
+1. Pick a canonical tsconfig that is not `tsconfig.json` (e.g. `tsconfig.canonical.json`):
 
 ```yaml
 # stspr.package.yaml
 canonicalTsconfig:
-  path: ./tsconfig.tsserver.json
+  path: ./tsconfig.canonical.json
   includeSiblings: true
   includeWorkspaceDeps: true
 ```
@@ -265,12 +265,12 @@ references:
   skip: []
 ```
 
-### Non-standard canonical tsconfig (e.g. `tsconfig.tsserver.json`)
+### Non-standard canonical tsconfig (e.g. `tsconfig.canonical.json`)
 
 ```yaml
 # stspr.package.yaml
 canonicalTsconfig:
-  path: ./tsconfig.tsserver.json
+  path: ./tsconfig.canonical.json
   includeSiblings: true
   includeWorkspaceDeps: true
 ```

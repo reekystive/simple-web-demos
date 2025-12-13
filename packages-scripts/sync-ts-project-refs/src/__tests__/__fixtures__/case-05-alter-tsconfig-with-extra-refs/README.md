@@ -11,10 +11,10 @@ This test case verifies that:
 
 ## Scenario
 
-- `@test/utils` package sets `canonicalTsconfig.path: ./tsconfig.tsserver.json`
+- `@test/utils` package sets `canonicalTsconfig.path: ./tsconfig.canonical.json`
 - It has a `tsconfig.stspr.yaml` that uses `references.add` to add `../app/tsconfig.json`
 - The main `tsconfig.json` should include:
-  - Reference to canonical tsconfig: `./tsconfig.tsserver.json`
+  - Reference to canonical tsconfig: `./tsconfig.canonical.json`
   - Extra reference: `../app/tsconfig.json`
 
 ## Bug This Tests

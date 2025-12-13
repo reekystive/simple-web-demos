@@ -1,2 +1,2 @@
 canonicalTsconfig:
-  path: ./tsconfig.tsserver.json
+  path: ./tsconfig.canonical.json

@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/app/tsconfig.tsserver.json"
+      "path": "./packages/app/tsconfig.canonical.json"
     },
     {
       "path": "./packages/utils/tsconfig.json"

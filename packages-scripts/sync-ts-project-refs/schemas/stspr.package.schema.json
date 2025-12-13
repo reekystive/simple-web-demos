@@ -18,7 +18,7 @@
           "type": "string",
           "default": "./tsconfig.json",
           "description": "Canonical tsconfig for this package (the file other packages should reference). Relative to the package root.",
-          "examples": ["./tsconfig.json", "./tsconfig.canonical.json", "./tsconfig.tsserver.json"]
+          "examples": ["./tsconfig.json", "./tsconfig.canonical.json"]
         },
         "includeSiblings": {
           "type": "boolean",
