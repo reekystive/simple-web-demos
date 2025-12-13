@@ -85,7 +85,7 @@ All config keys are **camelCase**.
 - Configure which root solution tsconfig to update, and add/skip refs on that file
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
+# yaml-language-server: $schema=https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/stspr.root.schema.json
 
 graph:
   includeIndirectDeps: false
@@ -119,7 +119,7 @@ rootSolution:
 - Add/skip references that apply only to the canonical tsconfig
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
+# yaml-language-server: $schema=https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/stspr.package.schema.json
 
 exclude: false
 
@@ -155,7 +155,7 @@ references:
 - `tsconfig.custom.json` → `tsconfig.custom.stspr.yaml`
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
+# yaml-language-server: $schema=https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/tsconfig.stspr.schema.json
 
 exclude: false
 
@@ -194,11 +194,16 @@ For each package:
 
 This project ships JSON schemas for IDE autocomplete/validation.
 
-### Schema URLs (raw GitHub)
+### Schema URLs (unpkg)
 
-- `stspr.root.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.root.schema.json
-- `stspr.package.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/stspr.package.schema.json
-- `tsconfig.*.stspr.yaml`: https://raw.githubusercontent.com/reekystive/simple-web-demos/main/packages-scripts/sync-ts-project-refs/schemas/tsconfig.stspr.schema.json
+Notes:
+
+- The examples use `@latest` for convenience.
+- If you prefer stability, replace `@latest` with a pinned version (typically the version you installed), e.g. `@0.1.1`.
+
+- `stspr.root.yaml`: https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/stspr.root.schema.json
+- `stspr.package.yaml`: https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/stspr.package.schema.json
+- `tsconfig.*.stspr.yaml`: https://unpkg.com/@monorepo-tooling/sync-ts-project-refs@latest/schemas/tsconfig.stspr.schema.json
 
 ## Common recipes
 
