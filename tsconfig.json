@@ -27,6 +27,9 @@
     },
     {
       "path": "./packages/utils/tsconfig.json"
+    },
+    {
+      "path": "./eslint-rules/no-cross-package-relative-import/tsconfig.json"
     }
   ]
 }

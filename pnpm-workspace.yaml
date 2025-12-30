@@ -3,6 +3,7 @@ packages:
   - packages-scripts/*
   - apps-web/*
   - apps-server/*
+  - eslint-rules/*
 
 catalog:
   '@dicebear/collection': ^9.2.4
