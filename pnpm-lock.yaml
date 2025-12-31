@@ -259,6 +259,9 @@ importers:
       '@mdx-js/language-service':
         specifier: 'catalog:'
         version: 0.7.3
+      '@monorepo/eslint-plugin-no-cross-package-relative-import':
+        specifier: workspace:^
+        version: link:eslint-rules/no-cross-package-relative-import
       '@monorepo/tsconfig':
         specifier: workspace:^
         version: link:packages/tsconfig
