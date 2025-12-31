@@ -11,6 +11,9 @@ const fixturesDir = path.join(__dirname, '__fixtures__');
 const packageAIndex = path.join(fixturesDir, 'package-a/src/index.js');
 const packageAHelper = path.join(fixturesDir, 'package-a/src/utils/helper.js');
 
+// Paths within nested package (package-a/packages/nested)
+const nestedIndex = path.join(fixturesDir, 'package-a/packages/nested/src/index.js');
+
 const ruleTester = new RuleTester();
 
 describe('no-cross-package-relative-import', () => {
@@ -55,6 +58,17 @@ describe('no-cross-package-relative-import', () => {
           code: `import { b } from '../../package-b/src/index';`,
           filename: packageAIndex,
           errors: [{ messageId: 'noCrossPackageRelativeImport' }],
+        },
+        // Import pointing to package root directory (should detect @fixtures/package-b)
+        {
+          code: `import { b } from '../../package-b';`,
+          filename: packageAIndex,
+          errors: [
+            {
+              messageId: 'noCrossPackageRelativeImport',
+              data: { packageName: '@fixtures/package-b' },
+            },
+          ],
         },
         // Import using .. only
         {
@@ -105,6 +119,49 @@ describe('no-cross-package-relative-import', () => {
           code: `const b = require('../../package-b/src/index');`,
           filename: packageAIndex,
           errors: [{ messageId: 'noCrossPackageRelativeImport' }],
+        },
+      ],
+    });
+  });
+
+  it('should detect cross-package imports for nested packages', () => {
+    ruleTester.run('no-cross-package-relative-import', noCrossPackageRelativeImport, {
+      valid: [],
+      invalid: [
+        // From outer package (package-a/src/) importing into nested package
+        // Path: package-a/src/index.js -> ../packages/nested/src/index
+        {
+          code: `import { nested } from '../packages/nested/src/index';`,
+          filename: packageAIndex,
+          errors: [
+            {
+              messageId: 'noCrossPackageRelativeImport',
+              data: { packageName: '@fixtures/nested' },
+            },
+          ],
+        },
+        // From outer package importing nested package root directory
+        {
+          code: `import { nested } from '../packages/nested';`,
+          filename: packageAIndex,
+          errors: [
+            {
+              messageId: 'noCrossPackageRelativeImport',
+              data: { packageName: '@fixtures/nested' },
+            },
+          ],
+        },
+        // From nested package importing into outer package
+        // Path: package-a/packages/nested/src/index.js -> ../../../src/index
+        {
+          code: `import { a } from '../../../src/index';`,
+          filename: nestedIndex,
+          errors: [
+            {
+              messageId: 'noCrossPackageRelativeImport',
+              data: { packageName: '@fixtures/package-a' },
+            },
+          ],
         },
       ],
     });
