@@ -209,9 +209,6 @@ function crossesPackageBoundary(
 
   // Resolve the module path following Node.js-like resolution rules
   const resolved = resolveModulePath(basePath);
-  if (!resolved) {
-    return { crosses: false, targetPackageDir: null };
-  }
 
   // Find the package.json for the resolved path
   const targetPackageDir = findPackageJsonDir(resolved.resolvedPath, resolved.isDirectory);
