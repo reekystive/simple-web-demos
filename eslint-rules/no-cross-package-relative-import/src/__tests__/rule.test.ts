@@ -166,4 +166,39 @@ describe('no-cross-package-relative-import', () => {
       ],
     });
   });
+
+  it('should prioritize file over directory when both exist with same name', () => {
+    // Fixture structure:
+    // package-a/src/
+    // ├── pkg.js              <- FILE (same package as index.js)
+    // └── pkg/
+    //     ├── package.json    <- DIRECTORY with its own package.json (@fixtures/pkg-directory)
+    //     └── index.js
+    //
+    // When importing './pkg', Node.js resolves to './pkg.js' (file takes priority).
+    // So this import stays within package-a and should NOT be reported as cross-package.
+    ruleTester.run('no-cross-package-relative-import', noCrossPackageRelativeImport, {
+      valid: [
+        // import './pkg' resolves to './pkg.js' (file), NOT './pkg/' (directory)
+        // Therefore it stays within @fixtures/package-a and is valid
+        {
+          code: `import { pkg } from './pkg';`,
+          filename: packageAIndex,
+        },
+      ],
+      invalid: [
+        // Explicitly importing the directory's index.js DOES cross package boundary
+        {
+          code: `import { pkg } from './pkg/index';`,
+          filename: packageAIndex,
+          errors: [
+            {
+              messageId: 'noCrossPackageRelativeImport',
+              data: { packageName: '@fixtures/pkg-directory' },
+            },
+          ],
+        },
+      ],
+    });
+  });
 });
