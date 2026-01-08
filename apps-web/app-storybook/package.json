@@ -21,6 +21,7 @@
     "tsc:build:watch": "tsgo --build tsconfig.json --watch"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "catalog:",
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@faker-js/faker": "catalog:",
@@ -29,6 +30,7 @@
     "@radix-ui/react-label": "catalog:",
     "@radix-ui/react-slider": "catalog:",
     "@react-hookz/web": "catalog:",
+    "ai": "catalog:",
     "es-toolkit": "catalog:",
     "figma-squircle": "catalog:",
     "lucide-react": "catalog:",
