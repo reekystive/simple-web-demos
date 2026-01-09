@@ -55,8 +55,8 @@ export default function Home() {
         className={`
           mb-4 w-full rounded-md border-none px-3 py-2 text-base outline-1 -outline-offset-1 outline-blue-200/40
           transition-colors duration-75 ease-in-out
-          focus:outline-amber-500/80
-          active:outline-amber-500/80
+          focus:outline-cyan-600/80
+          active:outline-cyan-600/80
         `}
       />
 
