@@ -2,6 +2,7 @@ packages:
   - packages/*
   - packages-scripts/*
   - apps-web/*
+  - apps-node/*
   - apps-server/*
   - eslint-rules/*
 
@@ -15,6 +16,8 @@ catalog:
   '@microsoft/api-extractor': ^7.52.10
   '@next/eslint-plugin-next': 16.0.7
   '@opennextjs/cloudflare': ^1.14.3
+  '@photon-ai/advanced-imessage-kit': ^1.11.1
+  '@photon-ai/imessage-kit': ^2.1.0
   '@pnpm/lockfile.fs': ^1001.1.25
   '@pnpm/types': ^1001.0.1
   '@pnpm/workspace.pkgs-graph': ^1000.0.29
@@ -40,6 +43,7 @@ catalog:
   class-variance-authority: 0.7.1
   clsx: ^2.1.1
   csstype: ^3.2.3
+  date-fns: ^4.1.0
   es-toolkit: ^1.42.0
   eslint: ^9.39.1
   eslint-config-prettier: ^10.1.8
@@ -55,6 +59,7 @@ catalog:
   globals: ^16.5.0
   globby: ^16.0.0
   husky: ^9.1.7
+  ink: ^6.6.0
   jsonc-parser: 3.3.1
   lint-staged: ^16.2.7
   lucide-react: ^0.555.0
@@ -93,6 +98,7 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@swc/core'
   - '@tailwindcss/oxide'
+  - better-sqlite3
   - esbuild
   - sharp
   - workerd
