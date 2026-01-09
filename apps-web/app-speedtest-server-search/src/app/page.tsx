@@ -104,7 +104,7 @@ export default function Home() {
         currentQuery.length >= MIN_QUERY_LENGTH &&
         displayQuery === currentQuery &&
         displayData.length === 0 &&
-        !error && <p className="text-gray-500">No servers found</p>}
+        !error && <p className="self-center px-3 py-6 text-center text-gray-500">No servers found</p>}
     </div>
   );
 }
