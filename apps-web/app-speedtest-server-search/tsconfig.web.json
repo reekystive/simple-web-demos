@@ -14,7 +14,7 @@
       "#src/*": ["./src/*"]
     }
   },
-  "include": ["./src/", "next-env.d.ts", "cloudflare-env.d.ts", ".next/types/**/*.ts"],
+  "include": ["./src/", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["**/__tests__/"],
   "references": [
     {

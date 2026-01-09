@@ -11,7 +11,7 @@
     "emitDeclarationOnly": true
   },
   "include": ["./*.ts", "./.*.ts", "./*.js", "./.*.js", "./*.mjs", "./.*.mjs", "./*.cjs", "./.*.cjs"],
-  "exclude": ["next-env.d.ts", "cloudflare-env.d.ts"],
+  "exclude": ["next-env.d.ts"],
   "references": [
     {
       "path": "../../packages/utils/tsconfig.json"
