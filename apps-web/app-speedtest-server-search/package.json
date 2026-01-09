@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "next build",
+    "build:deps": "pnpm --filter '{.}...' --workspace-concurrency=-1 run build",
     "dev": "next dev --turbopack",
     "lint:eslint": "eslint . --cache --cache-strategy content --cache-location ./node_modules/.cache/eslint/eslintcache.json --max-warnings 0 --report-unused-disable-directives",
     "preview": "next start",
