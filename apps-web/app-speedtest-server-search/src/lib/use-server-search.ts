@@ -10,6 +10,7 @@ async function fetchServers(search: string): Promise<SpeedtestServer[]> {
 const MAX_HISTORY_SIZE = 100;
 const MAX_CACHE_SIZE = 1000;
 const MIN_QUERY_LENGTH = 2;
+const THROTTLE_INTERVAL_MS = 200;
 const ENABLE_REVALIDATE = false as boolean;
 
 interface PendingRequest {
@@ -129,7 +130,7 @@ export function useServerSearch(): UseServerSearchResult {
         console.log('[throttle] triggered for query: %o', query);
         fetchHandlerRef.current?.(query);
       },
-      300,
+      THROTTLE_INTERVAL_MS,
       { edges: ['leading', 'trailing'] }
     );
   }, []);
