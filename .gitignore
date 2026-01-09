@@ -24,6 +24,7 @@ storybook-static/
 # Next.js
 .next/
 .open-next/
+next-env.d.ts
 
 # Local env files
 .env*.local
