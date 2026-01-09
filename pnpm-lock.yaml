@@ -416,9 +416,6 @@ importers:
       '@monorepo/utils':
         specifier: workspace:^
         version: link:../../packages/utils
-      '@opennextjs/cloudflare':
-        specifier: 'catalog:'
-        version: 1.14.3(next@16.0.7(@babel/core@7.28.5)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(sass@1.86.3))(wrangler@4.53.0)
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.90.16(react@19.2.1)
@@ -468,9 +465,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.0.15(@types/node@24.10.1)(@vitest/ui@4.0.15)(jiti@2.6.1)(jsdom@26.1.0)(less@4.3.0)(lightningcss@1.30.2)(sass@1.86.3)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
-      wrangler:
-        specifier: 'catalog:'
-        version: 4.53.0
 
   apps-web/app-storybook:
     dependencies:
