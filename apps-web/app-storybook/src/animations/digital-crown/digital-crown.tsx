@@ -2,7 +2,8 @@ import { cn } from '@monorepo/utils';
 import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
 
-const CARD_COUNT = 10;
+const CARD_COUNT = 11;
+const TRIGGER_COUNT = CARD_COUNT - 1; // 10 trigger points between 11 cards
 const CARD_HEIGHT_VH = 70;
 const CARD_GAP_VH = 5;
 const CARD_UNIT_VH = CARD_HEIGHT_VH + CARD_GAP_VH; // 75vh per card
@@ -14,14 +15,15 @@ const TRIGGER_ZONE_HIGH = 0.6; // 6% of segment = 60% within segment
 export const DigitalCrown: FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const placeholderRef = useRef<HTMLDivElement>(null);
-  const [flashingIndex, setFlashingIndex] = useState<number | null>(null);
+  const [flashingForward, setFlashingForward] = useState<number | null>(null);
+  const [flashingBackward, setFlashingBackward] = useState<number | null>(null);
 
   const { scrollY } = useScroll();
 
-  // Calculate total scroll height (10 cards worth of scrolling)
+  // Calculate total scroll height (TRIGGER_COUNT segments worth of scrolling)
   const getTotalScrollHeight = useCallback(() => {
     const vh = window.innerHeight / 100;
-    return CARD_COUNT * CARD_UNIT_VH * vh;
+    return TRIGGER_COUNT * CARD_UNIT_VH * vh;
   }, []);
 
   // Normalize scroll position to 0-1 range
@@ -44,9 +46,9 @@ export const DigitalCrown: FC = () => {
     const previousProgress = scrollProgress.getPrevious();
     if (previousProgress === undefined) return;
 
-    const segmentSize = 1 / CARD_COUNT; // 10% = 0.1
+    const segmentSize = 1 / TRIGGER_COUNT; // 10% = 0.1
 
-    for (let i = 0; i < CARD_COUNT; i++) {
+    for (let i = 0; i < TRIGGER_COUNT; i++) {
       const segmentStart = i * segmentSize;
       // Convert relative trigger zones to absolute positions
       const triggerLow = segmentStart + segmentSize * TRIGGER_ZONE_LOW;
@@ -55,24 +57,25 @@ export const DigitalCrown: FC = () => {
       // Forward trigger: crossing triggerHigh upward (scrolling down)
       if (progress > triggerHigh && previousProgress <= triggerHigh && currentDetentRef.current <= i) {
         currentDetentRef.current = i + 1;
-        triggeredIndex.set(Math.min(i + 1, CARD_COUNT - 1));
-        setFlashingIndex(i);
-        setTimeout(() => setFlashingIndex(null), 200);
+        triggeredIndex.set(Math.min(i + 1, TRIGGER_COUNT));
+        setFlashingForward(i);
+        setTimeout(() => setFlashingForward(null), 200);
       }
 
       // Backward trigger: crossing triggerLow downward (scrolling up)
       if (progress < triggerLow && previousProgress >= triggerLow && currentDetentRef.current > i) {
         currentDetentRef.current = i;
         triggeredIndex.set(i);
-        setFlashingIndex(i);
-        setTimeout(() => setFlashingIndex(null), 200);
+        setFlashingBackward(i);
+        setTimeout(() => setFlashingBackward(null), 200);
       }
     }
   });
 
-  // Linked part - continuous value from 0 to CARD_COUNT (monotonic)
+  // Linked part - continuous value from 0 to TRIGGER_COUNT, i.e., 0-10 (monotonic)
+  // This matches triggered range so combined value correctly maps to card positions
   const linkedValue = useTransform(scrollProgress, (value) => {
-    return value * CARD_COUNT;
+    return value * TRIGGER_COUNT;
   });
 
   // Combined Y position for cards
@@ -98,8 +101,9 @@ export const DigitalCrown: FC = () => {
 
     const handleResize = () => {
       const vh = window.innerHeight / 100;
-      // Total scroll height = CARD_COUNT segments worth
-      const totalHeight = CARD_COUNT * CARD_UNIT_VH * vh;
+      // Placeholder = totalScrollHeight + viewport height
+      // So max scrollY = placeholder - viewport = totalScrollHeight
+      const totalHeight = TRIGGER_COUNT * CARD_UNIT_VH * vh + window.innerHeight;
       updatePlaceholderHeight(totalHeight);
     };
 
@@ -134,15 +138,36 @@ export const DigitalCrown: FC = () => {
         {/* Timeline ruler at top */}
         <div className="absolute top-6 left-1/2 z-10 -translate-x-1/2">
           <div className="relative flex h-10 w-[85vw] items-center rounded-full bg-neutral-900/80 px-4 backdrop-blur-sm">
-            {/* Segment markers and trigger zones */}
+            {/* 11 center points (detent positions) - where each card is centered */}
             {Array.from({ length: CARD_COUNT }, (_, i) => {
-              const segmentStart = (i / CARD_COUNT) * 100;
-              const segmentEnd = ((i + 1) / CARD_COUNT) * 100;
+              const position = (i / TRIGGER_COUNT) * 100; // 0%, 10%, 20%, ..., 100%
+              return (
+                <div key={`center-${i}`}>
+                  <div
+                    className="absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neutral-500"
+                    style={{ left: `calc(${position}% * 0.92 + 4%)` }}
+                    title={`Card ${i + 1} centered: ${position.toFixed(0)}%`}
+                  />
+                  {/* Center point label */}
+                  <div
+                    className="absolute top-full mt-1 -translate-x-1/2 font-mono text-[10px] text-neutral-500"
+                    style={{ left: `calc(${position}% * 0.92 + 4%)` }}
+                  >
+                    {i + 1}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* 10 segments with trigger zones */}
+            {Array.from({ length: TRIGGER_COUNT }, (_, i) => {
+              const segmentStart = (i / TRIGGER_COUNT) * 100;
+              const segmentEnd = ((i + 1) / TRIGGER_COUNT) * 100;
               const triggerLow = segmentStart + (segmentEnd - segmentStart) * TRIGGER_ZONE_LOW;
               const triggerHigh = segmentStart + (segmentEnd - segmentStart) * TRIGGER_ZONE_HIGH;
 
               return (
-                <div key={i}>
+                <div key={`trigger-${i}`}>
                   {/* Trigger zone background */}
                   <div
                     className="absolute top-1/2 h-4 -translate-y-1/2 rounded-sm bg-neutral-700/30"
@@ -151,31 +176,24 @@ export const DigitalCrown: FC = () => {
                       width: `calc(${triggerHigh - triggerLow}% * 0.92)`,
                     }}
                   />
-                  {/* Backward trigger point (triggerLow) - cyan */}
+                  {/* Backward trigger point (triggerLow) */}
                   <div
                     className={cn(
                       'absolute top-1/2 h-5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200',
-                      flashingIndex === i ? 'scale-y-150 bg-cyan-300' : 'bg-cyan-600'
+                      flashingBackward === i ? 'scale-y-150 bg-cyan-300' : 'bg-cyan-600'
                     )}
                     style={{ left: `calc(${triggerLow}% * 0.92 + 4%)` }}
                     title={`Backward trigger: ${triggerLow.toFixed(1)}%`}
                   />
-                  {/* Forward trigger point (triggerHigh) - amber */}
+                  {/* Forward trigger point (triggerHigh) */}
                   <div
                     className={cn(
                       'absolute top-1/2 h-5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200',
-                      flashingIndex === i ? 'scale-y-150 bg-amber-300' : 'bg-amber-600'
+                      flashingForward === i ? 'scale-y-150 bg-cyan-300' : 'bg-cyan-600'
                     )}
                     style={{ left: `calc(${triggerHigh}% * 0.92 + 4%)` }}
                     title={`Forward trigger: ${triggerHigh.toFixed(1)}%`}
                   />
-                  {/* Segment number */}
-                  <div
-                    className="absolute top-full mt-1 -translate-x-1/2 font-mono text-[10px] text-neutral-500"
-                    style={{ left: `calc(${(triggerLow + triggerHigh) / 2}% * 0.92 + 4%)` }}
-                  >
-                    {i + 1}
-                  </div>
                 </div>
               );
             })}
@@ -196,15 +214,23 @@ export const DigitalCrown: FC = () => {
           className="absolute left-1/2 flex -translate-x-1/2 flex-col"
           style={{
             y: cardY,
-            top: `calc(50vh - ${CARD_HEIGHT_VH / 2}vh)`,
+            top: 0,
             gap: `${CARD_GAP_VH}vh`,
           }}
         >
+          {/* Top spacer - ensures first card is centered at scroll start */}
+          {/* Height = center offset - half card height - gap (since gap is added after spacer) */}
+          <div
+            className="shrink-0"
+            style={{ height: `calc(50vh - ${CARD_HEIGHT_VH / 2}vh - ${CARD_GAP_VH}vh)` }}
+            aria-hidden
+          />
+
           {Array.from({ length: CARD_COUNT }, (_, i) => (
             <div
               key={i}
               className={cn(
-                'flex items-center justify-center rounded-3xl shadow-2xl',
+                'flex shrink-0 items-center justify-center rounded-3xl shadow-2xl',
                 'font-bold text-white/90',
                 'bg-gradient-to-br',
                 getCardGradient(i)
@@ -218,6 +244,14 @@ export const DigitalCrown: FC = () => {
               {i + 1}
             </div>
           ))}
+
+          {/* Bottom spacer - ensures last card is centered at scroll end */}
+          {/* Height = center offset - half card height - gap (since gap is added before spacer) */}
+          <div
+            className="shrink-0"
+            style={{ height: `calc(50vh - ${CARD_HEIGHT_VH / 2}vh - ${CARD_GAP_VH}vh)` }}
+            aria-hidden
+          />
         </motion.div>
       </div>
 
@@ -236,7 +270,7 @@ export const DigitalCrown: FC = () => {
         </p>
         <p>
           <span className="text-neutral-600">Triggered: </span>
-          <motion.span className="text-amber-400/80">{triggeredFixed}</motion.span>
+          <motion.span className="text-cyan-400/80">{triggeredFixed}</motion.span>
         </p>
         <p>
           <span className="text-neutral-600">Linked: </span>
@@ -251,12 +285,12 @@ export const DigitalCrown: FC = () => {
       {/* Legend */}
       <div className="fixed bottom-12 left-1/2 flex -translate-x-1/2 gap-4 font-mono text-[10px] text-neutral-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-1 rounded-full bg-amber-600" />
-          Forward trigger
+          <span className="inline-block h-2.5 w-0.5 rounded-full bg-neutral-500" />
+          Center points (11)
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-1 rounded-full bg-cyan-600" />
-          Backward trigger
+          <span className="inline-block h-3 w-0.5 rounded-full bg-cyan-600" />
+          Trigger points (10×2)
         </span>
       </div>
     </>
@@ -275,6 +309,7 @@ function getCardGradient(index: number): string {
     'from-fuchsia-500 to-pink-600',
     'from-slate-500 to-zinc-600',
     'from-red-500 to-rose-600',
+    'from-amber-500 to-orange-600',
   ];
   return gradients[index % gradients.length]!;
 }
