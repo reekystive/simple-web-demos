@@ -75,11 +75,6 @@ export const DigitalCrown: FC = () => {
         />
       </div>
 
-      {/* Sound toggle button */}
-      <div className={cn('fixed top-4 left-4', !isMuted && 'hidden')}>
-        <SoundToggleButton isMuted={isMuted} onToggle={isMuted ? unmute : mute} />
-      </div>
-
       <DebugPanel
         scrollProgress={scrollProgress}
         triggeredValue={triggeredValue}
@@ -88,9 +83,14 @@ export const DigitalCrown: FC = () => {
         activeCard={activeCard}
       />
 
-      <div ref={scrollContainerRef} className="fixed inset-0 overflow-x-clip overflow-y-auto">
+      <div ref={scrollContainerRef} className="relative h-svh w-svw overflow-x-clip overflow-y-auto">
         {/* Placeholder for native scroll height */}
         <div ref={placeholderRef} aria-hidden />
+
+        {/* Sound toggle button */}
+        <div className={cn('fixed top-4 left-4', !isMuted && 'hidden')}>
+          <SoundToggleButton isMuted={isMuted} onToggle={isMuted ? unmute : mute} />
+        </div>
       </div>
     </>
   );
