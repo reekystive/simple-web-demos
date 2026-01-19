@@ -1,6 +1,7 @@
 import { MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { CARD_UNIT_VH, TRIGGER_COUNT, TRIGGER_ZONE_HIGH, TRIGGER_ZONE_LOW } from './constants.js';
+import { useTickSound } from './use-tick-sound.js';
 
 export interface DigitalCrownState {
   // Refs
@@ -19,6 +20,11 @@ export interface DigitalCrownState {
   flashingForward: number | null;
   flashingBackward: number | null;
 
+  // Audio
+  isMuted: boolean;
+  unmute: () => void;
+  mute: () => void;
+
   // Utilities
   getTotalScrollHeight: () => number;
 }
@@ -31,6 +37,7 @@ export function useDigitalCrown(): DigitalCrownState {
   const [activeCard, setActiveCard] = useState(0);
 
   const { scrollY } = useScroll();
+  const { playTick, isMuted, unmute, mute } = useTickSound();
 
   // Calculate total scroll height (TRIGGER_COUNT segments worth of scrolling)
   const getTotalScrollHeight = useCallback(() => {
@@ -73,6 +80,7 @@ export function useDigitalCrown(): DigitalCrownState {
         setActiveCard(Math.min(i + 1, TRIGGER_COUNT));
         setFlashingForward(i);
         setTimeout(() => setFlashingForward(null), 200);
+        playTick();
       }
 
       // Backward trigger: crossing triggerLow downward (scrolling up)
@@ -82,6 +90,7 @@ export function useDigitalCrown(): DigitalCrownState {
         setActiveCard(i);
         setFlashingBackward(i);
         setTimeout(() => setFlashingBackward(null), 200);
+        playTick();
       }
     }
   });
@@ -137,6 +146,9 @@ export function useDigitalCrown(): DigitalCrownState {
     activeCard,
     flashingForward,
     flashingBackward,
+    isMuted,
+    unmute,
+    mute,
     getTotalScrollHeight,
   };
 }
