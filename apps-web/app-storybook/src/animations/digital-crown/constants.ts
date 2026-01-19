@@ -1,12 +1,15 @@
 export const CARD_COUNT = 10;
-export const TRIGGER_COUNT = CARD_COUNT - 1; // 10 trigger points between 11 cards
-export const CARD_HEIGHT_VH = 70;
-export const CARD_GAP_VH = 5;
-export const CARD_UNIT_VH = CARD_HEIGHT_VH + CARD_GAP_VH; // 75vh per card
+export const TRIGGER_COUNT = CARD_COUNT - 1; // 9 trigger points between 10 cards
+export const CARD_HEIGHT_SVH = 70;
+export const CARD_GAP_SVH = 3;
+export const CARD_UNIT_SVH = CARD_HEIGHT_SVH + CARD_GAP_SVH; // 75svh per card
 
-// Trigger zone within each 10% segment (relative to segment, so 0.4-0.6 means 4%-6% of the 10% segment)
-export const TRIGGER_ZONE_LOW = 0.4; // 4% of segment = 40% within segment
-export const TRIGGER_ZONE_HIGH = 0.6; // 6% of segment = 60% within segment
+// Each card corresponds to this fixed scroll distance (in pixels)
+export const SCROLL_PER_CARD_PX = 200;
+
+// Trigger zone within each 10% segment (relative to segment, so 0.4-0.6 means 40% - 60% of the 10% segment)
+export const TRIGGER_ZONE_LOW = 0.4; // 40% within segment
+export const TRIGGER_ZONE_HIGH = 0.6; // 60% within segment
 
 export const CARD_GRADIENTS = [
   'from-rose-500 to-pink-600',

@@ -1,7 +1,19 @@
-import { MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
+import { MotionValue, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { CARD_UNIT_VH, TRIGGER_COUNT, TRIGGER_ZONE_HIGH, TRIGGER_ZONE_LOW } from './constants.js';
+import {
+  CARD_COUNT,
+  CARD_HEIGHT_SVH,
+  CARD_UNIT_SVH,
+  SCROLL_PER_CARD_PX,
+  TRIGGER_COUNT,
+  TRIGGER_ZONE_HIGH,
+  TRIGGER_ZONE_LOW,
+} from './constants.js';
 import { useTickSound } from './use-tick-sound.js';
+
+// Configurable weights for mixing triggered (discrete) and linked (continuous) values
+const TRIGGERED_WEIGHT = 0.8;
+const LINKED_WEIGHT = 0.2;
 
 export interface DigitalCrownState {
   // Refs
@@ -10,7 +22,7 @@ export interface DigitalCrownState {
 
   // Motion values
   scrollProgress: MotionValue<number>;
-  triggeredIndex: MotionValue<number>;
+  triggeredValue: MotionValue<number>;
   linkedValue: MotionValue<number>;
   combinedValue: MotionValue<number>;
   cardY: MotionValue<number>;
@@ -39,10 +51,10 @@ export function useDigitalCrown(): DigitalCrownState {
   const { scrollY } = useScroll();
   const { playTick, isMuted, unmute, mute } = useTickSound();
 
-  // Calculate total scroll height (TRIGGER_COUNT segments worth of scrolling)
+  // Calculate total scroll height: (N-1) cards * SCROLL_PER_CARD_PX
+  // For 10 cards with 100px/card, total scroll = 9 * 100px = 900px
   const getTotalScrollHeight = useCallback(() => {
-    const vh = window.innerHeight / 100;
-    return TRIGGER_COUNT * CARD_UNIT_VH * vh;
+    return (CARD_COUNT - 1) * SCROLL_PER_CARD_PX;
   }, []);
 
   // Normalize scroll position to 0-1 range
@@ -51,8 +63,9 @@ export function useDigitalCrown(): DigitalCrownState {
     return Math.min(Math.max(value / totalHeight, 0), 1);
   });
 
-  // Triggered part - which "detent" we're at (0-10), with spring animation
-  const triggeredIndex = useSpring(0, {
+  // Triggered part - which "detent" we're at (0-9), with spring animation
+  const triggeredRaw = useMotionValue(0);
+  const triggeredValue = useSpring(triggeredRaw, {
     stiffness: 400,
     damping: 40,
     mass: 0.2,
@@ -103,7 +116,8 @@ export function useDigitalCrown(): DigitalCrownState {
     // Only update if we actually crossed triggers
     if (newDetent !== currentDetent && crossedTriggers.length > 0) {
       currentDetentRef.current = newDetent;
-      triggeredIndex.set(newDetent);
+      // Set via triggeredRaw, spring config is applied through useSpring
+      triggeredRaw.set(newDetent);
       setActiveCard(newDetent);
 
       // Flash all crossed triggers
@@ -125,30 +139,36 @@ export function useDigitalCrown(): DigitalCrownState {
   });
 
   // Combined Y position for cards
+  // Maps scrollY to cardY such that each card is centered when scrolled to its position
+  // Card i is centered when scrollY = i * SCROLL_PER_CARD_PX
+  // cardY = (50 - CARD_HEIGHT_SVH/2 - cardIndex * CARD_UNIT_SVH) * svh
   const cardY = useTransform(() => {
-    const vh = window.innerHeight / 100;
-    const triggered = triggeredIndex.get();
+    const svh = window.innerHeight / 100;
+    const triggered = triggeredValue.get();
     const linked = linkedValue.get();
-    // Triggered contributes 0.8h, linked contributes 0.2h
-    const totalCardUnits = triggered * 0.8 + linked * 0.2;
-    return -totalCardUnits * CARD_UNIT_VH * vh;
+    // Mix triggered (spring animated discrete) and linked (continuous) for the "detent" feel
+    const cardIndex = triggered * TRIGGERED_WEIGHT + linked * LINKED_WEIGHT;
+    // Calculate Y to center the card at cardIndex
+    // 50svh is viewport center, CARD_HEIGHT_SVH/2 offsets to card center
+    // Then subtract cardIndex * CARD_UNIT_SVH to move to the right card
+    return (50 - CARD_HEIGHT_SVH / 2 - cardIndex * CARD_UNIT_SVH) * svh;
   });
 
   // Combined value for display
   const combinedValue = useTransform(() => {
-    const triggered = triggeredIndex.get();
+    const triggered = triggeredValue.get();
     const linked = linkedValue.get();
-    return triggered * 0.8 + linked * 0.2;
+    return triggered * TRIGGERED_WEIGHT + linked * LINKED_WEIGHT;
   });
 
   // Update placeholder height on resize
+  // Page height = 100svh + (N-1) * SCROLL_PER_CARD_PX
   useLayoutEffect(() => {
     const updatePlaceholderHeight = () => {
       const placeholder = placeholderRef.current;
       if (!placeholder) return;
-      const vh = window.innerHeight / 100;
-      const totalHeight = TRIGGER_COUNT * CARD_UNIT_VH * vh + window.innerHeight;
-      placeholder.style.height = `${totalHeight}px`;
+      const totalScrollHeight = getTotalScrollHeight();
+      placeholder.style.height = `calc(100svh + ${totalScrollHeight}px)`;
     };
 
     window.addEventListener('resize', updatePlaceholderHeight);
@@ -157,13 +177,13 @@ export function useDigitalCrown(): DigitalCrownState {
     return () => {
       window.removeEventListener('resize', updatePlaceholderHeight);
     };
-  }, []);
+  }, [getTotalScrollHeight]);
 
   return {
     contentRef,
     placeholderRef,
     scrollProgress,
-    triggeredIndex,
+    triggeredValue,
     linkedValue,
     combinedValue,
     cardY,

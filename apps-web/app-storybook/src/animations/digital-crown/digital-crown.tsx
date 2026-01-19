@@ -11,7 +11,7 @@ export const DigitalCrown: FC = () => {
     contentRef,
     placeholderRef,
     scrollProgress,
-    triggeredIndex,
+    triggeredValue,
     linkedValue,
     combinedValue,
     cardY,
@@ -53,7 +53,7 @@ export const DigitalCrown: FC = () => {
 
       <DebugPanel
         scrollProgress={scrollProgress}
-        triggeredIndex={triggeredIndex}
+        triggeredValue={triggeredValue}
         linkedValue={linkedValue}
         combinedValue={combinedValue}
         activeCard={activeCard}

@@ -1,10 +1,11 @@
 import { cn } from '@monorepo/utils';
 import { motion, MotionValue, useTransform } from 'motion/react';
 import { FC } from 'react';
+import './pane.js';
 
 interface DebugPanelProps {
   scrollProgress: MotionValue<number>;
-  triggeredIndex: MotionValue<number>;
+  triggeredValue: MotionValue<number>;
   linkedValue: MotionValue<number>;
   combinedValue: MotionValue<number>;
   activeCard: number;
@@ -12,13 +13,13 @@ interface DebugPanelProps {
 
 export const DebugPanel: FC<DebugPanelProps> = ({
   scrollProgress,
-  triggeredIndex,
+  triggeredValue,
   linkedValue,
   combinedValue,
   activeCard,
 }) => {
   const scrollProgressFixed = useTransform(scrollProgress, (v) => (v * 100).toFixed(1) + '%');
-  const triggeredFixed = useTransform(triggeredIndex, (v) => v.toFixed(2));
+  const triggeredFixed = useTransform(triggeredValue, (v) => v.toFixed(2));
   const linkedFixed = useTransform(linkedValue, (v) => v.toFixed(2));
   const combinedFixed = useTransform(combinedValue, (v) => v.toFixed(2));
 

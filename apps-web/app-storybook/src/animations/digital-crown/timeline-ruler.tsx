@@ -15,7 +15,7 @@ export const TimelineRuler: FC<TimelineRulerProps> = ({ scrollProgress, flashing
   return (
     <div
       className={`
-        relative flex h-10 w-[calc(100vw-12rem)] items-center rounded-full bg-neutral-900/80 px-4 backdrop-blur-sm
+        relative flex h-10 w-[calc(100svw-12rem)] items-center rounded-full bg-neutral-900/80 px-4 backdrop-blur-sm
       `}
     >
       {/* 11 center points (detent positions) */}
