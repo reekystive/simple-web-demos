@@ -1,5 +1,5 @@
 import { cn } from '@monorepo/utils';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { CardStack } from './card-stack.js';
 import { DebugPanel } from './debug-panel.js';
 import { SoundToggleButton } from './sound-toggle-button.js';
@@ -7,6 +7,8 @@ import { TimelineRuler } from './timeline-ruler.js';
 import { useDigitalCrown } from './use-digital-crown.js';
 
 export const DigitalCrown: FC = () => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const {
     contentRef,
     placeholderRef,
@@ -21,14 +23,18 @@ export const DigitalCrown: FC = () => {
     isMuted,
     unmute,
     mute,
-  } = useDigitalCrown();
+  } = useDigitalCrown(scrollContainerRef);
 
-  // Force dark theme
+  // Force dark theme and disable body scroll
   useEffect(() => {
     // Set color-scheme
     document.documentElement.style.colorScheme = 'dark';
     document.documentElement.style.backgroundColor = '#000';
     document.body.style.backgroundColor = '#000';
+
+    // Disable body scroll
+    document.documentElement.style.overflow = 'clip';
+    document.body.style.overflow = 'clip';
 
     // Set meta theme-color
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -44,14 +50,13 @@ export const DigitalCrown: FC = () => {
       document.documentElement.style.colorScheme = '';
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     };
   }, []);
 
   return (
     <>
-      {/* Placeholder for native scroll height */}
-      <div ref={placeholderRef} aria-hidden />
-
       {/* Fixed layer containing the visual content */}
       <div className="fixed inset-0 overflow-hidden">
         <CardStack contentRef={contentRef} cardY={cardY} activeCard={activeCard} />
@@ -82,6 +87,11 @@ export const DigitalCrown: FC = () => {
         combinedValue={combinedValue}
         activeCard={activeCard}
       />
+
+      <div ref={scrollContainerRef} className="fixed inset-0 overflow-x-clip overflow-y-auto">
+        {/* Placeholder for native scroll height */}
+        <div ref={placeholderRef} aria-hidden />
+      </div>
     </>
   );
 };

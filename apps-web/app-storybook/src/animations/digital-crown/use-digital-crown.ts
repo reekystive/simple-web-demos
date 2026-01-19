@@ -1,5 +1,5 @@
 import { MotionValue, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
   CARD_COUNT,
   CARD_HEIGHT_SVH,
@@ -17,8 +17,8 @@ const LINKED_WEIGHT = 0.2;
 
 export interface DigitalCrownState {
   // Refs
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  placeholderRef: React.RefObject<HTMLDivElement | null>;
+  contentRef: RefObject<HTMLDivElement | null>;
+  placeholderRef: RefObject<HTMLDivElement | null>;
 
   // Motion values
   scrollProgress: MotionValue<number>;
@@ -41,14 +41,14 @@ export interface DigitalCrownState {
   getTotalScrollHeight: () => number;
 }
 
-export function useDigitalCrown(): DigitalCrownState {
+export function useDigitalCrown(scrollContainerRef: RefObject<HTMLDivElement | null>): DigitalCrownState {
   const contentRef = useRef<HTMLDivElement>(null);
   const placeholderRef = useRef<HTMLDivElement>(null);
   const [flashingForward, setFlashingForward] = useState<Set<number>>(new Set());
   const [flashingBackward, setFlashingBackward] = useState<Set<number>>(new Set());
   const [activeCard, setActiveCard] = useState(0);
 
-  const { scrollY } = useScroll();
+  const { scrollY } = useScroll({ container: scrollContainerRef });
   const { playTick, isMuted, unmute, mute } = useTickSound();
 
   // Track viewport height as a motion value to trigger cardY recalculation on resize
