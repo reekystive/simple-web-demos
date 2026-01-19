@@ -1,4 +1,4 @@
-export const CARD_COUNT = 11;
+export const CARD_COUNT = 10;
 export const TRIGGER_COUNT = CARD_COUNT - 1; // 10 trigger points between 11 cards
 export const CARD_HEIGHT_VH = 70;
 export const CARD_GAP_VH = 5;

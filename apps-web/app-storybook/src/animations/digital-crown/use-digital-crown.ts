@@ -17,12 +17,12 @@ export interface DigitalCrownState {
 
   // State
   activeCard: number;
-  flashingForward: number | null;
-  flashingBackward: number | null;
+  flashingForward: Set<number>;
+  flashingBackward: Set<number>;
 
   // Audio
   isMuted: boolean;
-  unmute: () => void;
+  unmute: () => Promise<void>;
   mute: () => void;
 
   // Utilities
@@ -32,8 +32,8 @@ export interface DigitalCrownState {
 export function useDigitalCrown(): DigitalCrownState {
   const contentRef = useRef<HTMLDivElement>(null);
   const placeholderRef = useRef<HTMLDivElement>(null);
-  const [flashingForward, setFlashingForward] = useState<number | null>(null);
-  const [flashingBackward, setFlashingBackward] = useState<number | null>(null);
+  const [flashingForward, setFlashingForward] = useState<Set<number>>(new Set());
+  const [flashingBackward, setFlashingBackward] = useState<Set<number>>(new Set());
   const [activeCard, setActiveCard] = useState(0);
 
   const { scrollY } = useScroll();
@@ -61,37 +61,61 @@ export function useDigitalCrown(): DigitalCrownState {
   // Track for hysteresis
   const currentDetentRef = useRef(0);
 
-  // Handle trigger detection
+  // Handle trigger detection - optimized for crossing multiple triggers in one frame
   useMotionValueEvent(scrollProgress, 'change', (progress) => {
     const previousProgress = scrollProgress.getPrevious();
     if (previousProgress === undefined) return;
 
     const segmentSize = 1 / TRIGGER_COUNT;
+    const currentDetent = currentDetentRef.current;
+    let newDetent = currentDetent;
+    const crossedTriggers: number[] = [];
+    let direction: 'forward' | 'backward' | null = null;
 
-    for (let i = 0; i < TRIGGER_COUNT; i++) {
-      const segmentStart = i * segmentSize;
-      const triggerLow = segmentStart + segmentSize * TRIGGER_ZONE_LOW;
-      const triggerHigh = segmentStart + segmentSize * TRIGGER_ZONE_HIGH;
+    if (progress > previousProgress) {
+      // Scrolling forward (down) - collect all crossed triggers
+      for (let i = currentDetent; i < TRIGGER_COUNT; i++) {
+        const segmentStart = i * segmentSize;
+        const triggerHigh = segmentStart + segmentSize * TRIGGER_ZONE_HIGH;
+        if (progress > triggerHigh) {
+          newDetent = i + 1;
+          crossedTriggers.push(i);
+          direction = 'forward';
+        } else {
+          break;
+        }
+      }
+    } else if (progress < previousProgress) {
+      // Scrolling backward (up) - collect all crossed triggers
+      for (let i = currentDetent - 1; i >= 0; i--) {
+        const segmentStart = i * segmentSize;
+        const triggerLow = segmentStart + segmentSize * TRIGGER_ZONE_LOW;
+        if (progress < triggerLow) {
+          newDetent = i;
+          crossedTriggers.push(i);
+          direction = 'backward';
+        } else {
+          break;
+        }
+      }
+    }
 
-      // Forward trigger: crossing triggerHigh upward (scrolling down)
-      if (progress > triggerHigh && previousProgress <= triggerHigh && currentDetentRef.current <= i) {
-        currentDetentRef.current = i + 1;
-        triggeredIndex.set(Math.min(i + 1, TRIGGER_COUNT));
-        setActiveCard(Math.min(i + 1, TRIGGER_COUNT));
-        setFlashingForward(i);
-        setTimeout(() => setFlashingForward(null), 200);
-        playTick();
+    // Only update if we actually crossed triggers
+    if (newDetent !== currentDetent && crossedTriggers.length > 0) {
+      currentDetentRef.current = newDetent;
+      triggeredIndex.set(newDetent);
+      setActiveCard(newDetent);
+
+      // Flash all crossed triggers
+      if (direction === 'forward') {
+        setFlashingForward(new Set(crossedTriggers));
+        setTimeout(() => setFlashingForward(new Set()), 200);
+      } else {
+        setFlashingBackward(new Set(crossedTriggers));
+        setTimeout(() => setFlashingBackward(new Set()), 200);
       }
 
-      // Backward trigger: crossing triggerLow downward (scrolling up)
-      if (progress < triggerLow && previousProgress >= triggerLow && currentDetentRef.current > i) {
-        currentDetentRef.current = i;
-        triggeredIndex.set(i);
-        setActiveCard(i);
-        setFlashingBackward(i);
-        setTimeout(() => setFlashingBackward(null), 200);
-        playTick();
-      }
+      playTick();
     }
   });
 

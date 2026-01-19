@@ -23,47 +23,34 @@ export const DebugPanel: FC<DebugPanelProps> = ({
   const combinedFixed = useTransform(combinedValue, (v) => v.toFixed(2));
 
   return (
-    <>
-      <div
-        className={cn(`
-          fixed bottom-4 left-1/2 grid -translate-x-1/2 grid-cols-[repeat(2,auto)] gap-x-6 gap-y-1 font-mono text-xs
-          text-neutral-400 select-none
-          md:grid-cols-[repeat(5,auto)]
-        `)}
-      >
+    <div
+      className={`
+        pointer-events-none fixed right-0 bottom-4 left-0 hidden overflow-clip font-mono text-[10px] select-none
+        lg:flex lg:flex-col lg:items-center lg:gap-2
+      `}
+    >
+      <div className={cn(`grid w-200 grid-cols-[repeat(5,auto)] gap-6`)}>
         <p>
-          <span className="text-neutral-600">Scroll: </span>
-          <motion.span>{scrollProgressFixed}</motion.span>
+          <span className="opacity-70">Scroll: </span>
+          <motion.span className="opacity-90">{scrollProgressFixed}</motion.span>
         </p>
         <p>
-          <span className="text-neutral-600">Triggered: </span>
-          <motion.span className="text-cyan-400/80">{triggeredFixed}</motion.span>
+          <span className="opacity-70">Triggered: </span>
+          <motion.span className="text-cyan-400 opacity-90">{triggeredFixed}</motion.span>
         </p>
         <p>
-          <span className="text-neutral-600">Linked: </span>
-          <motion.span className="text-cyan-400/80">{linkedFixed}</motion.span>
+          <span className="opacity-70">Linked: </span>
+          <motion.span className="text-cyan-400 opacity-90">{linkedFixed}</motion.span>
         </p>
         <p>
-          <span className="text-neutral-600">Combined: </span>
-          <motion.span>{combinedFixed}</motion.span>
+          <span className="opacity-70">Combined: </span>
+          <motion.span className="opacity-90">{combinedFixed}</motion.span>
         </p>
         <p>
-          <span className="text-neutral-600">Active: </span>
-          <span>{activeCard + 1}</span>
+          <span className="opacity-70">Active: </span>
+          <span className="opacity-90">{activeCard + 1}</span>
         </p>
       </div>
-
-      {/* Legend */}
-      <div className="fixed bottom-12 left-1/2 flex -translate-x-1/2 gap-6 font-mono text-[10px] text-neutral-500">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2.5 w-0.5 rounded-full bg-neutral-500" />
-          Center points (11)
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-0.5 rounded-full bg-cyan-600" />
-          Trigger points (10×2)
-        </span>
-      </div>
-    </>
+    </div>
   );
 };

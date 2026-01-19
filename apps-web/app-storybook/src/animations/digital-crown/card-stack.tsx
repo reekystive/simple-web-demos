@@ -13,10 +13,9 @@ export const CardStack: FC<CardStackProps> = ({ contentRef, cardY, activeCard })
   return (
     <motion.div
       ref={contentRef}
-      className="absolute left-1/2 flex -translate-x-1/2 flex-col"
+      className="absolute inset-x-0 top-0 flex flex-col items-center"
       style={{
         y: cardY,
-        top: 0,
         gap: `${CARD_GAP_VH}vh`,
       }}
     >
@@ -31,14 +30,15 @@ export const CardStack: FC<CardStackProps> = ({ contentRef, cardY, activeCard })
         <div
           key={i}
           className={cn(
-            'flex shrink-0 items-center justify-center rounded-3xl shadow-2xl transition-opacity duration-200',
-            'font-bold text-white/90',
-            'bg-linear-to-br',
+            `
+              flex w-[calc(100vw-2rem)] max-w-400 shrink-0 items-center justify-center rounded-3xl bg-linear-to-br
+              font-bold text-white/90 shadow-2xl transition-opacity duration-200
+              lg:w-[calc(100vw-12rem)]
+            `,
             getCardGradient(i),
             activeCard !== i && 'opacity-30'
           )}
           style={{
-            width: '65vw',
             height: `${CARD_HEIGHT_VH}vh`,
             fontSize: 'clamp(4rem, 15vw, 10rem)',
           }}
