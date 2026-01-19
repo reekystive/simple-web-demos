@@ -51,6 +51,9 @@ export function useDigitalCrown(): DigitalCrownState {
   const { scrollY } = useScroll();
   const { playTick, isMuted, unmute, mute } = useTickSound();
 
+  // Track viewport height as a motion value to trigger cardY recalculation on resize
+  const viewportHeight = useMotionValue(typeof window !== 'undefined' ? window.innerHeight : 0);
+
   // Calculate total scroll height: (N-1) cards * SCROLL_PER_CARD_PX
   // For 10 cards with 100px/card, total scroll = 9 * 100px = 900px
   const getTotalScrollHeight = useCallback(() => {
@@ -143,7 +146,8 @@ export function useDigitalCrown(): DigitalCrownState {
   // Card i is centered when scrollY = i * SCROLL_PER_CARD_PX
   // cardY = (50 - CARD_HEIGHT_SVH/2 - cardIndex * CARD_UNIT_SVH) * svh
   const cardY = useTransform(() => {
-    const svh = window.innerHeight / 100;
+    // Read viewportHeight to subscribe to resize updates
+    const svh = viewportHeight.get() / 100;
     const triggered = triggeredValue.get();
     const linked = linkedValue.get();
     // Mix triggered (spring animated discrete) and linked (continuous) for the "detent" feel
@@ -161,23 +165,27 @@ export function useDigitalCrown(): DigitalCrownState {
     return triggered * TRIGGERED_WEIGHT + linked * LINKED_WEIGHT;
   });
 
-  // Update placeholder height on resize
+  // Update viewport height and placeholder height on resize
   // Page height = 100svh + (N-1) * SCROLL_PER_CARD_PX
   useLayoutEffect(() => {
-    const updatePlaceholderHeight = () => {
+    const handleResize = () => {
+      // Update viewport height motion value to trigger cardY recalculation
+      viewportHeight.set(window.innerHeight);
+
+      // Update placeholder height
       const placeholder = placeholderRef.current;
       if (!placeholder) return;
       const totalScrollHeight = getTotalScrollHeight();
       placeholder.style.height = `calc(100svh + ${totalScrollHeight}px)`;
     };
 
-    window.addEventListener('resize', updatePlaceholderHeight);
-    updatePlaceholderHeight();
+    window.addEventListener('resize', handleResize);
+    handleResize();
 
     return () => {
-      window.removeEventListener('resize', updatePlaceholderHeight);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [getTotalScrollHeight]);
+  }, [getTotalScrollHeight, viewportHeight]);
 
   return {
     contentRef,

@@ -1,5 +1,5 @@
 import { cn } from '@monorepo/utils';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { CardStack } from './card-stack.js';
 import { DebugPanel } from './debug-panel.js';
 import { SoundToggleButton } from './sound-toggle-button.js';
@@ -22,6 +22,30 @@ export const DigitalCrown: FC = () => {
     unmute,
     mute,
   } = useDigitalCrown();
+
+  // Force dark theme
+  useEffect(() => {
+    // Set color-scheme
+    document.documentElement.style.colorScheme = 'dark';
+    document.documentElement.style.backgroundColor = '#000';
+    document.body.style.backgroundColor = '#000';
+
+    // Set meta theme-color
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', '#000000');
+
+    return () => {
+      // Cleanup on unmount
+      document.documentElement.style.colorScheme = '';
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
 
   return (
     <>
